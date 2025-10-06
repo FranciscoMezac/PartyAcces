@@ -1,0 +1,11 @@
+﻿<section class="hero">
+  <h1><%= hero.headline %></h1>
+  <p class="lead"><%= hero.subheadline %></p>
+  <div class="actions">
+    <% actions.forEach((action) => { %>
+      <a class="btn <%= action.primary ? 'btn-primary' : 'btn-secondary' %>" href="<%= action.href %>">
+        <%= action.label %>
+      </a>
+    <% }) %>
+  </div>
+</section>
