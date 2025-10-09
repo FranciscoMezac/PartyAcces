@@ -1,12 +1,24 @@
-﻿// Ejemplo de modelo. Sustituye por integraciones reales a base de datos.
-const users = [];
+﻿import pool from '../config/db.js';
 
-const findAll = async () => users;
+export class UsuarioRepository {
+  async findByEmail(email) {
+    const { rows } = await pool.query(
+      'SELECT usuario_id, nombre, email, contrasenia, rol, estado FROM usuario WHERE email = $1',
+      [email]
+    );
+    return rows[0] ?? null;
+  }
 
-const findById = async (id) => users.find((user) => user.id === id) ?? null;
+  async insert(client, usuario) {
+    const { rows } = await client.query(
+      `INSERT INTO usuario (usuario_id, nombre, email, contrasenia, rol, estado)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING usuario_id`,
+      [usuario.nombre, usuario.email, usuario.contrasenia, usuario.rol, usuario.estado]
+    );
+    return rows[0].usuario_id;
+  }
+}
 
-export default {
-  findAll,
-  findById
-};
-
+const userRepository = new UsuarioRepository();
+export default userRepository;
