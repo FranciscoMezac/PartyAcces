@@ -1,5 +1,5 @@
 export default class Usuario {
-  constructor({ usuarioId = null, nombre, email, contrasenia, rol = 'USER', estado = 'ACTIVO' }) {
+  constructor({ usuarioId, nombre, email, contrasenia, rol, estado }) {
     this.usuarioId = usuarioId;
     this.nombre = nombre;
     this.email = email;

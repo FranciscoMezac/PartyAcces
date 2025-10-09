@@ -11,9 +11,8 @@ export class UsuarioRepository {
 
   async insert(client, usuario) {
     const { rows } = await client.query(
-      `INSERT INTO usuario (usuario_id, nombre, email, contrasenia, rol, estado)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING usuario_id`,
+      `INSERT INTO usuario (nombre, email, contrasenia, rol, estado)
+       VALUES ($1, $2, $3, $4, $5) RETURNING usuario_id`,
       [usuario.nombre, usuario.email, usuario.contrasenia, usuario.rol, usuario.estado]
     );
     return rows[0].usuario_id;
