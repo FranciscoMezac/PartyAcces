@@ -1,4 +1,4 @@
-﻿import homeService from '../services/homeService.js';
+﻿ import homeService from '../services/homeService.js';
 
 const index = (req, res, next) => {
   try {
