@@ -1,38 +1,16 @@
 {
-  "name": "partyaccess-primera-iteracion",
-  "version": "0.1.0",
-  "description": "Skeleton MVC application for the PartyAccess project.",
-  "main": "server.js",
+  "name": "partyaccess2",
+  "version": "1.0.0",
+  "description": "Aplicación web Node.js puro con arquitectura MVC",
+  "main": "app.js",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
-    "lint": "eslint .",
-    "test": "vitest"
+    "start": "node app.js",
+    "dev": "node app.js"
   },
-  "keywords": [
-    "mvc",
-    "express",
-    "partyaccess"
-  ],
+  "keywords": ["nodejs", "mvc", "vanilla"],
   "author": "",
-  "license": "MIT",
-  "type": "module",
+  "license": "ISC",
   "dependencies": {
-    "bootstrap": "^5.3.8",
-    "dotenv": "^16.4.5",
-    "ejs": "^3.1.10",
-    "express": "^4.19.2",
-    "express-ejs-layouts": "^2.5.1",
-    "morgan": "^1.10.0",
-    "pg": "^8.16.3"
-  },
-  "devDependencies": {
-    "eslint": "^8.57.1",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-promise": "^6.4.2",
-    "nodemon": "^3.1.4",
-    "vitest": "^1.6.0"
+    "pg": "^8.11.3"
   }
 }
