@@ -1,14 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 const userController = require('../controllers/userController');
+const HomeController = require('../controllers/homeController');
 
 // Definición de rutas
 const routes = {
     'GET': {
-        '/': serveView('index.html'),
+        '/': HomeController.index,
+        '/home': HomeController.index,
         '/login': serveView('login.html'),
         '/dashboard': serveView('dashboard.html'),
-        '/api/users': userController.getAllUsers
+        '/api/users': userController.getAllUsers,
+        '/api/navigation': HomeController.getNavigationData
     },
     'POST': {
         '/api/login': userController.login,
