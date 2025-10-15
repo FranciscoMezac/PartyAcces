@@ -61,6 +61,23 @@ async function create(userData) {
     }
 }
 
+// Insertar usuario dentro de una transacción (para registro completo)
+async function insert(client, usuario) {
+    try {
+        const { nombre, email, contrasenia, rol, estado } = usuario;
+        
+        const result = await client.query(
+            'INSERT INTO usuario (nombre, email, contrasenia, rol, estado) VALUES ($1, $2, $3, $4, $5) RETURNING usuario_id',
+            [nombre, email, contrasenia, rol || 'USER', estado || 'ACTIVO']
+        );
+        
+        return result.rows[0].usuario_id;
+    } catch (error) {
+        console.error('Error al insertar usuario:', error);
+        throw error;
+    }
+}
+
 // Actualizar usuario
 async function update(id, userData) {
     try {
@@ -98,6 +115,7 @@ module.exports = {
     findById,
     findAll,
     create,
+    insert,
     update,
     remove
 };

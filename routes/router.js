@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const userController = require('../controllers/userController');
+const authController = require('../controllers/authController');
 const HomeController = require('../controllers/homeController');
 
 // Definición de rutas
@@ -9,13 +10,16 @@ const routes = {
         '/': HomeController.index,
         '/home': HomeController.index,
         '/login': serveView('login.html'),
+        '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
-        '/api/users': userController.getAllUsers,
+        '/api/users': (req, res) => userController.getAllUsers(req, res),
         '/api/navigation': HomeController.getNavigationData
     },
     'POST': {
-        '/api/login': userController.login,
-        '/api/users': userController.createUser
+        '/api/login': (req, res) => userController.login(req, res),
+        '/api/register': (req, res) => authController.register(req, res),
+        '/api/users': (req, res) => userController.createUser(req, res),
+        '/api/check-email': (req, res) => authController.checkEmail(req, res)
     }
 };
 
