@@ -1,4 +1,4 @@
-# PartyAccess 2.0
+﻿# PartyAccess 2.0
 
 Aplicación web desarrollada con **Node.js puro** siguiendo la arquitectura **MVC tradicional**.
 
@@ -6,6 +6,7 @@ Aplicación web desarrollada con **Node.js puro** siguiendo la arquitectura **MV
 
 - ✅ **Node.js puro** - Sin frameworks (sin Express, Nest, etc.)
 - ✅ **Arquitectura MVC** - Separación clara de responsabilidades
+- ✅ **Programación Orientada a Objetos (POO)** - Implementación con clases
 - ✅ **Router manual** - Implementado desde cero
 - ✅ **PostgreSQL** - Base de datos relacional sin ORM
 - ✅ **Frontend vanilla** - HTML, CSS, JavaScript puro
@@ -27,7 +28,7 @@ PartyAccess2/
 ├── /models/
 │   └── userModel.js        # Modelo de usuarios
 ├── /views/
-│   ├── index.html          # Página principal
+│   ├── home.html          # Página principal
 │   ├── login.html          # Página de login
 │   └── dashboard.html      # Dashboard de usuarios
 ├── /routes/
