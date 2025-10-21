@@ -1,22 +1,19 @@
 class Movimiento {
-  #rut; #tipo; #monto; #puntos; #fecha; #client;
+  #rut; #tipo; #monto; #puntos; #fecha;
 
-  constructor({ rut, tipo, monto, puntos, fecha = new Date(), client }) {
+  constructor({ rut, tipo, monto, puntos, fecha = new Date() }) {
     this.#rut = rut;
-    this.#tipo = tipo;                 // 'COMPRA'
+    this.#tipo = tipo;                 // 'COMPRA' | 'CANJE'
     this.#monto = Number(monto);
     this.#puntos = Number(puntos);
     this.#fecha = fecha;
-    this.#client = client;
   }
 
-  async save() {
-    await this.#client.query(
-      `INSERT INTO movimientos (rut, tipo, monto, puntos, fecha)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [this.#rut, this.#tipo, this.#monto, this.#puntos, this.#fecha]
-    );
-  }
+  get rut() { return this.#rut; }
+  get tipo() { return this.#tipo; }
+  get monto() { return this.#monto; }
+  get puntos() { return this.#puntos; }
+  get fecha() { return this.#fecha; }
 }
 
 module.exports = Movimiento;

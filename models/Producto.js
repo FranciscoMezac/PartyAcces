@@ -1,12 +1,11 @@
 class Producto {
-  #id; #nombre; #puntosRequeridos; #activo; #client;
+  #id; #nombre; #puntosRequeridos; #activo;
 
-  constructor({ id, client }) {
+  constructor({ id, nombre, puntosRequeridos, activo = true }) {
     this.#id = Number(id);
-    this.#client = client;
-    this.#nombre = undefined;
-    this.#puntosRequeridos = undefined;
-    this.#activo = undefined;
+    this.#nombre = nombre;
+    this.#puntosRequeridos = Number(puntosRequeridos);
+    this.#activo = !!activo;
   }
 
   get id() { return this.#id; }
@@ -14,23 +13,9 @@ class Producto {
   get puntosRequeridos() { return this.#puntosRequeridos; }
   get activo() { return this.#activo; }
 
-  async load() {
-    const r = await this.#client.query(
-      'SELECT id, nombre, puntos_requeridos, activo FROM productos WHERE id = $1 AND activo = TRUE',
-      [this.#id]
-    );
-    const row = r.rows[0];
-    if (!row) {
-      const err = new Error('Producto no encontrado o inactivo');
-      err.code = 'PRODUCTO_NO_ENCONTRADO';
-      throw err;
-    }
-    this.#nombre = row.nombre;
-    this.#puntosRequeridos = Number(row.puntos_requeridos);
-    this.#activo = !!row.activo;
-    return this;
+  getCostoEnPuntos() {
+    return this.#puntosRequeridos;
   }
 }
 
 module.exports = Producto;
-
