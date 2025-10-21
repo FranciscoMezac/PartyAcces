@@ -12,6 +12,7 @@ const routes = {
         '/login': serveView('login.html'),
         '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
+        '/qr': serveView('qr.html'),
         '/api/users': (req, res) => userController.getAllUsers(req, res),
         '/api/navigation': HomeController.getNavigationData
     },
