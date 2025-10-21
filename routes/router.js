@@ -13,8 +13,23 @@ const routes = {
         '/login': serveView('login.html'),
         '/dashboard': serveView('dashboard.html'),
         '/puntos/acumular': serveView('puntos_acumular.html'),
+        '/puntos/canjear': serveView('puntos_canjear.html'),
+        '/puntos/historial': serveView('puntos_historial.html'),
         '/api/users': userController.getAllUsers,
         '/api/navigation': HomeController.getNavigationData,
+        '/api/productos': async (_req, res) => {
+            try {
+                const r = await db.query(
+                    'SELECT id, nombre, puntos_requeridos FROM productos WHERE activo = TRUE ORDER BY puntos_requeridos ASC, nombre ASC'
+                );
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, data: r.rows }));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: err.message }));
+            }
+        },
+        '/api/puntos/historial': PuntosController.historial,
         '/_db/health': async (_req, res) => {
             try {
                 const info = await db.healthCheck();
@@ -31,7 +46,8 @@ const routes = {
         '/api/users': userController.createUser,
         '/api/login': userController.login,
         '/api/users': userController.createUser,
-        '/api/puntos/acumular': PuntosController.acumular
+        '/api/puntos/acumular': PuntosController.acumular,
+        '/api/puntos/canjear': PuntosController.canjear
     }
 };
 

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Historial de Transacciones</title>
+  <link rel="stylesheet" href="/public/css/styles.css" />
+  <style>
+    .container{max-width:960px;margin:2rem auto;padding:1rem}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.5rem;border-bottom:1px solid #e5e5e5;text-align:left}
+    .toolbar{display:flex;gap:.5rem;align-items:center;margin-bottom:1rem}
+    input{padding:.5rem}
+    button{padding:.5rem .9rem;border:0;border-radius:999px;background:#6c4bd4;color:#fff;font-weight:600;cursor:pointer}
+    .muted{color:#666}
+    .pager{margin-top:.75rem;display:flex;gap:.5rem}
+  </style>
+  <script defer src="/public/js/historial.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Historial de Transacciones</h1>
+    <div class="toolbar">
+      <label for="rut">RUT</label>
+      <input id="rut" placeholder="12.345.678-9" />
+      <button id="btn-buscar" type="button">Buscar</button>
+      <a href="/dashboard" style="margin-left:auto">Volver</a>
+    </div>
+
+    <div class="muted" id="meta"></div>
+    <table>
+      <thead>
+        <tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Puntos</th></tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="4" class="muted">Ingresa un RUT y pulsa Buscar.</td></tr>
+      </tbody>
+    </table>
+    <div class="pager">
+      <button id="prev" type="button">Anterior</button>
+      <button id="next" type="button">Siguiente</button>
+    </div>
+  </div>
+</body>
+</html>
+

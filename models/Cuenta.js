@@ -24,13 +24,29 @@ class Cuenta {
       'SELECT saldo FROM cuentas WHERE rut = $1 FOR UPDATE',
       [this.#rut]
     );
-    if (!r.rows[0]) throw new Error('Cuenta no encontrada');
+    if (!r.rows[0]) {
+      const err = new Error('Cuenta no encontrada');
+      err.code = 'CUENTA_NO_ENCONTRADA';
+      throw err;
+    }
     this.#saldo = Number(r.rows[0].saldo);
     return this.#saldo;
   }
 
   acreditar(puntos) {
     this.#saldo += Number(puntos);
+    return this.#saldo;
+  }
+
+  debitar(costo) {
+    const valor = Number(costo);
+    if (!Number.isFinite(valor) || valor <= 0) throw new Error('Costo inválido');
+    if (this.#saldo < valor) {
+      const err = new Error('Saldo insuficiente');
+      err.code = 'SALDO_INSUFICIENTE';
+      throw err;
+    }
+    this.#saldo -= valor;
     return this.#saldo;
   }
 

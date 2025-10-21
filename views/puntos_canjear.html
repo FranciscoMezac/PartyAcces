@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Canje de Puntos</title>
+  <link rel="stylesheet" href="/public/css/styles.css" />
+  <style>
+    .container { max-width: 960px; margin: 2rem auto; padding: 1rem; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .card { background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.08); padding:1rem; display:flex; flex-direction:column; justify-content:space-between; }
+    .card h3{ margin:.25rem 0; font-size:1.1rem; }
+    .muted{ color:#666; font-size:.9rem }
+    .toolbar{ display:flex; gap:.5rem; margin-bottom:1rem; align-items:center; }
+    input{ padding:.5rem; }
+    button{ padding:.5rem .9rem; border:0; border-radius:999px; background:#6c4bd4; color:#fff; font-weight:600; cursor:pointer; }
+    .msg { margin-top: 1rem; padding:.75rem; border-radius:6px; }
+    .msg.ok { background:#e7f6ec; color:#146c2e; }
+    .msg.err { background:#fdecea; color:#b3261e; }
+  </style>
+  <script defer src="/public/js/canjear.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Canje de Puntos</h1>
+    <p class="muted">Selecciona un producto del catálogo e ingresa el RUT del cliente.</p>
+
+    <div class="toolbar">
+      <label for="rut">RUT</label>
+      <input id="rut" placeholder="12.345.678-9" required />
+      <button id="btn-refrescar" type="button">Actualizar catálogo</button>
+      <a href="/dashboard" style="margin-left:auto">Volver</a>
+    </div>
+
+    <div id="resultado" class="msg" style="display:none"></div>
+
+    <div id="grid" class="grid"></div>
+  </div>
+</body>
+</html>
+
