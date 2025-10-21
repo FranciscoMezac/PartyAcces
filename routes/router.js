@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const userController = require('../controllers/userController');
 const HomeController = require('../controllers/homeController');
+const PuntosController = require('../controllers/puntosController');
+const db = require('../config/database');
 
 // Definición de rutas
 const routes = {
@@ -10,12 +12,26 @@ const routes = {
         '/home': HomeController.index,
         '/login': serveView('login.html'),
         '/dashboard': serveView('dashboard.html'),
+        '/puntos/acumular': serveView('puntos_acumular.html'),
         '/api/users': userController.getAllUsers,
-        '/api/navigation': HomeController.getNavigationData
+        '/api/navigation': HomeController.getNavigationData,
+        '/_db/health': async (_req, res) => {
+            try {
+                const info = await db.healthCheck();
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: true, info }));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: false, error: err.message }));
+            }
+        }
     },
     'POST': {
         '/api/login': userController.login,
-        '/api/users': userController.createUser
+        '/api/users': userController.createUser,
+        '/api/login': userController.login,
+        '/api/users': userController.createUser,
+        '/api/puntos/acumular': PuntosController.acumular
     }
 };
 
