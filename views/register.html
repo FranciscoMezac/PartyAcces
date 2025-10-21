@@ -50,13 +50,19 @@
                             </div>
                             
                             <div class="mb-3">
+                                <label for="rut" class="form-label">RUT</label>
+                                <input type="text" class="form-control" id="rut" name="rut" placeholder="12.345.678-9" required>
+                            </div>
+                            
+                            <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email" name="email" required>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="contrasenia" class="form-label">Contraseña</label>
-                                <input type="password" class="form-control" id="contrasenia" name="contrasenia" required>
+                                <input type="password" class="form-control" id="contrasenia" name="contrasenia" minlength="8" required>
+                                <div class="form-text">Mínimo 8 caracteres</div>
                             </div>
                             
                             <div class="mb-3">

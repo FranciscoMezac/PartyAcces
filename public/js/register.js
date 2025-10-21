@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Obtener los valores del formulario
         const nombre = document.getElementById('nombre').value;
+        const rut = document.getElementById('rut').value;
         const email = document.getElementById('email').value;
         const contrasenia = document.getElementById('contrasenia').value;
         const rol = document.getElementById('rol').value;
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     nombre: nombre,
+                    rut: rut,
                     email: email,
                     contrasenia: contrasenia,
                     rol: rol,

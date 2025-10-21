@@ -1,6 +1,7 @@
 const BaseController = require('./BaseController');
 const Usuario = require('../models/Usuario');
 const db = require('../config/database');
+const bcrypt = require('bcryptjs');
 
 class AuthController extends BaseController {
     
@@ -11,18 +12,30 @@ class AuthController extends BaseController {
      */
     async register(req, res) {
         try {
-            const { nombre, email, contrasenia, rol, estado } = req.body;
+            const { nombre, rut, email, contrasenia, rol, estado } = req.body;
 
-
-            const validation = this.validateRequiredFields(req.body, ['nombre', 'email', 'contrasenia']);
+            const validation = this.validateRequiredFields(req.body, ['nombre', 'rut', 'email', 'contrasenia']);
             if (!validation.isValid) {
                 return this.sendError(res, validation.message, 400);
             }
 
+            if (contrasenia.length < 8) {
+                return this.sendError(res, 'La contraseña debe tener al menos 8 caracteres', 400);
+            }
+
+            const existingUser = await Usuario.findByEmail(email);
+            if (existingUser) {
+                return this.sendError(res, 'El email ya está en uso', 409);
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(contrasenia, salt);
+
             const usuario = new Usuario({
                 nombre,
+                rut,
                 email,
-                contrasenia,
+                contrasenia: hashedPassword,
                 rol: rol || 'USER',
                 estado: estado || 'ACTIVO'
             });
@@ -32,13 +45,14 @@ class AuthController extends BaseController {
                 return this.sendError(res, usuarioValidation.errors.join(', '), 400);
             }
 
-            const existingUser = await Usuario.findByEmail(email);
-            if (existingUser) {
-                return this.sendError(res, 'El email ya está en uso', 400);
-            }
-
             const usuarioId = await db.withTransaction(async (client) => {
                 const id = await Usuario.insert(client, usuario);
+                
+                await client.query(
+                    'INSERT INTO cuentas (rut, saldo) VALUES ($1, $2)',
+                    [rut, 0]
+                );
+                
                 return id;
             });
 
@@ -72,7 +86,8 @@ class AuthController extends BaseController {
                 return this.sendError(res, 'Credenciales inválidas', 401);
             }
 
-            if (usuario.contrasenia !== password) {
+            const isPasswordValid = await bcrypt.compare(password, usuario.contrasenia);
+            if (!isPasswordValid) {
                 return this.sendError(res, 'Credenciales inválidas', 401);
             }
 

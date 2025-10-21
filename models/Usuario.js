@@ -3,6 +3,7 @@ const db = require('../config/database');
 class Usuario {
     #usuarioId;
     #nombre;
+    #rut;
     #email;
     #contrasenia;
     #rol;
@@ -15,6 +16,7 @@ class Usuario {
     constructor(data = {}) {
         this.#usuarioId = data.usuarioId || data.usuario_id || null;
         this.#nombre = data.nombre || '';
+        this.#rut = data.rut || '';
         this.#email = data.email || '';
         this.#contrasenia = data.contrasenia || '';
         this.#rol = data.rol || 'USER';
@@ -28,6 +30,10 @@ class Usuario {
 
     get nombre() {
         return this.#nombre;
+    }
+
+    get rut() {
+        return this.#rut;
     }
 
     get email() {
@@ -57,6 +63,13 @@ class Usuario {
         this.#nombre = value.trim();
     }
 
+    set rut(value) {
+        if (!value || value.trim().length < 8) {
+            throw new Error('El RUT debe ser válido');
+        }
+        this.#rut = value.trim();
+    }
+
     set email(value) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) {
@@ -66,8 +79,8 @@ class Usuario {
     }
 
     set contrasenia(value) {
-        if (!value || value.length < 6) {
-            throw new Error('La contraseña debe tener al menos 6 caracteres');
+        if (!value || value.length < 8) {
+            throw new Error('La contraseña debe tener al menos 8 caracteres');
         }
         this.#contrasenia = value;
     }
@@ -94,6 +107,7 @@ class Usuario {
     toDatabase() {
         return {
             nombre: this.#nombre,
+            rut: this.#rut,
             email: this.#email,
             contrasenia: this.#contrasenia,
             rol: this.#rol,
@@ -108,6 +122,7 @@ class Usuario {
         return {
             usuarioId: this.#usuarioId,
             nombre: this.#nombre,
+            rut: this.#rut,
             email: this.#email,
             rol: this.#rol,
             estado: this.#estado,
@@ -140,13 +155,17 @@ class Usuario {
                 errors.push('El nombre debe tener al menos 2 caracteres');
             }
 
+            if (!this.#rut || this.#rut.trim().length < 8) {
+                errors.push('El RUT debe ser válido');
+            }
+
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(this.#email)) {
                 errors.push('Email inválido');
             }
 
-            if (!this.#contrasenia || this.#contrasenia.length < 6) {
-                errors.push('La contraseña debe tener al menos 6 caracteres');
+            if (!this.#contrasenia || this.#contrasenia.length < 8) {
+                errors.push('La contraseña debe tener al menos 8 caracteres');
             }
 
             const rolesValidos = ['USER', 'ADMIN'];
@@ -233,8 +252,8 @@ class Usuario {
             const data = usuario.toDatabase();
             
             const result = await client.query(
-                'INSERT INTO usuario (nombre, email, contrasenia, rol, estado) VALUES ($1, $2, $3, $4, $5) RETURNING usuario_id',
-                [data.nombre, data.email, data.contrasenia, data.rol, data.estado]
+                'INSERT INTO usuario (nombre, rut, email, contrasenia, rol, estado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING usuario_id',
+                [data.nombre, data.rut, data.email, data.contrasenia, data.rol, data.estado]
             );
             
             return result.rows[0].usuario_id;
