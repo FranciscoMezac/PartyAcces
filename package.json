@@ -7,10 +7,16 @@
     "start": "node app.js",
     "dev": "node app.js"
   },
-  "keywords": ["nodejs", "mvc", "vanilla"],
+  "keywords": [
+    "nodejs",
+    "mvc",
+    "vanilla"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.3",
     "pg": "^8.11.3"
   }
 }

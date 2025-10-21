@@ -56,37 +56,33 @@ PartyAccess2/
 CREATE DATABASE partyaccess;
 ```
 
-2. Crear la tabla de usuarios:
+2. Ejecutar el script SQL ubicado en `database/create_usuario_table.sql`:
 
 ```sql
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+-- Crear tabla de usuarios
+CREATE TABLE IF NOT EXISTS usuario (
+    usuario_id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    contrasenia VARCHAR(255) NOT NULL,
+    rol VARCHAR(20) DEFAULT 'USER' CHECK (rol IN ('USER', 'ADMIN')),
+    estado VARCHAR(20) DEFAULT 'ACTIVO' CHECK (estado IN ('ACTIVO', 'INACTIVO')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
-3. Insertar datos de prueba:
+3. Configurar las credenciales en archivo `.env` (crear en la raíz del proyecto):
 
-```sql
-INSERT INTO users (name, email, password) VALUES
-('Juan Pérez', 'juan@example.com', '123456'),
-('María García', 'maria@example.com', '123456'),
-('Carlos López', 'carlos@example.com', '123456');
-```
-
-4. Configurar las credenciales en `config/database.js`:
-
-```javascript
-const pool = new Pool({
-    user: 'tu_usuario',
-    host: 'localhost',
-    database: 'partyaccess',
-    password: 'tu_password',
-    port: 5432,
-});
+```env
+PORT=3000
+NODE_ENV=development
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=tu_usuario
+DB_PASSWORD=tu_password
+DB_NAME=partyaccess
+DB_SSL=false
 ```
 
 ## 🚀 Instalación y Ejecución
@@ -114,14 +110,37 @@ http://localhost:3000
 ### GET Routes
 - `GET /` - Página principal
 - `GET /login` - Página de login
+- `GET /register` - Página de registro
 - `GET /dashboard` - Dashboard de usuarios
 - `GET /api/users` - Obtener todos los usuarios
 
 ### POST Routes
 - `POST /api/login` - Autenticación de usuario
+- `POST /api/register` - Registro de nuevo usuario (con transacciones)
 - `POST /api/users` - Crear nuevo usuario
 
 ## 🎯 Ejemplo de Uso
+
+### Registro de Usuario
+
+```javascript
+const response = await fetch('/api/register', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        nombre: 'Juan Pérez',
+        email: 'juan@example.com',
+        contrasenia: '123456',
+        rol: 'USER',
+        estado: 'ACTIVO'
+    })
+});
+
+const data = await response.json();
+console.log(data); // { success: true, usuarioId: 1 }
+```
 
 ### Login con Fetch API
 
