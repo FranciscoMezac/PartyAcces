@@ -1,5 +1,4 @@
-const db = require('../config/database');
-
+const bcrypt = require('bcryptjs');
 class Usuario {
     #usuarioId;
     #nombre;
@@ -15,12 +14,13 @@ class Usuario {
      */
     constructor(data = {}) {
         this.#usuarioId = data.usuarioId || data.usuario_id || null;
-        this.#nombre = data.nombre || '';
-        this.#rut = data.rut || '';
-        this.#email = data.email || '';
-        this.#contrasenia = data.contrasenia || '';
-        this.#rol = data.rol || 'USER';
-        this.#estado = data.estado || 'ACTIVO';
+        // Trim para eliminar espacios que agrega CHAR(256)
+        this.#nombre = (data.nombre || '').trim();
+        this.#rut = (data.rut || '').trim();
+        this.#email = (data.email || '').trim();
+        this.#contrasenia = (data.contrasenia || '').trim();
+        this.#rol = (data.rol || 'USER').trim();
+        this.#estado = (data.estado || 'ACTIVO').trim();
         this.#createdAt = data.created_at || data.createdAt || null;
     }
 
@@ -190,170 +190,152 @@ class Usuario {
 
 
     /**
-
-     * @param {string} email 
-     * @returns {Promise<Usuario|null>}
+     * Hashea la contraseña del usuario
+     * @returns {Promise<void>}
      */
-    static async findByEmail(email) {
-        try {
-            const result = await db.query(
-                'SELECT * FROM usuario WHERE email = $1',
-                [email]
-            );
-            
-            return result.rows[0] ? new Usuario(result.rows[0]) : null;
-        } catch (error) {
-            console.error('Error al buscar usuario por email:', error);
-            throw error;
+    async hashPassword() {
+        if (this.#contrasenia) {
+            this.#contrasenia = await bcrypt.hash(this.#contrasenia, 10);
         }
     }
 
     /**
-     * @param {number} id 
-     * @returns {Promise<Usuario|null>}
-     */
-    static async findById(id) {
-        try {
-            const result = await db.query(
-                'SELECT * FROM usuario WHERE usuario_id = $1',
-                [id]
-            );
-            
-            return result.rows[0] ? new Usuario(result.rows[0]) : null;
-        } catch (error) {
-            console.error('Error al buscar usuario por ID:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * @returns {Promise<Array<Usuario>>}
-     */
-    static async findAll() {
-        try {
-            const result = await db.query(
-                'SELECT * FROM usuario ORDER BY created_at DESC'
-            );
-            
-            return result.rows.map(row => new Usuario(row));
-        } catch (error) {
-            console.error('Error al obtener todos los usuarios:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * @param {Object} client
-     * @param {Usuario} usuario 
-     * @returns {Promise<number>} 
-     */
-    static async insert(client, usuario) {
-        try {
-            const data = usuario.toDatabase();
-            
-            const result = await client.query(
-                'INSERT INTO usuario (nombre, rut, email, contrasenia, rol, estado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING usuario_id',
-                [data.nombre, data.rut, data.email, data.contrasenia, data.rol, data.estado]
-            );
-            
-            return result.rows[0].usuario_id;
-        } catch (error) {
-            console.error('Error al insertar usuario:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * @param {Usuario} usuario 
-     * @returns {Promise<Usuario>}
-     */
-    static async create(usuario) {
-        try {
-            const data = usuario.toDatabase();
-            
-            const result = await db.query(
-                'INSERT INTO usuario (nombre, email, contrasenia, rol, estado) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-                [data.nombre, data.email, data.contrasenia, data.rol, data.estado]
-            );
-            
-            return new Usuario(result.rows[0]);
-        } catch (error) {
-            console.error('Error al crear usuario:', error);
-            throw error;
-        }
-    }
-
-    /**
-
-     * @param {number} id 
-     * @param {Object} data 
-     * @returns {Promise<Usuario|null>}
-     */
-    static async update(id, data) {
-        try {
-            const result = await db.query(
-                'UPDATE usuario SET nombre = $1, email = $2, rol = $3, estado = $4 WHERE usuario_id = $5 RETURNING *',
-                [data.nombre, data.email, data.rol, data.estado, id]
-            );
-            
-            return result.rows[0] ? new Usuario(result.rows[0]) : null;
-        } catch (error) {
-            console.error('Error al actualizar usuario:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * @param {number} id 
+     * Compara una contraseña con la contraseña hasheada del usuario
+     * @param {string} plainPassword 
      * @returns {Promise<boolean>}
      */
-    static async delete(id) {
-        try {
-            const result = await db.query(
-                'DELETE FROM usuario WHERE usuario_id = $1 RETURNING usuario_id',
-                [id]
-            );
-            
-            return result.rows.length > 0;
-        } catch (error) {
-            console.error('Error al eliminar usuario:', error);
-            throw error;
-        }
+    async comparePassword(plainPassword) {
+        const hashLimpio = this.#contrasenia.trim();
+        return await bcrypt.compare(plainPassword, hashLimpio);
     }
 
     /**
-     * @param {string} rol 
-     * @returns {Promise<Array<Usuario>>}
+     * Verifica si el usuario es administrador
+     * @returns {boolean}
      */
-    static async findByRole(rol) {
-        try {
-            const result = await db.query(
-                'SELECT * FROM usuario WHERE rol = $1 ORDER BY created_at DESC',
-                [rol]
-            );
-            
-            return result.rows.map(row => new Usuario(row));
-        } catch (error) {
-            console.error('Error al buscar usuarios por rol:', error);
-            throw error;
-        }
+    isAdmin() {
+        return this.#rol === 'ADMIN';
     }
 
     /**
-     * @returns {Promise<Array<Usuario>>}
+     * Verifica si el usuario está activo
+     * @returns {boolean}
      */
-    static async findActive() {
-        try {
-            const result = await db.query(
-                'SELECT * FROM usuario WHERE estado = $1 ORDER BY created_at DESC',
-                ['ACTIVO']
-            );
-            
-            return result.rows.map(row => new Usuario(row));
-        } catch (error) {
-            console.error('Error al buscar usuarios activos:', error);
-            throw error;
+    isActive() {
+        return this.#estado === 'ACTIVO';
+    }
+
+    /**
+     * Cambia el estado del usuario
+     * @param {string} nuevoEstado - ACTIVO o INACTIVO
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    cambiarEstado(nuevoEstado) {
+        const estadosValidos = ['ACTIVO', 'INACTIVO'];
+        if (!estadosValidos.includes(nuevoEstado)) {
+            throw new Error('Estado inválido. Debe ser ACTIVO o INACTIVO');
         }
+        this.#estado = nuevoEstado;
+        return this;
+    }
+
+    /**
+     * Actualiza el rol del usuario
+     * @param {string} nuevoRol - USER o ADMIN
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    cambiarRol(nuevoRol) {
+        const rolesValidos = ['USER', 'ADMIN'];
+        if (!rolesValidos.includes(nuevoRol)) {
+            throw new Error('Rol inválido. Debe ser USER o ADMIN');
+        }
+        this.#rol = nuevoRol;
+        return this;
+    }
+
+    /**
+     * Actualiza la información del usuario
+     * @param {Object} datos - Objeto con los campos a actualizar
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    actualizarDatos(datos) {
+        if (datos.nombre) this.nombre = datos.nombre;
+        if (datos.email) this.email = datos.email;
+        if (datos.rut) this.rut = datos.rut;
+        if (datos.rol) this.cambiarRol(datos.rol);
+        if (datos.estado) this.cambiarEstado(datos.estado);
+        return this;
+    }
+
+    /**
+     * Desactiva el usuario
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    desactivar() {
+        this.#estado = 'INACTIVO';
+        return this;
+    }
+
+    /**
+     * Activa el usuario
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    activar() {
+        this.#estado = 'ACTIVO';
+        return this;
+    }
+
+    /**
+     * Promover a administrador
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    promoverAAdmin() {
+        this.#rol = 'ADMIN';
+        return this;
+    }
+
+    /**
+     * Degradar a usuario normal
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    degradarAUser() {
+        this.#rol = 'USER';
+        return this;
+    }
+
+    /**
+     * Verifica si este usuario puede modificar a otro usuario
+     * @param {Usuario} otroUsuario - Instancia de otro usuario
+     * @returns {boolean}
+     */
+    puedeModificar(otroUsuario) {
+        // Solo los administradores pueden modificar otros usuarios
+        if (!this.isAdmin()) {
+            return false;
+        }
+        // Un usuario no puede modificarse a sí mismo para evitar bloqueos
+        if (this.#usuarioId === otroUsuario.usuarioId) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Verifica si este usuario tiene los mismos privilegios que otro
+     * @param {Usuario} otroUsuario - Instancia de otro usuario
+     * @returns {boolean}
+     */
+    tieneLosMismosPrivilegiosQue(otroUsuario) {
+        return this.#rol === otroUsuario.rol;
+    }
+
+    /**
+     * Verifica si este usuario tiene más privilegios que otro
+     * @param {Usuario} otroUsuario - Instancia de otro usuario
+     * @returns {boolean}
+     */
+    tieneMasPrivilegiosQue(otroUsuario) {
+        return this.isAdmin() && !otroUsuario.isAdmin();
     }
 }
 

@@ -1,8 +1,26 @@
 const fs = require('fs');
 const path = require('path');
+const db = require('../config/database');
+
+// Importar clases (no instancias)
+const UsuarioRepository = require('../repositories/UsuarioRepository');
+const CuentaPuntosRepository = require('../repositories/CuentaPuntosRepository');
+const SessionRepository = require('../repositories/SessionRepository');
+const AuthService = require('../services/AuthService');
+const AuthController = require('../controllers/authController');
 const userController = require('../controllers/userController');
-const authController = require('../controllers/authController');
 const HomeController = require('../controllers/homeController');
+
+// Instanciar Repositorios (inyectando conexión DB)
+const usuarioRepository = new UsuarioRepository(db);
+const cuentaPuntosRepository = new CuentaPuntosRepository(db);
+const sessionRepository = new SessionRepository(db);
+
+// Instanciar Servicios (inyectando repositorios)
+const authService = new AuthService(usuarioRepository, cuentaPuntosRepository, sessionRepository);
+
+// Instanciar Controladores (inyectando servicios)
+const authController = new AuthController(authService);
 
 // Definición de rutas
 const routes = {
@@ -13,14 +31,18 @@ const routes = {
         '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
         '/qr': serveView('qr.html'),
+        '/reset-password': serveView('reset-password.html'),
+        '/perfil-usuario': serveView('perfil-usuario.html'),
+        '/perfil-admin': serveView('perfil-admin.html'),
         '/api/users': (req, res) => userController.getAllUsers(req, res),
         '/api/navigation': HomeController.getNavigationData
     },
     'POST': {
-        '/api/login': (req, res) => userController.login(req, res),
+        '/api/login': (req, res) => authController.login(req, res),
         '/api/register': (req, res) => authController.register(req, res),
         '/api/users': (req, res) => userController.createUser(req, res),
-        '/api/check-email': (req, res) => authController.checkEmail(req, res)
+        '/api/check-email': (req, res) => authController.checkEmail(req, res),
+        '/api/reset-password': (req, res) => authController.resetPassword(req, res)
     }
 };
 
