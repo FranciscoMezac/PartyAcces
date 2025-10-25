@@ -32,6 +32,8 @@ const routes = {
         '/dashboard': serveView('dashboard.html'),
         '/qr': serveView('qr.html'),
         '/reset-password': serveView('reset-password.html'),
+        '/home-usuario': serveView('home-usuario.html'),
+        '/home-admin': serveView('home-admin.html'),
         '/perfil-usuario': serveView('perfil-usuario.html'),
         '/perfil-admin': serveView('perfil-admin.html'),
         '/api/users': (req, res) => userController.getAllUsers(req, res),

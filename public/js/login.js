@@ -47,9 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Redireccionar según el rol del usuario
                 setTimeout(() => {
                     if (data.user.rol === 'ADMIN') {
-                        window.location.href = '/perfil-admin';
+                        window.location.href = '/home-admin';
                     } else {
-                        window.location.href = '/perfil-usuario';
+                        window.location.href = '/home-usuario';
                     }
                 }, 1500);
                 
