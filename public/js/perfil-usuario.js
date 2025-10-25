@@ -27,8 +27,28 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('userPoints').textContent = '0';
 
     // Manejar logout
-    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+    document.getElementById('logoutBtn').addEventListener('click', async (e) => {
         e.preventDefault();
+        
+        const token = localStorage.getItem('token');
+        
+        if (token) {
+            try {
+                // Llamar a la API de logout
+                const response = await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                console.log('Logout response:', data);
+            } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+            }
+        }
         
         // Limpiar localStorage
         localStorage.removeItem('user');

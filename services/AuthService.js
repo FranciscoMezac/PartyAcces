@@ -185,6 +185,47 @@ class AuthService {
     }
 
     /**
+     * Cierra la sesión de un usuario (logout)
+     * @param {string} token - Token de sesión
+     * @returns {Promise<Object>}
+     */
+    async cerrarSesion(token) {
+        if (!token) {
+            throw new Error('Token requerido');
+        }
+
+        console.log('🔍 Buscando sesión con token:', token.substring(0, 10) + '...');
+
+        // Buscar sesión por token
+        const session = await this.#sessionRepository.findByToken(token);
+        
+        if (!session) {
+            throw new Error('Token inválido o expirado');
+        }
+
+        console.log('📋 Sesión encontrada - ID:', session.sessionId, 'Usuario ID:', session.usuarioId);
+
+        // Verificar que la sesión esté activa
+        if (!session.estaActiva()) {
+            throw new Error('Token inválido o expirado');
+        }
+
+        // Invalidar sesión en BD (UPDATE sesiones SET activa=false, expira_en=NOW())
+        const resultado = await this.#sessionRepository.invalidarSesion(token);
+
+        if (!resultado) {
+            throw new Error('No se pudo cerrar sesión');
+        }
+
+        console.log('✅ Sesión cerrada exitosamente');
+
+        return {
+            message: 'Sesión cerrada',
+            sessionId: session.sessionId
+        };
+    }
+
+    /**
      * TEMPORAL: Resetea la contraseña de un usuario
      * @param {string} rut 
      * @param {string} nuevaContrasena 

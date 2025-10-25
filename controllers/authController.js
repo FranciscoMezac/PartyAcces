@@ -96,6 +96,46 @@ class AuthController extends BaseController {
     }
 
     /**
+     * Cierra sesión de un usuario
+     * @param {Object} req 
+     * @param {Object} res 
+     */
+    async logout(req, res) {
+        try {
+            // Extraer token del header Authorization: Bearer <token>
+            const authHeader = req.headers['authorization'];
+            
+            if (!authHeader) {
+                return this.sendError(res, 'Token requerido', 401);
+            }
+
+            // Extraer token (formato: "Bearer <token>")
+            const token = authHeader.startsWith('Bearer ') 
+                ? authHeader.substring(7) 
+                : authHeader;
+
+            if (!token) {
+                return this.sendError(res, 'Token requerido', 401);
+            }
+
+            console.log('🔑 Intentando cerrar sesión con token:', token.substring(0, 10) + '...');
+
+            // Llamar al servicio para cerrar sesión
+            const resultado = await this.#authService.cerrarSesion(token);
+
+            return this.sendSuccess(res, {
+                message: resultado.message
+            }, 200);
+
+        } catch (error) {
+            if (error.message.includes('Token inválido') || error.message.includes('expirado')) {
+                return this.sendError(res, error.message, 401);
+            }
+            return this.handleError(res, error, 'cerrar sesión');
+        }
+    }
+
+    /**
      * TEMPORAL: Resetea la contraseña de un usuario
      * @param {Object} req 
      * @param {Object} res 

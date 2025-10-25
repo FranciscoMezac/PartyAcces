@@ -41,6 +41,7 @@ const routes = {
     },
     'POST': {
         '/api/login': (req, res) => authController.login(req, res),
+        '/api/logout': (req, res) => authController.logout(req, res),
         '/api/register': (req, res) => authController.register(req, res),
         '/api/users': (req, res) => userController.createUser(req, res),
         '/api/check-email': (req, res) => authController.checkEmail(req, res),
