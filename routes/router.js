@@ -7,7 +7,9 @@ const UsuarioRepository = require('../repositories/UsuarioRepository');
 const CuentaPuntosRepository = require('../repositories/CuentaPuntosRepository');
 const SessionRepository = require('../repositories/SessionRepository');
 const AuthService = require('../services/AuthService');
+const PerfilService = require('../services/PerfilService');
 const AuthController = require('../controllers/authController');
+const PerfilController = require('../controllers/perfilController');
 const userController = require('../controllers/userController');
 const HomeController = require('../controllers/homeController');
 
@@ -18,9 +20,11 @@ const sessionRepository = new SessionRepository(db);
 
 // Instanciar Servicios (inyectando repositorios)
 const authService = new AuthService(usuarioRepository, cuentaPuntosRepository, sessionRepository);
+const perfilService = new PerfilService(usuarioRepository, sessionRepository);
 
 // Instanciar Controladores (inyectando servicios)
 const authController = new AuthController(authService);
+const perfilController = new PerfilController(perfilService);
 
 // Definición de rutas
 const routes = {
@@ -36,7 +40,9 @@ const routes = {
         '/home-admin': serveView('home-admin.html'),
         '/perfil-usuario': serveView('perfil-usuario.html'),
         '/perfil-admin': serveView('perfil-admin.html'),
+        '/editar-perfil': serveView('editar-perfil.html'),
         '/api/users': (req, res) => userController.getAllUsers(req, res),
+        '/api/perfil': (req, res) => perfilController.obtenerPerfil(req, res),
         '/api/navigation': HomeController.getNavigationData
     },
     'POST': {
@@ -46,6 +52,9 @@ const routes = {
         '/api/users': (req, res) => userController.createUser(req, res),
         '/api/check-email': (req, res) => authController.checkEmail(req, res),
         '/api/reset-password': (req, res) => authController.resetPassword(req, res)
+    },
+    'PATCH': {
+        '/api/perfil': (req, res) => perfilController.actualizarPerfil(req, res)
     }
 };
 

@@ -1,9 +1,3 @@
-/**
- * Modelo de Dominio - CuentaPuntos
- * Patrón: Domain Model
- * Propósito: Representar la entidad CuentaPuntos sin lógica de BD
- * Los objetos de esta clase se comunican con objetos Usuario
- */
 class CuentaPuntos {
     #id;
     #rut;
@@ -15,7 +9,6 @@ class CuentaPuntos {
      */
     constructor(data = {}) {
         this.#id = data.id || null;
-        // Trim para eliminar espacios que agrega CHAR(256)
         this.#rut = (data.rut || '').trim();
         this.#saldo = data.saldo || 0;
         this.#actualizadoEn = data.actualizado_en || data.actualizadoEn || null;

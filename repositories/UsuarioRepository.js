@@ -143,10 +143,38 @@ class UsuarioRepository {
      */
     async update(id, data) {
         try {
-            const result = await this.#db.query(
-                'UPDATE usuario SET nombre = $1, email = $2, rol = $3, estado = $4 WHERE usuario_id = $5 RETURNING *',
-                [data.nombre, data.email, data.rol, data.estado, id]
-            );
+            // Construir query dinámicamente según los campos presentes
+            const campos = [];
+            const valores = [];
+            let contador = 1;
+
+            if (data.nombre !== undefined) {
+                campos.push(`nombre = $${contador++}`);
+                valores.push(data.nombre);
+            }
+            if (data.email !== undefined) {
+                campos.push(`email = $${contador++}`);
+                valores.push(data.email);
+            }
+            if (data.rol !== undefined) {
+                campos.push(`rol = $${contador++}`);
+                valores.push(data.rol);
+            }
+            if (data.estado !== undefined) {
+                campos.push(`estado = $${contador++}`);
+                valores.push(data.estado);
+            }
+            if (data.contrasenia !== undefined) {
+                campos.push(`contrasenia = $${contador++}`);
+                valores.push(data.contrasenia);
+            }
+
+            // Agregar el ID al final
+            valores.push(id);
+
+            const query = `UPDATE usuario SET ${campos.join(', ')} WHERE usuario_id = $${contador} RETURNING *`;
+
+            const result = await this.#db.query(query, valores);
             
             return result.rows[0] ? new Usuario(result.rows[0]) : null;
         } catch (error) {
