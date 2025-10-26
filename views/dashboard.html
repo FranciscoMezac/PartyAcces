@@ -38,9 +38,32 @@
             </div>
         </div>
         
-        <div class="row mb-4">
-            <div class="col-md-12">
+        <div class="row mb-3 g-2 align-items-end">
+            <div class="col-md-2">
+                <label for="search" class="form-label">Buscar</label>
+                <input id="search" class="form-control" placeholder="nombre, email o RUT" />
+            </div>
+            <div class="col-md-2">
+                <label for="estado" class="form-label">Estado</label>
+                <select id="estado" class="form-select">
+                    <option value="all">Todos</option>
+                    <option value="ACTIVO">ACTIVO</option>
+                    <option value="BLOQUEADO">BLOQUEADO</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="limit" class="form-label">Por página</label>
+                <select id="limit" class="form-select">
+                    <option>5</option>
+                    <option selected>10</option>
+                    <option>20</option>
+                </select>
+            </div>
+            <div class="col-md-6">
                 <button class="btn btn-primary" id="loadUsersBtn">Cargar Usuarios</button>
+                <a class="btn btn-outline-secondary ms-2" href="/puntos/acumular">Acumular puntos</a>
+                <a class="btn btn-outline-success ms-2" href="/puntos/canjear">Canjear puntos</a>
+                <a class="btn btn-outline-info ms-2" href="/puntos/historial">Ver historial</a>
             </div>
         </div>
         
@@ -66,17 +89,27 @@
                                         <th>ID</th>
                                         <th>Nombre</th>
                                         <th>Email</th>
-                                        <th>Fecha de Creación</th>
+                                        <th>RUT</th>
+                                        <th>Rol</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="usersTableBody">
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted">
+                                        <td colspan="7" class="text-center text-muted">
                                             Haz clic en "Cargar Usuarios" para ver los datos
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <div id="usersPageInfo" class="text-muted"></div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary" id="prevUsers">Anterior</button>
+                                    <button class="btn btn-sm btn-outline-secondary" id="nextUsers">Siguiente</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

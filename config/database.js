@@ -21,17 +21,22 @@ async function query(text, params) {
     try {
         const res = await pool.query(text, params);
         const duration = Date.now() - start;
-        console.log('Query ejecutada:', { text, duration, rows: res.rowCount });
+        console.log('📊 Query ejecutada:', { text, duration, rows: res.rowCount });
         return res;
     } catch (error) {
-        console.error('Error en query:', error);
+        console.error('❌ Error en query:', error);
         throw error;
     }
 }
 
+// Función para obtener una conexión del pool
 async function getClient() {
-    const client = await pool.connect();
-    return client;
+  return pool.connect();
+}
+
+async function healthCheck() {
+  const r = await pool.query('SELECT NOW() as now');
+  return { now: r.rows[0].now };
 }
 
 async function withTransaction(work) {
@@ -52,6 +57,5 @@ async function withTransaction(work) {
 module.exports = {
     query,
     getClient,
-    withTransaction,
     pool
 };

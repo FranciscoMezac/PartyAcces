@@ -13,19 +13,6 @@ const PerfilController = require('../controllers/perfilController');
 const userController = require('../controllers/userController');
 const HomeController = require('../controllers/homeController');
 
-// Instanciar Repositorios (inyectando conexión DB)
-const usuarioRepository = new UsuarioRepository(db);
-const cuentaPuntosRepository = new CuentaPuntosRepository(db);
-const sessionRepository = new SessionRepository(db);
-
-// Instanciar Servicios (inyectando repositorios)
-const authService = new AuthService(usuarioRepository, cuentaPuntosRepository, sessionRepository);
-const perfilService = new PerfilService(usuarioRepository, sessionRepository);
-
-// Instanciar Controladores (inyectando servicios)
-const authController = new AuthController(authService);
-const perfilController = new PerfilController(perfilService);
-
 // Definición de rutas
 const routes = {
     'GET': {
@@ -34,27 +21,12 @@ const routes = {
         '/login': serveView('login.html'),
         '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
-        '/qr': serveView('qr.html'),
-        '/reset-password': serveView('reset-password.html'),
-        '/home-usuario': serveView('home-usuario.html'),
-        '/home-admin': serveView('home-admin.html'),
-        '/perfil-usuario': serveView('perfil-usuario.html'),
-        '/perfil-admin': serveView('perfil-admin.html'),
-        '/editar-perfil': serveView('editar-perfil.html'),
-        '/api/users': (req, res) => userController.getAllUsers(req, res),
-        '/api/perfil': (req, res) => perfilController.obtenerPerfil(req, res),
+        '/api/users': userController.getAllUsers,
         '/api/navigation': HomeController.getNavigationData
     },
     'POST': {
-        '/api/login': (req, res) => authController.login(req, res),
-        '/api/logout': (req, res) => authController.logout(req, res),
-        '/api/register': (req, res) => authController.register(req, res),
-        '/api/users': (req, res) => userController.createUser(req, res),
-        '/api/check-email': (req, res) => authController.checkEmail(req, res),
-        '/api/reset-password': (req, res) => authController.resetPassword(req, res)
-    },
-    'PATCH': {
-        '/api/perfil': (req, res) => perfilController.actualizarPerfil(req, res)
+        '/api/login': userController.login,
+        '/api/users': userController.createUser
     }
 };
 

@@ -68,8 +68,19 @@ function serveStaticFile(pathname, res) {
 
 // Iniciar servidor
 server.listen(config.port, config.host, () => {
-    console.log(`🚀 Servidor corriendo en http://${config.host}:${config.port}`);
-    console.log(`📁 Archivos estáticos desde: ${path.join(__dirname, 'public')}`);
+    console.log(`Servidor corriendo en http://${config.host}:${config.port}`);
+    console.log(`Archivos estáticos desde: ${path.join(__dirname, 'public')}`);
 });
+
+// Comprobación de conexión a la base de datos al inicio
+setTimeout(async () => {
+    try {
+        const { healthCheck } = require('./config/database');
+        const info = await healthCheck();
+        console.log('DB OK. NOW() =', info.now);
+    } catch (err) {
+        console.error('DB FAIL:', err.code || '', err.message);
+    }
+}, 0);
 
 module.exports = server;
