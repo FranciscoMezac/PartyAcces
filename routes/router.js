@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const userController = require('../controllers/userController');
 const HomeController = require('../controllers/homeController');
+const UsuariosController = require('../controllers/usuariosController');
 const PuntosController = require('../controllers/puntosController');
 const db = require('../config/database');
 
@@ -15,7 +15,7 @@ const routes = {
         '/puntos/acumular': serveView('puntos_acumular.html'),
         '/puntos/canjear': serveView('puntos_canjear.html'),
         '/puntos/historial': serveView('puntos_historial.html'),
-        '/api/users': userController.getAllUsers,
+        '/api/usuarios': UsuariosController.listar,
         '/api/navigation': HomeController.getNavigationData,
         '/api/productos': async (_req, res) => {
             try {
@@ -42,12 +42,9 @@ const routes = {
         }
     },
     'POST': {
-        '/api/login': userController.login,
-        '/api/users': userController.createUser,
-        '/api/login': userController.login,
-        '/api/users': userController.createUser,
         '/api/puntos/acumular': PuntosController.acumular,
-        '/api/puntos/canjear': PuntosController.canjear
+        '/api/puntos/canjear': PuntosController.canjear,
+        '/api/usuarios/bloquear': UsuariosController.bloquear
     }
 };
 

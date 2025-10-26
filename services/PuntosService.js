@@ -39,7 +39,7 @@ class PuntosService {
       client.release();
     }
   }
-
+  
   async canjear(rut, productoId) {
     const client = await this.db.getClient();
     try {
