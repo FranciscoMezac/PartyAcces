@@ -1,32 +1,40 @@
-// JavaScript para la página de login usando Fetch API
+// JavaScript para la página de registro usando Fetch API
 
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
     const submitBtn = document.getElementById('submitBtn');
     const alertContainer = document.getElementById('alert-container');
     
     // Manejar el envío del formulario
-    loginForm.addEventListener('submit', async (e) => {
+    registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         // Obtener los valores del formulario
+        const nombre = document.getElementById('nombre').value;
+        const rut = document.getElementById('rut').value;
         const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        const contrasenia = document.getElementById('contrasenia').value;
+        const rol = document.getElementById('rol').value;
+        const estado = document.getElementById('estado').value;
         
         // Deshabilitar el botón durante la petición
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Cargando...';
+        submitBtn.textContent = 'Registrando...';
         
         try {
             // Realizar petición POST usando Fetch API
-            const response = await fetch('/api/login', {
+            const response = await fetch('/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    nombre: nombre,
+                    rut: rut,
                     email: email,
-                    password: password
+                    contrasenia: contrasenia,
+                    rol: rol,
+                    estado: estado
                 })
             });
             
@@ -37,25 +45,20 @@ document.addEventListener('DOMContentLoaded', () => {
             alertContainer.innerHTML = '';
             
             if (data.success) {
-                // Login exitoso
-                showAlert('Login exitoso! Redirigiendo...', 'success');
+                // Registro exitoso
+                showAlert('¡Usuario registrado exitosamente! Redirigiendo al login...', 'success');
                 
-                // Guardar datos del usuario y token en localStorage
-                localStorage.setItem('user', JSON.stringify(data.user));
-                localStorage.setItem('token', data.token);
+                // Limpiar formulario
+                registerForm.reset();
                 
-                // Redireccionar según el rol del usuario
+                // Redireccionar al login después de 2 segundos
                 setTimeout(() => {
-                    if (data.user.rol === 'ADMIN') {
-                        window.location.href = '/home-admin';
-                    } else {
-                        window.location.href = '/home-usuario';
-                    }
-                }, 1500);
+                    window.location.href = '/login';
+                }, 2000);
                 
             } else {
-                // Login fallido
-                showAlert(data.message || 'Error al iniciar sesión', 'danger');
+                // Registro fallido
+                showAlert(data.message || 'Error al registrar usuario', 'danger');
             }
             
         } catch (error) {
@@ -64,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             // Rehabilitar el botón
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Iniciar Sesión';
+            submitBtn.textContent = 'Registrarse';
         }
     });
     

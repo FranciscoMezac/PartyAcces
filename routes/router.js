@@ -1,9 +1,17 @@
 const fs = require('fs');
 const path = require('path');
-const HomeController = require('../controllers/homeController');
-const UsuariosController = require('../controllers/usuariosController');
-const PuntosController = require('../controllers/puntosController');
 const db = require('../config/database');
+
+// Importar clases (no instancias)
+const UsuarioRepository = require('../repositories/UsuarioRepository');
+const CuentaPuntosRepository = require('../repositories/CuentaPuntosRepository');
+const SessionRepository = require('../repositories/SessionRepository');
+const AuthService = require('../services/AuthService');
+const PerfilService = require('../services/PerfilService');
+const AuthController = require('../controllers/authController');
+const PerfilController = require('../controllers/perfilController');
+const userController = require('../controllers/userController');
+const HomeController = require('../controllers/homeController');
 
 // Definición de rutas
 const routes = {
@@ -11,40 +19,14 @@ const routes = {
         '/': HomeController.index,
         '/home': HomeController.index,
         '/login': serveView('login.html'),
+        '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
-        '/puntos/acumular': serveView('puntos_acumular.html'),
-        '/puntos/canjear': serveView('puntos_canjear.html'),
-        '/puntos/historial': serveView('puntos_historial.html'),
-        '/api/usuarios': UsuariosController.listar,
-        '/api/navigation': HomeController.getNavigationData,
-        '/api/productos': async (_req, res) => {
-            try {
-                const r = await db.query(
-                    'SELECT id, nombre, puntos_requeridos FROM productos WHERE activo = TRUE ORDER BY puntos_requeridos ASC, nombre ASC'
-                );
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ success: true, data: r.rows }));
-            } catch (err) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ success: false, error: err.message }));
-            }
-        },
-        '/api/puntos/historial': PuntosController.historial,
-        '/_db/health': async (_req, res) => {
-            try {
-                const info = await db.healthCheck();
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ ok: true, info }));
-            } catch (err) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ ok: false, error: err.message }));
-            }
-        }
+        '/api/users': userController.getAllUsers,
+        '/api/navigation': HomeController.getNavigationData
     },
     'POST': {
-        '/api/puntos/acumular': PuntosController.acumular,
-        '/api/puntos/canjear': PuntosController.canjear,
-        '/api/usuarios/bloquear': UsuariosController.bloquear
+        '/api/login': userController.login,
+        '/api/users': userController.createUser
     }
 };
 
