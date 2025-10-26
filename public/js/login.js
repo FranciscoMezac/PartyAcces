@@ -38,14 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (data.success) {
                 // Login exitoso
-                showAlert('¡Login exitoso! Redirigiendo...', 'success');
+                showAlert('Login exitoso! Redirigiendo...', 'success');
                 
-                // Guardar datos del usuario en localStorage
+                // Guardar datos del usuario y token en localStorage
                 localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('token', data.token);
                 
-                // Redireccionar al dashboard después de 1.5 segundos
+                // Redireccionar según el rol del usuario
                 setTimeout(() => {
-                    window.location.href = '/dashboard';
+                    if (data.user.rol === 'ADMIN') {
+                        window.location.href = '/home-admin';
+                    } else {
+                        window.location.href = '/home-usuario';
+                    }
                 }, 1500);
                 
             } else {
