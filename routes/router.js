@@ -7,8 +7,8 @@ const HomeController = require('../controllers/homeController');
 // Definición de rutas
 const routes = {
     'GET': {
-        '/': HomeController.index,
-        '/home': HomeController.index,
+        '/': serveView('index.html'),            // << antes: HomeController.index
+        '/home': serveView('home.html'),
         '/login': serveView('login.html'),
         '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
