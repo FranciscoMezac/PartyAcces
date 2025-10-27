@@ -2,9 +2,29 @@ const fs = require('fs');
 const path = require('path');
 const db = require('../config/database');
 
-// Controladores en uso
+// Importar repositorios y servicios
+const UsuarioRepository = require('../repositories/UsuarioRepository');
+const SessionRepository = require('../repositories/SessionRepository');
+const CuentaPuntosRepository = require('../repositories/CuentaPuntosRepository');
+const AuthService = require('../services/AuthService');
+const PerfilService = require('../services/PerfilService');
+
+// Importar controladores
 const UsuariosController = require('../controllers/usuariosController');
 const HomeController = require('../controllers/homeController');
+const AuthController = require('../controllers/authController');
+const PerfilController = require('../controllers/perfilController');
+
+// Instanciar dependencias para AuthController
+const usuarioRepository = new UsuarioRepository(db);
+const sessionRepository = new SessionRepository(db);
+const cuentaPuntosRepository = new CuentaPuntosRepository(db);
+const authService = new AuthService(usuarioRepository, cuentaPuntosRepository, sessionRepository);
+const authController = new AuthController(authService);
+
+// Instanciar dependencias para PerfilController
+const perfilService = new PerfilService(usuarioRepository, sessionRepository);
+const perfilController = new PerfilController(perfilService);
 
 // Definición de rutas
 const routes = {
@@ -14,12 +34,28 @@ const routes = {
         '/login': serveView('login.html'),
         '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
+        '/home-usuario': serveView('home-usuario.html'),
+        '/home-admin': serveView('home-admin.html'),
+        '/perfil-usuario': serveView('perfil-usuario.html'),
+        '/perfil-admin': serveView('perfil-admin.html'),
+        '/editar-perfil': serveView('editar-perfil.html'),
+        '/reset-password': serveView('reset-password.html'),
+        '/qr': serveView('qr.html'),
         '/puntos/acumular': serveView('puntos_acumular.html'),
         '/puntos/canjear': serveView('puntos_canjear.html'),
         '/puntos/historial': serveView('puntos_historial.html'),
+        
+        // API de usuarios
         '/api/usuarios': UsuariosController.listar,
+        
+        // API de perfil
+        '/api/perfil': (req, res) => perfilController.obtenerPerfil(req, res),
+        
+        // API de navegación
         '/api/navigation': HomeController.getNavigationData,
-        '/_db/health': async (_req, res) => {
+        
+        // Health checks
+        '/health': async (_req, res) => {
             try {
                 const info = await db.healthCheck();
                 res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -29,15 +65,17 @@ const routes = {
                 res.end(JSON.stringify({ ok: false, error: err.message }));
             }
         },
-        '/health': async (_req, res) => {const info = await db.healthCheck();
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ ok: true, info }));
-        },
         '/api/health': async (_req, res) => {
-            const info = await db.healthCheck();
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ ok: true, info }));
+            try {
+                const info = await db.healthCheck();
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: true, info }));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: false, error: err.message }));
+            }
         },
+        
         // Catálogo de productos para canje
         '/api/productos': async (_req, res) => {
             try {
@@ -51,12 +89,26 @@ const routes = {
                 res.end(JSON.stringify({ success: false, error: err.message }));
             }
         },
+        
+        // Historial de puntos
         '/api/puntos/historial': require('../controllers/puntosController').historial,
     },
     'POST': {
+        // Autenticación (usar /api/register como ruta principal)
+        '/api/register': (req, res) => authController.register(req, res),
+        '/api/login': (req, res) => authController.login(req, res),
+        '/api/reset-password': (req, res) => authController.resetPassword(req, res),
+        
+        // Gestión de usuarios (admin)
         '/api/usuarios/bloquear': UsuariosController.bloquear,
+        
+        // Puntos
         '/api/puntos/acumular': require('../controllers/puntosController').acumular,
         '/api/puntos/canjear': require('../controllers/puntosController').canjear
+    },
+    'PATCH': {
+        // Perfil
+        '/api/perfil': (req, res) => perfilController.actualizarPerfil(req, res)
     }
 };
 

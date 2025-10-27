@@ -3,8 +3,15 @@ const UsuarioRepository = require('../repositories/UsuarioRepository');
 const UsuarioService = require('../services/UsuarioService');
 const { verify } = require('../utils/jwtUtil');
 
+// Repositorio y servicio locales (se mantienen aquí para compatibilidad con router.js)
 const usuarioRepo = new UsuarioRepository(db);
 const usuarioService = new UsuarioService({ usuarioRepo });
+
+/**
+ * Controlador consolidado de usuarios
+ * Contiene: listar (paginado), bloquear, y operaciones CRUD (obtener, crear, actualizar, eliminar)
+ * Mantiene el estilo de respuestas con res.writeHead / res.end para ser compatible con el resto del proyecto
+ */
 
 async function listar(req, res) {
   try {
@@ -96,4 +103,131 @@ async function bloquear(req, res) {
   }
 }
 
-module.exports = { listar, bloquear };
+// -------------------------
+// CRUD compatibles (unidos desde userController.js)
+// Ahora usan UsuarioService para centralizar lógica de negocio
+// -------------------------
+
+async function getAllUsers(req, res) {
+  try {
+    const usuariosJSON = await usuarioService.obtenerTodos();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ success: true, data: usuariosJSON }));
+  } catch (error) {
+    console.error('getAllUsers error:', error);
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ success: false, message: 'No se pudo obtener usuarios' }));
+  }
+}
+
+async function getUserById(req, res) {
+  try {
+    const bodyOrParams = req.params || req.body || {};
+    const id = bodyOrParams.id;
+    if (!id) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ success: false, message: 'ID de usuario requerido' }));
+    }
+    
+    const usuario = await usuarioService.obtenerPorId(id);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ success: true, data: usuario }));
+  } catch (error) {
+    console.error('getUserById error:', error);
+    if (error.code === 'NOT_FOUND') {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ success: false, message: error.message }));
+    }
+    res.writeHead(500, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ success: false, message: 'No se pudo obtener usuario' }));
+  }
+}
+
+async function createUser(req, res) {
+  try {
+    const { name, nombre, email, password, contrasenia, rut, rol, estado } = req.body || {};
+    const nombreFinal = nombre || name;
+    const contraseniaFinal = contrasenia || password;
+
+    const usuario = await usuarioService.crearUsuario({
+      nombre: nombreFinal,
+      email,
+      contrasenia: contraseniaFinal,
+      rut,
+      rol,
+      estado
+    });
+
+    res.writeHead(201, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ success: true, message: 'Usuario creado exitosamente', user: usuario }));
+  } catch (error) {
+    console.error('createUser error:', error);
+    if (error.code === 'DUPLICATE_EMAIL') {
+      res.writeHead(409, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ success: false, message: error.message }));
+    }
+    if (error.code === 'DUPLICATE_RUT') {
+      res.writeHead(409, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ success: false, message: error.message }));
+    }
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ success: false, message: error.message || 'No se pudo crear usuario' }));
+  }
+}
+
+async function updateUser(req, res) {
+  try {
+    const bodyOrParams = req.params || req.body || {};
+    const id = bodyOrParams.id;
+    const { nombre, email, rol, estado, contrasenia } = req.body || {};
+
+    const usuario = await usuarioService.actualizarUsuario(id, {
+      nombre,
+      email,
+      rol,
+      estado,
+      contrasenia
+    });
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ success: true, message: 'Usuario actualizado exitosamente', user: usuario }));
+  } catch (error) {
+    console.error('updateUser error:', error);
+    if (error.code === 'NOT_FOUND') {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ success: false, message: error.message }));
+    }
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ success: false, message: error.message || 'No se pudo actualizar usuario' }));
+  }
+}
+
+async function deleteUser(req, res) {
+  try {
+    const bodyOrParams = req.params || req.body || {};
+    const id = bodyOrParams.id;
+
+    const resultado = await usuarioService.eliminarUsuario(id);
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ success: true, message: resultado.message }));
+  } catch (error) {
+    console.error('deleteUser error:', error);
+    if (error.code === 'NOT_FOUND') {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ success: false, message: error.message }));
+    }
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    return res.end(JSON.stringify({ success: false, message: error.message || 'No se pudo eliminar usuario' }));
+  }
+}
+
+module.exports = {
+  listar,
+  bloquear,
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser
+};

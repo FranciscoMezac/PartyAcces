@@ -60,6 +60,20 @@ class CuentaPuntos {
     }
 
     /**
+     * Acredita puntos a la cuenta (alias de agregarPuntos, compatible con Cuenta.js)
+     * @param {number} puntos - Cantidad de puntos a acreditar
+     * @returns {number} - Nuevo saldo
+     */
+    acreditar(puntos) {
+        const cantidad = Number(puntos);
+        if (!Number.isFinite(cantidad) || cantidad <= 0) {
+            throw new Error('Puntos inválidos');
+        }
+        this.#saldo += cantidad;
+        return this.#saldo;
+    }
+
+    /**
      * Resta puntos de la cuenta
      * @param {number} cantidad - Cantidad de puntos a restar
      * @returns {CuentaPuntos} - Retorna this para method chaining
@@ -73,6 +87,25 @@ class CuentaPuntos {
         }
         this.#saldo -= cantidad;
         return this;
+    }
+
+    /**
+     * Debita puntos de la cuenta (alias de restarPuntos, compatible con Cuenta.js)
+     * @param {number} costo - Cantidad de puntos a debitar
+     * @returns {number} - Nuevo saldo
+     */
+    debitar(costo) {
+        const valor = Number(costo);
+        if (!Number.isFinite(valor) || valor <= 0) {
+            throw new Error('Costo inválido');
+        }
+        if (this.#saldo < valor) {
+            const err = new Error('Saldo insuficiente');
+            err.code = 'SALDO_INSUFICIENTE';
+            throw err;
+        }
+        this.#saldo -= valor;
+        return this.#saldo;
     }
 
     /**

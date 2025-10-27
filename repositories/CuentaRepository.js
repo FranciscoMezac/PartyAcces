@@ -1,4 +1,4 @@
-const Cuenta = require('../models/Cuenta');
+const CuentaPuntos = require('../models/CuentaPuntos');
 
 class CuentaRepository {
   constructor(db) { this.db = db; }
@@ -14,7 +14,7 @@ class CuentaRepository {
     const sql = `SELECT rut, saldo FROM cuentas WHERE rut = $1${forUpdate ? ' FOR UPDATE' : ''}`;
     const r = await client.query(sql, [rut]);
     const row = r.rows[0];
-    return row ? new Cuenta({ rut: row.rut, saldo: row.saldo }) : null;
+    return row ? new CuentaPuntos({ rut: row.rut, saldo: row.saldo }) : null;
   }
 
   async acreditar(client, rut, puntos) {
