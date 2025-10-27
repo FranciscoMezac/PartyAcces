@@ -9,6 +9,8 @@ const routes = {
     'GET': {
         '/': serveView('index.html'),            // << antes: HomeController.index
         '/home': serveView('home.html'),
+        '/home_client': serveView('home_client.html'),
+        '/home_admin': serveView('home_admin.html'),
         '/login': serveView('login.html'),
         '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
