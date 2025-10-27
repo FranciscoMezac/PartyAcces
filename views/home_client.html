@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PartyAccess - Inicio (Cliente)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/public/css/styles.css">
+</head>
+<body>
+  <!-- Navbar superior (solo brand) -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">PartyAccess</a>
+
+      <!-- Toggler vanilla (opcional) -->
+      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <!-- sin ítems (cliente no ve Dashboard) -->
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="container">
+    <div class="row mt-5">
+      <div class="col-12">
+        <!-- Hero -->
+        <div class="hero-section text-center mb-5">
+          <h1 class="display-4">Bienvenido a PartyAccess</h1>
+          <p class="lead">Tu pase a la diversión: ingresa con QR y acumula puntos por consumo.</p>
+          <p class="text-muted">Gestiona tu acceso y beneficios desde tu móvil, sin filas.</p>
+        </div>
+
+        <!-- Acciones cliente -->
+        <div class="text-center mb-5">
+          <a class="btn btn-primary btn-lg me-2" href="/qr">Ver mi QR</a>
+          <a class="btn btn-outline-secondary btn-lg" href="/perfil">Mi perfil</a>
+        </div>
+
+        <!-- Bloque informativo -->
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Próximos eventos</h5>
+            <p class="card-text">
+              Descubre promociones, listas de invitados y experiencias únicas pensadas para ti.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation (cliente) -->
+  <nav class="bottom-nav">
+    <div class="nav-container" id="bottomNavContainer">
+      <a href="/home" class="nav-item active">
+        <div class="nav-icon"><span class="icon-emoji">🏠</span></div>
+        <span class="nav-label">Inicio</span>
+      </a>
+      <a href="/qr" class="nav-item">
+        <div class="nav-icon"><span class="icon-emoji">📱</span></div>
+        <span class="nav-label">QR</span>
+      </a>
+      <a href="/usuario" class="nav-item">
+        <div class="nav-icon"><span class="icon-emoji">👤</span></div>
+        <span class="nav-label">Usuario</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- JS vanilla para el toggler del navbar superior -->
+  <script src="/public/js/nav-toggle.js"></script>
+</body>
+</html>

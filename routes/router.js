@@ -29,9 +29,12 @@ const perfilController = new PerfilController(perfilService);
 // Definición de rutas
 const routes = {
     'GET': {
-        '/': HomeController.index,
-        '/home': HomeController.index,
+        '/': serveView('index.html'),            // << antes: HomeController.index
+        '/home': serveView('home.html'),
+        '/home_client': serveView('home_client.html'),
+        '/home_admin': serveView('home_admin.html'),
         '/login': serveView('login.html'),
+        '/usuario': serveView('login.html'),
         '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
         '/home-usuario': serveView('home-usuario.html'),

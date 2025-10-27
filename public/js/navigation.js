@@ -1,140 +1,156 @@
-// JavaScript vanilla para navegación - Sin jQuery, sin frameworks
-// Fetch API puro para obtener datos de navegación
+// navigation.js — Bottom navigation genérica para todas las páginas
+// Sin jQuery / sin frameworks
 
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadNavigationData();
+document.addEventListener('DOMContentLoaded', () => {
+  loadNavigationData();
 });
 
-// Función principal para cargar datos de navegación
+/* ========= Helpers de rutas ========= */
+function normalizePath(p) {
+  if (!p) return '/';
+  // quita query y hash, y el slash final redundante
+  p = p.split('#')[0].split('?')[0];
+  if (p.length > 1 && p.endsWith('/')) p = p.slice(0, -1);
+  return p || '/';
+}
+
+// Tratar estas rutas como “Inicio”
+const HOME_ALIASES = new Set(['/', '/home', '/inicio', '/index.html']);
+
+function isSameRoute(a, b) {
+  a = normalizePath(a);
+  b = normalizePath(b);
+  if (HOME_ALIASES.has(a) && HOME_ALIASES.has(b)) return true;
+  return a === b;
+}
+
+/* ========= Fetch de datos ========= */
 async function loadNavigationData() {
-    try {
-        // Fetch API puro - NO usar jQuery
-        const response = await fetch('/api/navigation', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            const { navigation, home } = result.data;
-            
-            // Renderizar navegación inferior
-            renderBottomNavigation(navigation);
-            
-            // Renderizar contenido de home
-            renderHomeContent(home);
-        } else {
-            console.error('Error al cargar navegación:', result.message);
-        }
-    } catch (error) {
-        console.error('Error al obtener datos de navegación:', error);
+  try {
+    const res = await fetch('/api/navigation', { headers: { 'Content-Type': 'application/json' } });
+    const json = await res.json();
+    if (!json || !json.success) {
+      console.warn('navigation.js: respuesta inválida o sin success=true');
+      return;
     }
+    const { navigation, home } = json.data || {};
+
+    renderBottomNavigation(Array.isArray(navigation) ? navigation : []);
+    renderHomeContent(home || {}); // inofensivo si no estás en Home
+  } catch (err) {
+    console.error('navigation.js: error obteniendo /api/navigation', err);
+  }
 }
 
-// Renderizar la navegación inferior con JavaScript vanilla
-function renderBottomNavigation(navigationItems) {
-    const container = document.getElementById('bottomNavContainer');
-    
-    if (!container) return;
+/* ========= Render de la bottom-nav ========= */
+function renderBottomNavigation(items) {
+  const container = document.getElementById('bottomNavContainer');
+  if (!container) return; // página sin bottom-nav
 
-    // Limpiar contenedor
-    container.innerHTML = '';
+  container.innerHTML = '';
+  const currentPath = normalizePath(location.pathname || '/');
 
-    // Crear items de navegación dinámicamente
-    navigationItems.forEach(item => {
-        const navItem = document.createElement('a');
-        navItem.href = item.href;
-        navItem.className = `nav-item ${item.active ? 'active' : ''}`;
-        
-        // Crear estructura del item
-        const navIcon = document.createElement('div');
-        navIcon.className = 'nav-icon';
-        
-        // Determinar el ícono
-        if (item.icon === 'qr') {
-            // Si es QR, usar imagen
-            const img = document.createElement('img');
-            img.src = '/public/images/fotoprueba.jpg';
-            img.alt = 'QR';
-            img.className = 'icon';
-            navIcon.appendChild(img);
-        } else {
-            // Para otros iconos, usar emoji
-            const iconEmoji = document.createElement('span');
-            iconEmoji.className = 'icon-emoji';
-            iconEmoji.textContent = getIconEmoji(item.icon);
-            navIcon.appendChild(iconEmoji);
-        }
-        
-        const navLabel = document.createElement('span');
-        navLabel.className = 'nav-label';
-        navLabel.textContent = item.label;
-        
-        navItem.appendChild(navIcon);
-        navItem.appendChild(navLabel);
-        
-        // Event listener para marcar como activo
-        navItem.addEventListener('click', (e) => {
-            // Remover active de todos
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.classList.remove('active');
-            });
-            // Agregar active al clickeado
-            navItem.classList.add('active');
-        });
-        
-        container.appendChild(navItem);
+  items.forEach((item) => {
+    // datos robustos
+    const href = normalizePath(item?.href || '/');
+    const label = item?.label || '';
+    const iconName = (item?.icon || '').toLowerCase();
+    const iconSrc = item?.src || item?.icon_src || ''; // permitir backends distintos
+
+    // <a class="nav-item" href="...">
+    const a = document.createElement('a');
+    a.href = href;
+    a.className = 'nav-item';
+
+    // icono
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'nav-icon';
+    iconWrap.appendChild(createIconElement(iconName, iconSrc));
+
+    // etiqueta
+    const span = document.createElement('span');
+    span.className = 'nav-label';
+    span.textContent = label;
+
+    a.appendChild(iconWrap);
+    a.appendChild(span);
+
+    // activo por URL actual (independiente de lo que mande el backend)
+    if (isSameRoute(href, currentPath)) {
+      a.classList.add('active');
+      a.setAttribute('aria-current', 'page');
+    }
+
+    // feedback inmediato al click (sin impedir navegación normal)
+    a.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      a.classList.add('active');
     });
+
+    container.appendChild(a);
+  });
 }
 
-// Obtener emoji para el ícono
+/* ========= Iconos ========= */
+// 1) si viene un src => <img>
+// 2) si hay nombre conocido => emoji
+// 3) fallback => document emoji
+function createIconElement(name, src) {
+  if (src) {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = name || 'icono';
+    img.className = 'icon';
+    return img;
+  }
+  const span = document.createElement('span');
+  span.className = 'icon-emoji';
+  span.textContent = getIconEmoji(name);
+  return span;
+}
+
 function getIconEmoji(iconName) {
-    const icons = {
-        'home': '🏠',
-        'qr': '📱',
-        'user': '👤',
-        'events': '🎉',
-        'settings': '⚙️'
-    };
-    return icons[iconName] || '📄';
+  const map = {
+    home: '🏠',
+    qr: '📱',
+    user: '👤',
+    usuario: '👤',
+    events: '🎉',
+    eventos: '🎉',
+    settings: '⚙️',
+    ajustes: '⚙️'
+  };
+  return map[iconName] ?? '📄';
 }
 
-// Renderizar contenido de home
-function renderHomeContent(homeData) {
-    // Actualizar título hero
-    const heroTitle = document.getElementById('heroTitle');
-    if (heroTitle && homeData.title) {
-        heroTitle.textContent = homeData.title;
-    }
+/* ========= Render del contenido Home (seguro si no existen nodos) ========= */
+function renderHomeContent(homeData = {}) {
+  // Título
+  const heroTitle = document.getElementById('heroTitle');
+  if (heroTitle && homeData.title) heroTitle.textContent = homeData.title;
 
-    // Actualizar headline
-    const heroHeadline = document.getElementById('heroHeadline');
-    if (heroHeadline && homeData.hero && homeData.hero.headline) {
-        heroHeadline.textContent = homeData.hero.headline;
-    }
+  // Headline
+  const heroHeadline = document.getElementById('heroHeadline');
+  if (heroHeadline && homeData.hero?.headline) {
+    heroHeadline.textContent = homeData.hero.headline;
+  }
 
-    // Actualizar subheadline
-    const heroSubheadline = document.getElementById('heroSubheadline');
-    if (heroSubheadline && homeData.hero && homeData.hero.subheadline) {
-        heroSubheadline.textContent = homeData.hero.subheadline;
-    }
+  // Subheadline
+  const heroSubheadline = document.getElementById('heroSubheadline');
+  if (heroSubheadline && homeData.hero?.subheadline) {
+    heroSubheadline.textContent = homeData.hero.subheadline;
+  }
 
-    // Renderizar acciones (botones)
-    const actionsContainer = document.getElementById('actionsContainer');
-    if (actionsContainer && homeData.actions) {
-        actionsContainer.innerHTML = '';
-        
-        homeData.actions.forEach(action => {
-            const button = document.createElement('a');
-            button.href = action.href;
-            button.className = action.primary 
-                ? 'btn btn-primary btn-lg me-2' 
-                : 'btn btn-outline-secondary btn-lg me-2';
-            button.textContent = action.label;
-            actionsContainer.appendChild(button);
-        });
-    }
+  // Acciones (botones)
+  const actionsContainer = document.getElementById('actionsContainer');
+  if (actionsContainer && Array.isArray(homeData.actions)) {
+    actionsContainer.innerHTML = '';
+    homeData.actions.forEach(action => {
+      const a = document.createElement('a');
+      a.href = action.href || '#';
+      a.className = action.primary ? 'btn btn-primary btn-lg me-2' : 'btn btn-outline-secondary btn-lg me-2';
+      a.textContent = action.label || '';
+      actionsContainer.appendChild(a);
+    });
+  }
 }
