@@ -57,5 +57,7 @@ async function withTransaction(work) {
 module.exports = {
     query,
     getClient,
-    pool
+    pool,
+    healthCheck,
+    withTransaction
 };

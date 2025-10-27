@@ -10,17 +10,22 @@ async function listar(req, res) {
   try {
     // Autenticación simple con Bearer <token>
     const auth = req.headers['authorization'] || req.headers['Authorization'];
+    let payload = null;
     if (!auth || !auth.startsWith('Bearer ')) {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ success: false, message: 'No autenticado' }));
-    }
-
-    let payload;
-    try {
-      payload = verify(auth.slice('Bearer '.length));
-    } catch (e) {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ success: false, message: 'No autenticado' }));
+      if (process.env.NODE_ENV !== 'production') {
+        // Modo demo: permitir sin token
+        payload = { id: 0, email: 'admin@demo', rol: 'ADMIN' };
+      } else {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ success: false, message: 'No autenticado' }));
+      }
+    } else {
+      try {
+        payload = verify(auth.slice('Bearer '.length));
+      } catch (e) {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ success: false, message: 'No autenticado' }));
+      }
     }
 
     if (!payload || payload.rol !== 'ADMIN') {
@@ -64,6 +69,10 @@ async function bloquear(req, res) {
 
     // body: { rut, motivo }
     const { rut, motivo } = req.body || {};
+    if (!rut || String(rut).trim().length === 0) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ success: false, message: 'RUT requerido' }));
+    }
     try {
       const u = await usuarioService.bloquearUsuario({ rut, motivo, adminId: payload.id });
       res.writeHead(200, { 'Content-Type': 'application/json' });

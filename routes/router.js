@@ -2,15 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const db = require('../config/database');
 
-// Importar clases (no instancias)
-const UsuarioRepository = require('../repositories/UsuarioRepository');
-const CuentaPuntosRepository = require('../repositories/CuentaPuntosRepository');
-const SessionRepository = require('../repositories/SessionRepository');
-const AuthService = require('../services/AuthService');
-const PerfilService = require('../services/PerfilService');
-const AuthController = require('../controllers/authController');
-const PerfilController = require('../controllers/perfilController');
-const userController = require('../controllers/userController');
+// Controladores en uso
+const UsuariosController = require('../controllers/usuariosController');
 const HomeController = require('../controllers/homeController');
 
 // Definición de rutas
@@ -21,12 +14,49 @@ const routes = {
         '/login': serveView('login.html'),
         '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
-        '/api/users': userController.getAllUsers,
-        '/api/navigation': HomeController.getNavigationData
+        '/puntos/acumular': serveView('puntos_acumular.html'),
+        '/puntos/canjear': serveView('puntos_canjear.html'),
+        '/puntos/historial': serveView('puntos_historial.html'),
+        '/api/usuarios': UsuariosController.listar,
+        '/api/navigation': HomeController.getNavigationData,
+        '/_db/health': async (_req, res) => {
+            try {
+                const info = await db.healthCheck();
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: true, info }));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ ok: false, error: err.message }));
+            }
+        },
+        '/health': async (_req, res) => {const info = await db.healthCheck();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true, info }));
+        },
+        '/api/health': async (_req, res) => {
+            const info = await db.healthCheck();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ ok: true, info }));
+        },
+        // Catálogo de productos para canje
+        '/api/productos': async (_req, res) => {
+            try {
+                const r = await db.query(
+                    'SELECT id, nombre, puntos_requeridos FROM productos WHERE activo = TRUE ORDER BY puntos_requeridos ASC, nombre ASC'
+                );
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, data: r.rows }));
+            } catch (err) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: false, error: err.message }));
+            }
+        },
+        '/api/puntos/historial': require('../controllers/puntosController').historial,
     },
     'POST': {
-        '/api/login': userController.login,
-        '/api/users': userController.createUser
+        '/api/usuarios/bloquear': UsuariosController.bloquear,
+        '/api/puntos/acumular': require('../controllers/puntosController').acumular,
+        '/api/puntos/canjear': require('../controllers/puntosController').canjear
     }
 };
 

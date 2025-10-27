@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const rut = user.rut ?? '';
       const rol = user.rol ?? '';
       const estado = user.estado ?? '';
+      const canBlock = rut && estado !== 'BLOQUEADO';
       return `
         <tr>
           <td>${user.id ?? ''}</td>
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>${rol}</td>
           <td>${estado}</td>
           <td>
-            <button class="btn btn-sm btn-warning" data-action="bloquear" data-rut="${rut}" ${estado === 'BLOQUEADO' ? 'disabled' : ''}>Bloquear</button>
+            <button class="btn btn-sm btn-warning" data-action="bloquear" data-rut="${rut}" ${canBlock ? '' : 'disabled'} title="${canBlock ? 'Bloquear usuario' : (rut ? 'Ya bloqueado' : 'Sin RUT')}">Bloquear</button>
           </td>
         </tr>
       `;
@@ -137,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = e.target.closest('[data-action="bloquear"]');
     if (!btn) return;
     const rut = btn.dataset.rut;
-    if (!rut) return;
+    if (!rut) { showAlert('Usuario sin RUT. No se puede bloquear.', 'danger'); return; }
     if (!confirm(`¿Bloquear usuario ${rut}?`)) return;
     try {
       btn.disabled = true;
