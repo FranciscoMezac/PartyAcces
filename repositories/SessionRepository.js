@@ -95,13 +95,14 @@ class SessionRepository {
 
     /**
      * Invalida una sesión (logout)
+     * Coincide con diagrama: UPDATE sesiones SET activa=false, expira_en=NOW()
      * @param {string} token 
      * @returns {Promise<boolean>}
      */
     async invalidarSesion(token) {
         try {
             const result = await this.#db.query(
-                'UPDATE sesiones SET activa = false WHERE token = $1 RETURNING session_id',
+                'UPDATE sesiones SET activa = false, expira_en = NOW() WHERE token = $1 AND activa = true RETURNING session_id',
                 [token]
             );
 

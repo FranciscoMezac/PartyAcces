@@ -23,7 +23,7 @@ const authService = new AuthService(usuarioRepository, cuentaPuntosRepository, s
 const authController = new AuthController(authService);
 
 // Instanciar dependencias para PerfilController
-const perfilService = new PerfilService(usuarioRepository, sessionRepository);
+const perfilService = new PerfilService(usuarioRepository, sessionRepository, cuentaPuntosRepository);
 const perfilController = new PerfilController(perfilService);
 
 // Definición de rutas
@@ -103,6 +103,7 @@ const routes = {
         // Autenticación (usar /api/register como ruta principal)
         '/api/register': (req, res) => authController.register(req, res),
         '/api/login': (req, res) => authController.login(req, res),
+        '/api/logout': (req, res) => authController.logout(req, res),
         '/api/reset-password': (req, res) => authController.resetPassword(req, res),
         
         // Gestión de usuarios (admin)
