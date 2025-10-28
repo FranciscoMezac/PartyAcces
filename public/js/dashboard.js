@@ -172,4 +172,54 @@ document.addEventListener('DOMContentLoaded', () => {
   limitSelect?.addEventListener('change', () => { state.limit = Number(limitSelect.value || 10); state.page = 1; loadUsers(); });
   prevBtn?.addEventListener('click', () => { if (state.page > 1) { state.page -= 1; loadUsers(); } });
   nextBtn?.addEventListener('click', () => { state.page += 1; loadUsers(); });
+
+  // --- Saldo en tiempo real (SSE) ---
+  (function saldoRealtime() {
+    const rutInput = document.getElementById('saldoRut');
+    const btn = document.getElementById('saldoBtn');
+    const valor = document.getElementById('saldoValor');
+    const status = document.getElementById('saldoStatus');
+    let es = null;
+
+    async function cargarSaldo(rut) {
+      try {
+        const r = await fetch(`/api/puntos/saldo?rut=${encodeURIComponent(rut)}`);
+        const j = await r.json();
+        if (r.ok && j.success) {
+          valor.textContent = j.saldo ?? 0;
+        } else {
+          valor.textContent = 'Error';
+        }
+      } catch {
+        valor.textContent = 'Error';
+      }
+    }
+
+    function suscribir(rut) {
+      if (es) { try { es.close(); } catch {} es = null; }
+      try {
+        es = new EventSource(`/api/puntos/saldo/stream?rut=${encodeURIComponent(rut)}`);
+        status.textContent = 'suscrito';
+        es.addEventListener('saldo', (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (data && String(data.rut) === String(rut)) {
+              valor.textContent = data.saldo ?? 0;
+            }
+          } catch {}
+        });
+        es.onerror = () => { status.textContent = 'reintentando...'; };
+      } catch {
+        status.textContent = 'error';
+      }
+    }
+
+    btn?.addEventListener('click', async () => {
+      const rut = (rutInput?.value || '').trim();
+      if (!rut) return;
+      status.textContent = 'consultando...';
+      await cargarSaldo(rut);
+      suscribir(rut);
+    });
+  })();
 });

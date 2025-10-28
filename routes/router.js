@@ -95,6 +95,9 @@ const routes = {
         
         // Historial de puntos
         '/api/puntos/historial': require('../controllers/puntosController').historial,
+        // Saldo actual y stream SSE
+        '/api/puntos/saldo': require('../controllers/puntosController').saldo,
+        '/api/puntos/saldo/stream': require('../controllers/puntosController').saldoStream,
     },
     'POST': {
         // Autenticación (usar /api/register como ruta principal)

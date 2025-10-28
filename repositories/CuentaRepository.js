@@ -34,6 +34,11 @@ class CuentaRepository {
     );
     return r.rows[0] ? Number(r.rows[0].saldo) : null;
   }
+
+  async getSaldo(rut) {
+    const r = await this.db.query('SELECT saldo FROM cuentas WHERE rut = $1', [rut]);
+    return r.rows[0] ? Number(r.rows[0].saldo) : null;
+  }
 }
 
 module.exports = CuentaRepository;

@@ -1,4 +1,5 @@
 const Movimiento = require('../models/Movimiento');
+const saldoNotifier = require('../utils/saldoNotifier');
 
 class PuntosService {
   constructor({ db, cuentaRepo, productoRepo, movimientoRepo, porcentaje }) {
@@ -25,6 +26,8 @@ class PuntosService {
       const mov = new Movimiento({ rut, tipo: 'COMPRA', monto: Number(monto), puntos, fecha: new Date() });
       await this.movimientoRepo.crear(client, mov);
       await client.query('COMMIT');
+      // notificar saldo actualizado
+      try { saldoNotifier.publish(rut, nuevoSaldo); } catch (_) {}
       return { nuevoSaldo, puntos };
     } catch (e) {
       await client.query('ROLLBACK');
@@ -46,6 +49,7 @@ class PuntosService {
       const mov = new Movimiento({ rut, tipo: 'CANJE', monto: 0, puntos: -costo, fecha: new Date() });
       await this.movimientoRepo.crear(client, mov);
       await client.query('COMMIT');
+      try { saldoNotifier.publish(rut, nuevoSaldo); } catch (_) {}
       return { nuevoSaldo, canje: { productoId: producto.id, nombre: producto.nombre, costo } };
     } catch (e) {
       await client.query('ROLLBACK');
@@ -55,6 +59,10 @@ class PuntosService {
 
   async obtenerHistorial(rut, page = 1, limit = 10) {
     return this.movimientoRepo.findByRutPaginated(rut, { page, limit });
+  }
+
+  async obtenerSaldo(rut) {
+    return this.cuentaRepo.getSaldo(rut);
   }
 }
 
