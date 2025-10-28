@@ -45,9 +45,7 @@ class PerfilController extends BaseController {
             // Obtener perfil desde el servicio
             const perfil = await this.#perfilService.obtenerPerfil(token);
 
-            return this.sendSuccess(res, {
-                perfil: perfil
-            }, 200);
+            return this.sendSuccess(res, { data: perfil }, 200);
 
         } catch (error) {
             if (error.message.includes('Token inválido') || error.message.includes('expirado')) {
@@ -102,10 +100,7 @@ class PerfilController extends BaseController {
             // Actualizar perfil
             const perfilActualizado = await this.#perfilService.actualizarPerfil(token, req.body);
 
-            return this.sendSuccess(res, {
-                message: 'Perfil actualizado correctamente',
-                perfil: perfilActualizado
-            }, 200);
+            return this.sendSuccess(res, { data: perfilActualizado }, 200);
 
         } catch (error) {
             if (error.message.includes('Token inválido') || error.message.includes('expirado')) {

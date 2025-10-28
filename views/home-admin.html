@@ -1,69 +1,105 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio Admin - PartyAccess</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/public/css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PartyAccess - Inicio (Admin)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/public/css/styles.css">
 </head>
 <body>
-    <!-- Navbar superior -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/home-admin">PartyAccess - Admin</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="logoutBtn">Cerrar Sesion</a>
-                    </li>
-                </ul>
+  <!-- Navbar superior (Admin con link a Dashboard) -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">PartyAccess</a>
+
+      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+          <li class="nav-item">
+            <button class="btn btn-outline-light" id="logoutBtn">Cerrar Sesión</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="container">
+    <div class="row mt-5">
+      <div class="col-12">
+        <!-- Hero -->
+        <div class="hero-section text-center mb-5">
+          <h1 class="display-4">Panel de Administración</h1>
+          <p class="lead">Gestiona eventos, accesos y métricas en tiempo real.</p>
+          <p class="text-muted">Administra el flujo en puerta, promociones y reportes del club.</p>
+        </div>
+
+        <!-- Acciones admin -->
+        <div class="text-center mb-5">
+          <a class="btn btn-primary btn-lg me-2" href="/dashboard">Ir al Dashboard</a>
+          <a class="btn btn-outline-secondary btn-lg" href="/qr">Ver QR de prueba</a>
+        </div>
+
+        <!-- Bloques resumen (diseño) -->
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted">Invitados hoy</h6>
+                <div class="display-6">248</div>
+              </div>
             </div>
-        </div>
-    </nav>
-
-    <!-- Contenido principal -->
-    <main class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-6 text-center">
-                <div class="card shadow-lg border-danger">
-                    <div class="card-body p-5">
-                        <h1 class="display-4 mb-4 text-danger">Vista Inicio Admin</h1>
-                        <p class="lead text-muted">Panel de administración</p>
-                    </div>
-                </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted">Check-ins</h6>
+                <div class="display-6">193</div>
+              </div>
             </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h6 class="text-muted">Promos vendidas</h6>
+                <div class="display-6">57</div>
+              </div>
+            </div>
+          </div>
         </div>
-    </main>
 
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <div class="nav-container">
-            <a href="/home-admin" class="nav-item active">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z"/>
-                </svg>
-                <span>Inicio</span>
-            </a>
-            <a href="/qr" class="nav-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M0 0h6v6H0V0zm1 1v4h4V1H1zm0 7h6v6H0V8zm1 1v4h4V9H1zm7-8h6v6H8V0zm1 1v4h4V1H9zm0 7h6v6H8V8zm1 1v4h4V9H9z"/>
-                </svg>
-                <span>QR</span>
-            </a>
-            <a href="/perfil-admin" class="nav-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
-                </svg>
-                <span>Usuario</span>
-            </a>
-        </div>
-    </nav>
+      </div>
+    </div>
+  </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/public/js/home-admin.js"></script>
+  <!-- Bottom Navigation (admin con Dashboard) -->
+  <nav class="bottom-nav">
+    <div class="nav-container">
+      <a href="/home-admin" class="nav-item active">
+        <div class="nav-icon"><span class="icon-emoji">🏠</span></div>
+        <span class="nav-label">Inicio</span>
+      </a>
+      <a href="/dashboard" class="nav-item">
+        <div class="nav-icon"><span class="icon-emoji">📊</span></div>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a href="/qr" class="nav-item">
+        <div class="nav-icon"><span class="icon-emoji">📱</span></div>
+        <span class="nav-label">QR</span>
+      </a>
+      <a href="/perfil-admin" class="nav-item">
+        <div class="nav-icon"><span class="icon-emoji">👤</span></div>
+        <span class="nav-label">Usuario</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- JS vanilla para el toggler del navbar superior -->
+  <script src="/public/js/nav-toggle.js"></script>
+  <script src="/public/js/home-admin.js"></script>
 </body>
 </html>

@@ -8,15 +8,18 @@ const bcrypt = require('bcryptjs');
 class PerfilService {
     #usuarioRepository;
     #sessionRepository;
+    #cuentaPuntosRepository;
 
     /**
      * Constructor con inyección de dependencias
      * @param {UsuarioRepository} usuarioRepository 
      * @param {SessionRepository} sessionRepository 
+     * @param {CuentaPuntosRepository} cuentaPuntosRepository 
      */
-    constructor(usuarioRepository, sessionRepository) {
+    constructor(usuarioRepository, sessionRepository, cuentaPuntosRepository) {
         this.#usuarioRepository = usuarioRepository;
         this.#sessionRepository = sessionRepository;
+        this.#cuentaPuntosRepository = cuentaPuntosRepository;
     }
 
     /**
@@ -54,8 +57,22 @@ class PerfilService {
 
         console.log('👤 Usuario encontrado:', usuario.email);
 
-        // Retornar datos del perfil (sin contraseña)
-        return usuario.toJSON();
+        // Obtener cuenta de puntos del usuario
+        let saldo = 0;
+        try {
+            const cuenta = await this.#cuentaPuntosRepository.findByRut(usuario.rut);
+            if (cuenta) {
+                saldo = cuenta.saldo;
+            }
+        } catch (error) {
+            console.warn('⚠️ No se pudo obtener saldo de puntos:', error.message);
+        }
+
+        // Retornar datos del perfil (sin contraseña) incluyendo saldo
+        return {
+            ...usuario.toJSON(),
+            saldo: saldo
+        };
     }
 
     /**
@@ -139,7 +156,21 @@ class PerfilService {
 
         console.log('✅ Perfil actualizado exitosamente');
 
-        return usuarioActualizado.toJSON();
+        // Obtener saldo actualizado
+        let saldo = 0;
+        try {
+            const cuenta = await this.#cuentaPuntosRepository.findByRut(usuarioActualizado.rut);
+            if (cuenta) {
+                saldo = cuenta.saldo;
+            }
+        } catch (error) {
+            console.warn('⚠️ No se pudo obtener saldo de puntos:', error.message);
+        }
+
+        return {
+            ...usuarioActualizado.toJSON(),
+            saldo: saldo
+        };
     }
 
     /**
