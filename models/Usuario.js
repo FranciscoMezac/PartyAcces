@@ -1,4 +1,10 @@
 const bcrypt = require('bcryptjs');
+
+/**
+ * Patron de diseño: Active Record / Rich Domain Model
+ * Propósito: Entidad de dominio ACTIVA que conoce su repositorio y se comunica con él
+ * El Modelo NO es solo contenedor de datos, tiene comportamiento y lógica de negocio
+ */
 class Usuario {
     #usuarioId;
     #nombre;
@@ -8,11 +14,18 @@ class Usuario {
     #rol;
     #estado;
     #createdAt;
+    
+    /**
+     * @type {import('../repositories/UsuarioRepository')|null}
+     */
+    #usuarioRepository; // El Modelo conoce su Repositorio (Active Record Pattern)
 
     /**
-     * @param {Object} data 
+     * Constructor con inyección del repositorio
+     * @param {Object} data - Datos del usuario
+     * @param {import('../repositories/UsuarioRepository')|null} usuarioRepository - Repositorio inyectado (opcional)
      */
-    constructor(data = {}) {
+    constructor(data = {}, usuarioRepository = null) {
         this.#usuarioId = data.usuarioId || data.usuario_id || null;
         // Trim para eliminar espacios que agrega CHAR(256)
         this.#nombre = (data.nombre || '').trim();
@@ -22,6 +35,7 @@ class Usuario {
         this.#rol = (data.rol || 'USER').trim();
         this.#estado = (data.estado || 'ACTIVO').trim();
         this.#createdAt = data.created_at || data.createdAt || null;
+        this.#usuarioRepository = usuarioRepository; // Inyección de dependencia
     }
 
     get usuarioId() {
@@ -208,6 +222,86 @@ class Usuario {
         const hashLimpio = this.#contrasenia.trim();
         return await bcrypt.compare(plainPassword, hashLimpio);
     }
+
+    // ==================== MÉTODOS ACTIVE RECORD ====================
+    // El Modelo se comunica con su Repositorio
+
+    /**
+     * Verifica si el usuario ya existe en la base de datos por RUT
+     * COMPORTAMIENTO: El Modelo usa su Repositorio
+     * @returns {Promise<boolean>}
+     */
+    async verificarExistenciaPorRut() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+        const existe = await this.#usuarioRepository.findByRut(this.#rut);
+        return existe !== null;
+    }
+
+    /**
+     * Verifica si el usuario ya existe en la base de datos por Email
+     * COMPORTAMIENTO: El Modelo usa su Repositorio
+     * @returns {Promise<boolean>}
+     */
+    async verificarExistenciaPorEmail() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+        const existe = await this.#usuarioRepository.findByEmail(this.#email);
+        return existe !== null;
+    }
+
+    /**
+     * Guarda el usuario en la base de datos
+     * COMPORTAMIENTO: El Modelo se guarda a sí mismo
+     * @param {Object} client - Cliente de transacción (opcional)
+     * @returns {Promise<number>} - ID del usuario creado
+     */
+    async guardar(client = null) {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        // Validar antes de guardar
+        const validacion = this.validate();
+        if (!validacion.isValid) {
+            throw new Error(validacion.errors.join(', '));
+        }
+
+        // Hashear contraseña antes de guardar
+        await this.hashPassword();
+
+        // Insertar en BD
+        const id = await this.#usuarioRepository.insert(client, this);
+        this.#usuarioId = id;
+        return id;
+    }
+
+    /**
+     * Actualiza el usuario en la base de datos
+     * COMPORTAMIENTO: El Modelo se actualiza a sí mismo
+     * @returns {Promise<boolean>}
+     */
+    async actualizar() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#usuarioId) {
+            throw new Error('No se puede actualizar un usuario sin ID');
+        }
+
+        // Validar antes de actualizar
+        const validacion = this.validate();
+        if (!validacion.isValid) {
+            throw new Error(validacion.errors.join(', '));
+        }
+
+        return await this.#usuarioRepository.update(this.#usuarioId, this);
+    }
+
+    // ==================== FIN MÉTODOS ACTIVE RECORD ====================
 
     /**
      * Verifica si el usuario es administrador

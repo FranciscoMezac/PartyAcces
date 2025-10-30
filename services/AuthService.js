@@ -30,6 +30,7 @@ class AuthService {
      * Registra un nuevo usuario con su cuenta de puntos
      * Lógica de negocio: Valida datos, verifica duplicados, hashea contraseña,
      * crea usuario y cuenta en una transacción
+     * COORDINACIÓN: El Servicio usa métodos del Modelo, NO del Repositorio
      * @param {Object} datos - Datos del usuario
      * @returns {Promise<number>} - ID del usuario creado
      */
@@ -46,19 +47,7 @@ class AuthService {
             throw new Error('La contraseña debe tener al menos 8 caracteres');
         }
 
-        // Verificar si el email ya existe
-        const emailExiste = await this.#usuarioRepository.findByEmail(email);
-        if (emailExiste) {
-            throw new Error('El email ya está registrado');
-        }
-
-        // Verificar si el RUT ya existe
-        const rutExiste = await this.#usuarioRepository.findByRut(rut);
-        if (rutExiste) {
-            throw new Error('El RUT ya está registrado');
-        }
-
-        // Crear instancia de Usuario
+        // Crear instancia de Usuario con Repositorio inyectado
         const usuario = new Usuario({
             nombre,
             rut,
@@ -66,23 +55,25 @@ class AuthService {
             contrasenia,
             rol: rol || 'USER',
             estado: estado || 'ACTIVO'
-        });
+        }, this.#usuarioRepository);
 
-        // Validar el usuario
-        const validacion = usuario.validate();
-        if (!validacion.isValid) {
-            throw new Error(validacion.errors.join(', '));
+        // Servicio USA MÉTODOS DEL MODELO (no del repositorio)
+        const emailExiste = await usuario.verificarExistenciaPorEmail();
+        if (emailExiste) {
+            throw new Error('El email ya está registrado');
         }
 
-        // Hashear la contraseña
-        await usuario.hashPassword();
+        const rutExiste = await usuario.verificarExistenciaPorRut();
+        if (rutExiste) {
+            throw new Error('El RUT ya está registrado');
+        }
 
         // Ejecutar en transacción
         return await db.withTransaction(async (client) => {
-            // Insertar usuario
-            const usuarioId = await this.#usuarioRepository.insert(client, usuario);
+            // El Modelo se guarda a sí mismo
+            const usuarioId = await usuario.guardar(client);
 
-            // Crear cuenta de puntos
+            // Servicio coordina otras operaciones
             await this.#cuentaPuntosRepository.crearCuenta(client, rut, 0);
 
             return usuarioId;
@@ -160,8 +151,10 @@ class AuthService {
      * @returns {Promise<boolean>}
      */
     async verificarEmailDisponible(email) {
-        const usuario = await this.#usuarioRepository.findByEmail(email);
-        return usuario === null;
+        // Crear instancia temporal para verificar existencia
+        const usuarioTemp = new Usuario({ email }, this.#usuarioRepository);
+        const existe = await usuarioTemp.verificarExistenciaPorEmail();
+        return !existe;
     }
 
     /**
@@ -170,8 +163,10 @@ class AuthService {
      * @returns {Promise<boolean>}
      */
     async verificarRutDisponible(rut) {
-        const usuario = await this.#usuarioRepository.findByRut(rut);
-        return usuario === null;
+        // Crear instancia temporal para verificar existencia
+        const usuarioTemp = new Usuario({ rut }, this.#usuarioRepository);
+        const existe = await usuarioTemp.verificarExistenciaPorRut();
+        return !existe;
     }
 
     /**
