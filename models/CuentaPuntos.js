@@ -3,15 +3,23 @@ class CuentaPuntos {
     #rut;
     #saldo;
     #actualizadoEn;
+    
+    /**
+     * @type {import('../repositories/CuentaPuntosRepository')|null}
+     */
+    #cuentaPuntosRepository; // El Modelo conoce su Repositorio (Active Record Pattern)
 
     /**
-     * @param {Object} data 
+     * Constructor con inyección del repositorio
+     * @param {Object} data - Datos de la cuenta
+     * @param {import('../repositories/CuentaPuntosRepository')|null} cuentaPuntosRepository - Repositorio inyectado (opcional)
      */
-    constructor(data = {}) {
+    constructor(data = {}, cuentaPuntosRepository = null) {
         this.#id = data.id || null;
-        this.#rut = (data.rut || '').trim();
+        this.#rut = (data.rut || data.rut_usuario || '').trim();
         this.#saldo = data.saldo || 0;
         this.#actualizadoEn = data.actualizado_en || data.actualizadoEn || null;
+        this.#cuentaPuntosRepository = cuentaPuntosRepository; // Inyección de dependencia
     }
 
     // Getters
@@ -253,6 +261,36 @@ class CuentaPuntos {
             errors: errors
         };
     }
+
+    // ==================== MÉTODOS ACTIVE RECORD ====================
+    // El Modelo se comunica con su Repositorio
+
+    /**
+     * Guarda la cuenta en la base de datos
+     * COMPORTAMIENTO: El Modelo se guarda a sí mismo
+     * @param {Object} client - Cliente de transacción (requerido)
+     * @returns {Promise<void>}
+     */
+    async guardar(client) {
+        if (!this.#cuentaPuntosRepository) {
+            throw new Error('Repositorio no inyectado en CuentaPuntos');
+        }
+
+        if (!client) {
+            throw new Error('Se requiere cliente de transacción para guardar CuentaPuntos');
+        }
+
+        // Validar antes de guardar
+        const validacion = this.validate();
+        if (!validacion.isValid) {
+            throw new Error(validacion.errors.join(', '));
+        }
+
+        // Insertar en BD
+        await this.#cuentaPuntosRepository.crearCuenta(client, this.#rut, this.#saldo);
+    }
+
+    // ==================== FIN MÉTODOS ACTIVE RECORD ====================
 }
 
 module.exports = CuentaPuntos;

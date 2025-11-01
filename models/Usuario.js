@@ -229,27 +229,29 @@ class Usuario {
     /**
      * Verifica si el usuario ya existe en la base de datos por RUT
      * COMPORTAMIENTO: El Modelo usa su Repositorio
+     * SOLUCIÓN: Usa existsByRut() en lugar de findByRut() para evitar crear segundo objeto
      * @returns {Promise<boolean>}
      */
     async verificarExistenciaPorRut() {
         if (!this.#usuarioRepository) {
             throw new Error('Repositorio no inyectado en Usuario');
         }
-        const existe = await this.#usuarioRepository.findByRut(this.#rut);
-        return existe !== null;
+        // NO crear segundo objeto Usuario, solo verificar existencia
+        return await this.#usuarioRepository.existsByRut(this.#rut);
     }
 
     /**
      * Verifica si el usuario ya existe en la base de datos por Email
      * COMPORTAMIENTO: El Modelo usa su Repositorio
+     * SOLUCIÓN: Usa existsByEmail() en lugar de findByEmail() para evitar crear segundo objeto
      * @returns {Promise<boolean>}
      */
     async verificarExistenciaPorEmail() {
         if (!this.#usuarioRepository) {
             throw new Error('Repositorio no inyectado en Usuario');
         }
-        const existe = await this.#usuarioRepository.findByEmail(this.#email);
-        return existe !== null;
+        // NO crear segundo objeto Usuario, solo verificar existencia
+        return await this.#usuarioRepository.existsByEmail(this.#email);
     }
 
     /**

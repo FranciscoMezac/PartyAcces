@@ -130,6 +130,44 @@ class UsuarioRepository {
     }
 
     /**
+     * Verifica si existe un usuario con el RUT dado (solo existencia, no crea objeto)
+     * Solución al problema de creación dual de objetos Usuario
+     * @param {string} rut 
+     * @returns {Promise<boolean>}
+     */
+    async existsByRut(rut) {
+        try {
+            const result = await this.#db.query(
+                'SELECT EXISTS(SELECT 1 FROM usuario WHERE rut = $1) as existe',
+                [rut]
+            );
+            return result.rows[0].existe;
+        } catch (error) {
+            console.error('Error al verificar existencia por RUT:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Verifica si existe un usuario con el email dado (solo existencia, no crea objeto)
+     * Solución al problema de creación dual de objetos Usuario
+     * @param {string} email 
+     * @returns {Promise<boolean>}
+     */
+    async existsByEmail(email) {
+        try {
+            const result = await this.#db.query(
+                'SELECT EXISTS(SELECT 1 FROM usuario WHERE email = $1) as existe',
+                [email]
+            );
+            return result.rows[0].existe;
+        } catch (error) {
+            console.error('Error al verificar existencia por email:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Bloquea (estado = BLOQUEADO) a un usuario por RUT.
      * Retorna la fila actualizada como dominio o null si no se actualizó.
      */

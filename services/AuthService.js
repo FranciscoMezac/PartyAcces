@@ -6,6 +6,7 @@
  */
 
 const Usuario = require('../models/Usuario');
+const CuentaPuntos = require('../models/CuentaPuntos');
 const db = require('../config/database');
 
 class AuthService {
@@ -70,11 +71,17 @@ class AuthService {
 
         // Ejecutar en transacción
         return await db.withTransaction(async (client) => {
-            // El Modelo se guarda a sí mismo
+            // El Modelo Usuario se guarda a sí mismo
             const usuarioId = await usuario.guardar(client);
 
-            // Servicio coordina otras operaciones
-            await this.#cuentaPuntosRepository.crearCuenta(client, rut, 0);
+            // Crear objeto CuentaPuntos con repositorio inyectado
+            const cuentaPuntos = new CuentaPuntos({
+                rut: rut,
+                saldo: 0
+            }, this.#cuentaPuntosRepository);
+
+            // El Modelo CuentaPuntos se guarda a sí mismo
+            await cuentaPuntos.guardar(client);
 
             return usuarioId;
         });
