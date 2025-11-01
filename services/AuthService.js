@@ -207,10 +207,13 @@ class AuthService {
 
         console.log('🔍 Buscando sesión con token:', token.substring(0, 10) + '...');
 
-        // Buscar sesión por token
-        const session = await this.#sessionRepository.findByToken(token);
+        // Crear instancia de Session con token y repositorio inyectado
+        const session = new Session({ token }, this.#sessionRepository);
+
+        // El Modelo se carga a sí mismo desde BD
+        const encontrada = await session.cargarPorToken();
         
-        if (!session) {
+        if (!encontrada) {
             throw new Error('Token inválido o expirado');
         }
 
@@ -221,12 +224,8 @@ class AuthService {
             throw new Error('Token inválido o expirado');
         }
 
-        // Invalidar sesión en BD (UPDATE sesiones SET activa=false, expira_en=NOW())
-        const resultado = await this.#sessionRepository.invalidarSesion(token);
-
-        if (!resultado) {
-            throw new Error('No se pudo cerrar sesión');
-        }
+        // El Modelo se invalida a sí mismo en BD
+        await session.invalidarEnBD();
 
         console.log('✅ Sesión cerrada exitosamente');
 

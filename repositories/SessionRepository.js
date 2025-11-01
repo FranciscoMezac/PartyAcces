@@ -27,6 +27,7 @@ class SessionRepository {
 
     /**
      * Crea una nueva sesión dentro de una transacción
+     * Retorna instancia del Modelo con Repositorio inyectado
      * @param {Object} client - Cliente de transacción
      * @param {number} usuarioId - ID del usuario
      * @param {string} rut - RUT del usuario
@@ -46,7 +47,8 @@ class SessionRepository {
                 [usuarioId, rut, token, expiraEn, true]
             );
 
-            return new Session(result.rows[0]);
+            // IMPORTANTE: Inyectar repositorio en la instancia retornada
+            return new Session(result.rows[0], this);
         } catch (error) {
             console.error('Error al crear sesión:', error);
             throw error;
@@ -55,6 +57,7 @@ class SessionRepository {
 
     /**
      * Busca una sesión por token
+     * Retorna instancia del Modelo con Repositorio inyectado
      * @param {string} token 
      * @returns {Promise<Session|null>}
      */
@@ -65,7 +68,8 @@ class SessionRepository {
                 [token]
             );
 
-            return result.rows[0] ? new Session(result.rows[0]) : null;
+            // IMPORTANTE: Inyectar repositorio en la instancia retornada
+            return result.rows[0] ? new Session(result.rows[0], this) : null;
         } catch (error) {
             console.error('Error al buscar sesión por token:', error);
             throw error;
@@ -74,6 +78,7 @@ class SessionRepository {
 
     /**
      * Busca sesiones activas de un usuario
+     * Retorna instancias del Modelo con Repositorio inyectado
      * @param {number} usuarioId 
      * @returns {Promise<Array<Session>>}
      */
@@ -86,7 +91,8 @@ class SessionRepository {
                 [usuarioId]
             );
 
-            return result.rows.map(row => new Session(row));
+            // IMPORTANTE: Inyectar repositorio en cada instancia retornada
+            return result.rows.map(row => new Session(row, this));
         } catch (error) {
             console.error('Error al buscar sesiones activas:', error);
             throw error;

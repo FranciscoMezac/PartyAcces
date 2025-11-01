@@ -216,6 +216,60 @@ class Session {
         return this;
     }
 
+    /**
+     * Carga la sesión desde la base de datos por token
+     * COMPORTAMIENTO: El Modelo se carga a sí mismo desde BD
+     * @returns {Promise<boolean>} - true si encontró y cargó datos, false si no existe
+     */
+    async cargarPorToken() {
+        if (!this.#sessionRepository) {
+            throw new Error('Repositorio no inyectado en Session');
+        }
+
+        if (!this.#token) {
+            throw new Error('Token requerido para cargar sesión');
+        }
+
+        const sessionEncontrada = await this.#sessionRepository.findByToken(this.#token);
+        
+        if (!sessionEncontrada) {
+            return false;
+        }
+
+        // Poblar este objeto con los datos encontrados
+        this.#sessionId = sessionEncontrada.sessionId;
+        this.#usuarioId = sessionEncontrada.usuarioId;
+        this.#rut = sessionEncontrada.rut;
+        this.#expiraEn = sessionEncontrada.expiraEn;
+        this.#creadoEn = sessionEncontrada.creadoEn;
+        this.#activa = sessionEncontrada.activa;
+
+        return true;
+    }
+
+    /**
+     * Invalida la sesión en la base de datos
+     * COMPORTAMIENTO: El Modelo se invalida a sí mismo
+     * @returns {Promise<boolean>}
+     */
+    async invalidarEnBD() {
+        if (!this.#sessionRepository) {
+            throw new Error('Repositorio no inyectado en Session');
+        }
+
+        if (!this.#token) {
+            throw new Error('Token requerido para invalidar sesión');
+        }
+
+        // Invalidar en memoria
+        this.#activa = false;
+
+        // Invalidar en BD
+        const resultado = await this.#sessionRepository.invalidarSesion(this.#token);
+        
+        return resultado;
+    }
+
     // ==================== FIN MÉTODOS ACTIVE RECORD ====================
 }
 
