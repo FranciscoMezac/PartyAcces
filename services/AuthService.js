@@ -7,6 +7,7 @@
 
 const Usuario = require('../models/Usuario');
 const CuentaPuntos = require('../models/CuentaPuntos');
+const Session = require('../models/Session');
 const db = require('../config/database');
 
 class AuthService {
@@ -105,12 +106,17 @@ class AuthService {
 
         console.log('🔍 Buscando usuario con Email:', emailNormalizado);
 
-        // Buscar usuario por Email (SELECT * FROM usuario WHERE email = $1)
-        const usuario = await this.#usuarioRepository.findByEmail(emailNormalizado);
+        // Crear objeto Usuario con repositorio inyectado
+        const usuario = new Usuario({
+            email: emailNormalizado
+        }, this.#usuarioRepository);
 
-        console.log('👤 Usuario encontrado:', usuario ? 'SÍ' : 'NO');
+        // El Usuario se carga a sí mismo desde BD
+        const encontrado = await usuario.cargarPorEmail();
+
+        console.log('👤 Usuario encontrado:', encontrado ? 'SÍ' : 'NO');
         
-        if (!usuario) {
+        if (!encontrado) {
             throw new Error('Credenciales inválidas');
         }
         
@@ -133,21 +139,24 @@ class AuthService {
             throw new Error('Usuario bloqueado');
         }
 
-        // Crear sesión en transacción (BEGIN, new Session(rut, activatedUntil), INSERT INTO sessions)
-        const session = await db.withTransaction(async (client) => {
-            const nuevaSesion = await this.#sessionRepository.crearSesion(
-                client,
-                usuario.usuarioId,
-                usuario.rut,
-                8 // 8 horas de expiración
-            );
-            return nuevaSesion;
+        // Crear sesión en transacción usando Active Record
+        const sessionData = await db.withTransaction(async (client) => {
+            // Crear objeto Session con repositorio inyectado
+            const session = new Session({
+                usuarioId: usuario.usuarioId,
+                rut: usuario.rut
+            }, this.#sessionRepository);
+
+            // El Modelo Session se guarda a sí mismo
+            await session.guardar(client);
+
+            return session;
         });
 
-        // Retornar usuario y token (token, expira_en)
+        // Retornar usuario y token
         return {
-            token: session.token,
-            expiraEn: session.expiraEn,
+            token: sessionData.token,
+            expiraEn: sessionData.expiraEn,
             user: usuario.toJSON()
         };
     }

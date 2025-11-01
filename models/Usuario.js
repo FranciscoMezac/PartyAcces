@@ -281,6 +281,38 @@ class Usuario {
     }
 
     /**
+     * Carga el usuario desde la base de datos por email
+     * COMPORTAMIENTO: El Modelo se carga a sí mismo desde BD
+     * @returns {Promise<boolean>} - true si encontró y cargó datos, false si no existe
+     */
+    async cargarPorEmail() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#email) {
+            throw new Error('Email requerido para cargar usuario');
+        }
+
+        const usuarioEncontrado = await this.#usuarioRepository.findByEmail(this.#email);
+        
+        if (!usuarioEncontrado) {
+            return false;
+        }
+
+        // Poblar este objeto con los datos encontrados
+        this.#usuarioId = usuarioEncontrado.usuarioId;
+        this.#nombre = usuarioEncontrado.nombre;
+        this.#rut = usuarioEncontrado.rut;
+        this.#contrasenia = usuarioEncontrado.contrasenia;
+        this.#rol = usuarioEncontrado.rol;
+        this.#estado = usuarioEncontrado.estado;
+        this.#createdAt = usuarioEncontrado.createdAt;
+
+        return true;
+    }
+
+    /**
      * Actualiza el usuario en la base de datos
      * COMPORTAMIENTO: El Modelo se actualiza a sí mismo
      * @returns {Promise<boolean>}

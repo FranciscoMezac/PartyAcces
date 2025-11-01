@@ -1,7 +1,7 @@
 /**
  * Modelo de Dominio - Session
- * Patrón: Domain Model
- * Propósito: Representar una sesión de usuario sin lógica de BD
+ * Patrón: Active Record / Rich Domain Model
+ * Propósito: Representar una sesión de usuario ACTIVA que conoce su repositorio
  */
 class Session {
     #sessionId;
@@ -11,11 +11,18 @@ class Session {
     #expiraEn;
     #creadoEn;
     #activa;
+    
+    /**
+     * @type {import('../repositories/SessionRepository')|null}
+     */
+    #sessionRepository; // El Modelo conoce su Repositorio (Active Record Pattern)
 
     /**
-     * @param {Object} data 
+     * Constructor con inyección del repositorio
+     * @param {Object} data - Datos de la sesión
+     * @param {import('../repositories/SessionRepository')|null} sessionRepository - Repositorio inyectado (opcional)
      */
-    constructor(data = {}) {
+    constructor(data = {}, sessionRepository = null) {
         this.#sessionId = data.sessionId || data.session_id || null;
         this.#usuarioId = data.usuarioId || data.usuario_id || null;
         // Trim para eliminar espacios que agrega CHAR(256)
@@ -24,6 +31,7 @@ class Session {
         this.#expiraEn = data.expiraEn || data.expira_en || null;
         this.#creadoEn = data.creadoEn || data.creado_en || new Date();
         this.#activa = data.activa !== undefined ? data.activa : true;
+        this.#sessionRepository = sessionRepository; // Inyección de dependencia
     }
 
     // Getters
@@ -155,15 +163,60 @@ class Session {
             errors.push('ID de usuario requerido');
         }
 
-        if (!this.#token) {
-            errors.push('Token requerido');
-        }
+        // NO validar token aquí porque se genera en el repositorio
+        // if (!this.#token) {
+        //     errors.push('Token requerido');
+        // }
 
         return {
             isValid: errors.length === 0,
             errors: errors
         };
     }
+
+    // ==================== MÉTODOS ACTIVE RECORD ====================
+    // El Modelo se comunica con su Repositorio
+
+    /**
+     * Guarda la sesión en la base de datos
+     * COMPORTAMIENTO: El Modelo se guarda a sí mismo
+     * @param {Object} client - Cliente de transacción (requerido)
+     * @returns {Promise<Session>}
+     */
+    async guardar(client) {
+        if (!this.#sessionRepository) {
+            throw new Error('Repositorio no inyectado en Session');
+        }
+
+        if (!client) {
+            throw new Error('Se requiere cliente de transacción para guardar Session');
+        }
+
+        // Validar antes de guardar
+        const validacion = this.validate();
+        if (!validacion.isValid) {
+            throw new Error(validacion.errors.join(', '));
+        }
+
+        // Crear sesión en BD y obtener datos completos
+        const sessionData = await this.#sessionRepository.crearSesion(
+            client,
+            this.#usuarioId,
+            this.#rut,
+            8 // 8 horas de expiración
+        );
+
+        // Actualizar datos del modelo con los retornados de BD
+        this.#sessionId = sessionData.sessionId;
+        this.#token = sessionData.token;
+        this.#expiraEn = sessionData.expiraEn;
+        this.#creadoEn = sessionData.creadoEn;
+        this.#activa = sessionData.activa;
+
+        return this;
+    }
+
+    // ==================== FIN MÉTODOS ACTIVE RECORD ====================
 }
 
 module.exports = Session;
