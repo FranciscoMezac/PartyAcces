@@ -125,6 +125,18 @@ class CuentaPuntos {
         return this.#saldo >= cantidad;
     }
 
+    // Alias del diagrama: puedeDebitar(costo)
+    puedeDebitar(costo) {
+        return this.tieneSuficientesPuntos(Number(costo));
+    }
+
+    // Del diagrama: calcularPuntosAcreditacion(monto)
+    calcularPuntosAcreditacion(monto, tasa = (process.env.PUNTOS_PORCENTAJE ? Number(process.env.PUNTOS_PORCENTAJE) : 0.1)) {
+        const m = Number(monto);
+        if (!Number.isFinite(m) || m <= 0) throw new Error('Monto inválido');
+        return Math.floor(m * tasa);
+    }
+
     /**
      * Canjea puntos (resta puntos si hay suficiente saldo)
      * @param {number} cantidad - Cantidad a canjear

@@ -21,10 +21,13 @@ class PuntosService {
     try {
       await client.query('BEGIN');
       await this.cuentaRepo.ensureExists(client, rut);
-      const puntos = this.calcularAcreditacion(monto);
-      const nuevoSaldo = await this.cuentaRepo.acreditar(client, rut, puntos);
+      const cuenta = await this.cuentaRepo.findByRut(client, rut, { forUpdate: true });
+      // usar nombres del diagrama desde el dominio
+      const puntos = cuenta.calcularPuntosAcreditacion(monto, this.porcentaje);
+      cuenta.acreditar(puntos);
+      const nuevoSaldo = await this.cuentaRepo.actualizarSaldo(client, rut, cuenta.saldo);
       const mov = new Movimiento({ rut, tipo: 'COMPRA', monto: Number(monto), puntos, fecha: new Date() });
-      await this.movimientoRepo.crear(client, mov);
+      await mov.registrar(this.movimientoRepo, client);
       await client.query('COMMIT');
       // notificar saldo actualizado
       try { saldoNotifier.publish(rut, nuevoSaldo); } catch (_) {}
@@ -41,13 +44,15 @@ class PuntosService {
       await client.query('BEGIN');
       const cuenta = await this.cuentaRepo.findByRut(client, rut, { forUpdate: true });
       if (!cuenta) { const err = new Error('Cuenta no encontrada'); err.code='CUENTA_NO_ENCONTRADA'; throw err; }
-      const producto = await this.productoRepo.findById(client, Number(productoId));
-      if (!producto) { const err = new Error('Producto no encontrado o inactivo'); err.code='PRODUCTO_NO_ENCONTRADO'; throw err; }
-      const costo = producto.getCostoEnPuntos();
+      const Producto = require('../models/Producto');
+      const producto = new Producto({ id: Number(productoId) });
+      await producto.cargarPorId(this.productoRepo, client);
+      const costo = producto.costoEnPuntos();
+      if (!cuenta.puedeDebitar(costo)) { const e = new Error('Saldo insuficiente'); e.code='SALDO_INSUFICIENTE'; throw e; }
       cuenta.debitar(costo);
       const nuevoSaldo = await this.cuentaRepo.actualizarSaldo(client, rut, cuenta.saldo);
       const mov = new Movimiento({ rut, tipo: 'CANJE', monto: 0, puntos: -costo, fecha: new Date() });
-      await this.movimientoRepo.crear(client, mov);
+      await mov.registrar(this.movimientoRepo, client);
       await client.query('COMMIT');
       try { saldoNotifier.publish(rut, nuevoSaldo); } catch (_) {}
       return { nuevoSaldo, canje: { productoId: producto.id, nombre: producto.nombre, costo } };
@@ -58,7 +63,7 @@ class PuntosService {
   }
 
   async obtenerHistorial(rut, page = 1, limit = 10) {
-    return this.movimientoRepo.findByRutPaginated(rut, { page, limit });
+    return Movimiento.listarPorRut(this.movimientoRepo, rut, { page, limit });
   }
 
   async obtenerSaldo(rut) {

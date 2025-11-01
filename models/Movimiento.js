@@ -14,6 +14,16 @@ class Movimiento {
   get monto() { return this.#monto; }
   get puntos() { return this.#puntos; }
   get fecha() { return this.#fecha; }
+
+  // Alias del diagrama: registrar() usando el repository
+  async registrar(repo, client) {
+    return repo.crear(client, this);
+  }
+
+  // Alias del diagrama: listarPorRut(rut, page, filtros)
+  static async listarPorRut(repo, rut, { page = 1, limit = 10 } = {}) {
+    return repo.findByRutPaginated(rut, { page, limit });
+  }
 }
 
 module.exports = Movimiento;
