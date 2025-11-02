@@ -3,6 +3,8 @@
  * Propósito: Encapsular la lógica de negocio de gestión de perfiles
  */
 
+const Usuario = require('../models/Usuario');
+const Session = require('../models/Session');
 const bcrypt = require('bcryptjs');
 
 class PerfilService {
@@ -24,6 +26,7 @@ class PerfilService {
 
     /**
      * Obtiene el perfil del usuario autenticado
+     * COORDINACIÓN: El Servicio usa métodos del Modelo, NO del Repositorio
      * @param {string} token - Token de sesión
      * @returns {Promise<Object>} - Datos del perfil
      */
@@ -34,10 +37,13 @@ class PerfilService {
 
         console.log('🔍 Buscando sesión para obtener perfil...');
 
-        // Buscar sesión por token
-        const session = await this.#sessionRepository.findByToken(token);
+        // Crear instancia de Session con repositorio inyectado
+        const session = new Session({ token }, this.#sessionRepository);
+
+        // El Modelo se carga a sí mismo desde BD
+        const encontrada = await session.cargarPorToken();
         
-        if (!session) {
+        if (!encontrada) {
             throw new Error('Token inválido o expirado');
         }
 
@@ -48,10 +54,15 @@ class PerfilService {
 
         console.log('📋 Sesión válida - Usuario ID:', session.usuarioId);
 
-        // Obtener usuario completo (SELECT * FROM usuario WHERE id=$1)
-        const usuario = await this.#usuarioRepository.findById(session.usuarioId);
+        // Crear instancia de Usuario con repositorio inyectado
+        const usuario = new Usuario({ 
+            usuarioId: session.usuarioId 
+        }, this.#usuarioRepository);
+
+        // El Modelo se carga a sí mismo desde BD
+        const usuarioEncontrado = await usuario.cargarPorId();
         
-        if (!usuario) {
+        if (!usuarioEncontrado) {
             throw new Error('Usuario no encontrado');
         }
 
@@ -77,6 +88,7 @@ class PerfilService {
 
     /**
      * Actualiza el perfil del usuario autenticado
+     * COORDINACIÓN: El Servicio usa métodos del Modelo, NO del Repositorio
      * @param {string} token - Token de sesión
      * @param {Object} datosActualizar - Datos a actualizar (nombre, email, telefono, password opcional)
      * @returns {Promise<Object>} - Perfil actualizado
@@ -88,10 +100,13 @@ class PerfilService {
 
         console.log('🔍 Buscando sesión para actualizar perfil...');
 
-        // Buscar sesión por token
-        const session = await this.#sessionRepository.findByToken(token);
+        // Crear instancia de Session con repositorio inyectado
+        const session = new Session({ token }, this.#sessionRepository);
+
+        // El Modelo se carga a sí mismo desde BD
+        const encontrada = await session.cargarPorToken();
         
-        if (!session) {
+        if (!encontrada) {
             throw new Error('Token inválido o expirado');
         }
 
@@ -100,17 +115,22 @@ class PerfilService {
             throw new Error('Token inválido o expirado');
         }
 
-        // Obtener usuario
-        const usuario = await this.#usuarioRepository.findById(session.usuarioId);
+        // Crear instancia de Usuario con repositorio inyectado
+        const usuario = new Usuario({ 
+            usuarioId: session.usuarioId 
+        }, this.#usuarioRepository);
+
+        // El Modelo se carga a sí mismo desde BD
+        const encontrado = await usuario.cargarPorId();
         
-        if (!usuario) {
+        if (!encontrado) {
             throw new Error('Usuario no encontrado');
         }
 
         console.log('👤 Actualizando perfil de:', usuario.email);
 
         // Validar datos de actualización
-        const { nombre, email, telefono, password } = datosActualizar;
+        const { nombre, email, password } = datosActualizar;
 
         // Si se cambia el email, verificar que no exista en otro usuario
         if (email && email !== usuario.email) {
@@ -122,44 +142,20 @@ class PerfilService {
             }
         }
 
-        // Preparar datos para actualización
-        const datosParaActualizar = {
-            nombre: nombre || usuario.nombre,
-            email: email || usuario.email,
-            rol: usuario.rol, // No cambiar rol
-            estado: usuario.estado // No cambiar estado
-        };
-
-        // Si hay password, validar longitud y hashear
-        if (password) {
-            if (password.length < 8) {
-                throw new Error('La contraseña debe tener al menos 8 caracteres');
-            }
-            
-            // Hashear nueva contraseña con bcryptjs
-            const bcrypt = require('bcryptjs');
-            const hasheada = await bcrypt.hash(password, 10);
-            
-            // Incluir contraseña hasheada en datos de actualización
-            datosParaActualizar.contrasenia = hasheada;
+        // Validar longitud de contraseña si se proporciona
+        if (password && password.length < 8) {
+            throw new Error('La contraseña debe tener al menos 8 caracteres');
         }
 
-        // UPDATE usuario SET ... WHERE id=$1
-        const usuarioActualizado = await this.#usuarioRepository.update(
-            usuario.usuarioId, 
-            datosParaActualizar
-        );
-
-        if (!usuarioActualizado) {
-            throw new Error('Error al actualizar perfil');
-        }
+        // El Modelo se actualiza a sí mismo
+        await usuario.actualizarPerfil({ nombre, email, password });
 
         console.log('✅ Perfil actualizado exitosamente');
 
         // Obtener saldo actualizado
         let saldo = 0;
         try {
-            const cuenta = await this.#cuentaPuntosRepository.findByRut(usuarioActualizado.rut);
+            const cuenta = await this.#cuentaPuntosRepository.findByRut(usuario.rut);
             if (cuenta) {
                 saldo = cuenta.saldo;
             }
@@ -168,7 +164,7 @@ class PerfilService {
         }
 
         return {
-            ...usuarioActualizado.toJSON(),
+            ...usuario.toJSON(),
             saldo: saldo
         };
     }

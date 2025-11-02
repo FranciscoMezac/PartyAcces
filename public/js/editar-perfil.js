@@ -53,11 +53,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const data = await response.json();
 
-            if (data.success && data.perfil) {
+            if (data.success && data.data) {
                 // Llenar el formulario con los datos actuales
-                document.getElementById('nombre').value = data.perfil.nombre || '';
-                document.getElementById('email').value = data.perfil.email || '';
-                document.getElementById('rut').value = data.perfil.rut || '';
+                document.getElementById('nombre').value = data.data.nombre || '';
+                document.getElementById('email').value = data.data.email || '';
+                document.getElementById('rut').value = data.data.rut || '';
             } else {
                 showAlert('Error al cargar perfil: ' + (data.message || 'Error desconocido'), 'danger');
             }
@@ -121,8 +121,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Actualizar localStorage con nuevos datos
                 const updatedUser = {
                     ...user,
-                    nombre: data.perfil.nombre,
-                    email: data.perfil.email
+                    nombre: data.data.nombre,
+                    email: data.data.email
                 };
                 localStorage.setItem('user', JSON.stringify(updatedUser));
 

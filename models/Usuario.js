@@ -313,6 +313,87 @@ class Usuario {
     }
 
     /**
+     * Carga el usuario desde la base de datos por ID
+     * COMPORTAMIENTO: El Modelo se carga a sí mismo desde BD
+     * @returns {Promise<boolean>} - true si encontró y cargó datos, false si no existe
+     */
+    async cargarPorId() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#usuarioId) {
+            throw new Error('ID requerido para cargar usuario');
+        }
+
+        const usuarioEncontrado = await this.#usuarioRepository.findById(this.#usuarioId);
+        
+        if (!usuarioEncontrado) {
+            return false;
+        }
+
+        // Poblar este objeto con los datos encontrados
+        this.#nombre = usuarioEncontrado.nombre;
+        this.#rut = usuarioEncontrado.rut;
+        this.#email = usuarioEncontrado.email;
+        this.#contrasenia = usuarioEncontrado.contrasenia;
+        this.#rol = usuarioEncontrado.rol;
+        this.#estado = usuarioEncontrado.estado;
+        this.#createdAt = usuarioEncontrado.createdAt;
+
+        return true;
+    }
+
+    /**
+     * Actualiza el perfil del usuario en la base de datos
+     * COMPORTAMIENTO: El Modelo se actualiza a sí mismo
+     * @param {Object} datosNuevos - Datos a actualizar (nombre, email, password opcional)
+     * @returns {Promise<boolean>}
+     */
+    async actualizarPerfil(datosNuevos) {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#usuarioId) {
+            throw new Error('No se puede actualizar un usuario sin ID');
+        }
+
+        // Actualizar datos internos
+        if (datosNuevos.nombre) this.#nombre = datosNuevos.nombre;
+        if (datosNuevos.email) this.#email = datosNuevos.email;
+        
+        // Si hay password, hashear
+        if (datosNuevos.password) {
+            this.#contrasenia = await bcrypt.hash(datosNuevos.password, 10);
+        }
+
+        // Validar antes de actualizar
+        const validacion = this.validate();
+        if (!validacion.isValid) {
+            throw new Error(validacion.errors.join(', '));
+        }
+
+        // Preparar datos para BD
+        const datosActualizacion = {
+            nombre: this.#nombre,
+            email: this.#email,
+            rol: this.#rol,
+            estado: this.#estado
+        };
+
+        // Si se actualizó password, incluirlo
+        if (datosNuevos.password) {
+            datosActualizacion.contrasenia = this.#contrasenia;
+        }
+
+        // Actualizar en BD
+        const usuarioActualizado = await this.#usuarioRepository.update(this.#usuarioId, datosActualizacion);
+        
+        return usuarioActualizado !== null;
+    }
+
+    /**
      * Actualiza el usuario en la base de datos
      * COMPORTAMIENTO: El Modelo se actualiza a sí mismo
      * @returns {Promise<boolean>}
