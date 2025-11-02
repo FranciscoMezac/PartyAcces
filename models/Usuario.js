@@ -313,6 +313,38 @@ class Usuario {
     }
 
     /**
+     * Carga el usuario desde la base de datos por RUT
+     * COMPORTAMIENTO: El Modelo se carga a sí mismo desde BD
+     * @returns {Promise<boolean>} - true si encontró y cargó datos, false si no existe
+     */
+    async cargarPorRut() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#rut) {
+            throw new Error('RUT requerido para cargar usuario');
+        }
+
+        const usuarioEncontrado = await this.#usuarioRepository.findByRut(this.#rut);
+        
+        if (!usuarioEncontrado) {
+            return false;
+        }
+
+        // Poblar este objeto con los datos encontrados
+        this.#usuarioId = usuarioEncontrado.usuarioId;
+        this.#nombre = usuarioEncontrado.nombre;
+        this.#email = usuarioEncontrado.email;
+        this.#contrasenia = usuarioEncontrado.contrasenia;
+        this.#rol = usuarioEncontrado.rol;
+        this.#estado = usuarioEncontrado.estado;
+        this.#createdAt = usuarioEncontrado.createdAt;
+
+        return true;
+    }
+
+    /**
      * Carga el usuario desde la base de datos por ID
      * COMPORTAMIENTO: El Modelo se carga a sí mismo desde BD
      * @returns {Promise<boolean>} - true si encontró y cargó datos, false si no existe
@@ -416,6 +448,44 @@ class Usuario {
         return await this.#usuarioRepository.update(this.#usuarioId, this);
     }
 
+    /**
+     * Bloquea el usuario en la base de datos
+     * COMPORTAMIENTO: El Modelo se bloquea a sí mismo
+     * @param {Object} opciones - { motivo, adminId }
+     * @returns {Promise<boolean>}
+     */
+    async bloquearUsuario({ motivo = null, adminId = null } = {}) {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#rut) {
+            throw new Error('RUT requerido para bloquear usuario');
+        }
+
+        // Verificar que no esté ya bloqueado
+        if (this.isBloqueado()) {
+            const error = new Error('Usuario ya está bloqueado');
+            error.code = 'ALREADY_BLOCKED';
+            throw error;
+        }
+
+        // Cambiar estado en memoria
+        this.#estado = 'BLOQUEADO';
+
+        // Actualizar en BD
+        const datosActualizacion = {
+            nombre: this.#nombre,
+            email: this.#email,
+            rol: this.#rol,
+            estado: 'BLOQUEADO'
+        };
+
+        const usuarioActualizado = await this.#usuarioRepository.update(this.#usuarioId, datosActualizacion);
+        
+        return usuarioActualizado !== null;
+    }
+
     // ==================== FIN MÉTODOS ACTIVE RECORD ====================
 
     /**
@@ -435,14 +505,22 @@ class Usuario {
     }
 
     /**
+     * Verifica si el usuario está bloqueado
+     * @returns {boolean}
+     */
+    isBloqueado() {
+        return this.#estado === 'BLOQUEADO';
+    }
+
+    /**
      * Cambia el estado del usuario
-     * @param {string} nuevoEstado - ACTIVO o INACTIVO
+     * @param {string} nuevoEstado - ACTIVO, INACTIVO o BLOQUEADO
      * @returns {Usuario} - Retorna this para permitir method chaining
      */
     cambiarEstado(nuevoEstado) {
-        const estadosValidos = ['ACTIVO', 'INACTIVO'];
+        const estadosValidos = ['ACTIVO', 'INACTIVO', 'BLOQUEADO'];
         if (!estadosValidos.includes(nuevoEstado)) {
-            throw new Error('Estado inválido. Debe ser ACTIVO o INACTIVO');
+            throw new Error('Estado inválido. Debe ser ACTIVO, INACTIVO o BLOQUEADO');
         }
         this.#estado = nuevoEstado;
         return this;

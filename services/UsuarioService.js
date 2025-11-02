@@ -18,27 +18,36 @@ class UsuarioService {
 
   /**
    * Bloquear un usuario por RUT
+   * COORDINACIÓN: El Servicio usa métodos del Modelo, NO del Repositorio
    */
   async bloquearUsuario({ rut, motivo, adminId }) {
-    if (!rut) throw new Error('RUT requerido');
-    const usuario = await this.usuarioRepo.findByRut(rut);
-    if (!usuario) {
+    if (!rut) {
+      throw new Error('RUT requerido');
+    }
+
+    // Crear instancia de Usuario con repositorio inyectado
+    const usuario = new Usuario({ rut }, this.usuarioRepo);
+
+    // El Modelo se carga a sí mismo desde BD
+    const encontrado = await usuario.cargarPorRut();
+    
+    if (!encontrado) {
       const err = new Error('Usuario no encontrado');
       err.code = 'NOT_FOUND';
       throw err;
     }
-    if (usuario.estado === 'BLOQUEADO') {
-      const err = new Error('Ya está bloqueado');
+
+    // Verificar si ya está bloqueado (el modelo lanza error si es así)
+    if (usuario.isBloqueado()) {
+      const err = new Error('Usuario ya está bloqueado');
       err.code = 'ALREADY_BLOCKED';
       throw err;
     }
-    const bloqueado = await this.usuarioRepo.bloquear(rut, { motivo, adminId });
-    if (!bloqueado) {
-      const err = new Error('Usuario no encontrado');
-      err.code = 'NOT_FOUND';
-      throw err;
-    }
-    return bloqueado;
+
+    // El Modelo se bloquea a sí mismo
+    await usuario.bloquearUsuario({ motivo, adminId });
+
+    return usuario.toJSON();
   }
 
   /**
