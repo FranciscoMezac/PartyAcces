@@ -486,6 +486,42 @@ class Usuario {
         return usuarioActualizado !== null;
     }
 
+    /**
+     * Resetea la contraseña del usuario
+     * COMPORTAMIENTO: El Modelo resetea su propia contraseña
+     * @param {string} nuevaContrasena - Nueva contraseña en texto plano
+     * @returns {Promise<boolean>}
+     */
+    async resetearContrasena(nuevaContrasena) {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#usuarioId) {
+            throw new Error('No se puede resetear contraseña sin ID de usuario');
+        }
+
+        if (!nuevaContrasena || nuevaContrasena.length < 8) {
+            throw new Error('La contraseña debe tener al menos 8 caracteres');
+        }
+
+        // Hashear nueva contraseña
+        this.#contrasenia = await bcrypt.hash(nuevaContrasena, 10);
+
+        // Actualizar solo la contraseña en BD
+        const datosActualizacion = {
+            nombre: this.#nombre,
+            email: this.#email,
+            rol: this.#rol,
+            estado: this.#estado,
+            contrasenia: this.#contrasenia
+        };
+
+        const usuarioActualizado = await this.#usuarioRepository.update(this.#usuarioId, datosActualizacion);
+        
+        return usuarioActualizado !== null;
+    }
+
     // ==================== FIN MÉTODOS ACTIVE RECORD ====================
 
     /**

@@ -237,6 +237,7 @@ class AuthService {
 
     /**
      * TEMPORAL: Resetea la contraseña de un usuario
+     * COORDINACIÓN: El Servicio usa métodos del Modelo, NO del Repositorio
      * @param {string} rut 
      * @param {string} nuevaContrasena 
      * @returns {Promise<boolean>}
@@ -250,17 +251,18 @@ class AuthService {
             throw new Error('La contraseña debe tener al menos 8 caracteres');
         }
 
-        const usuario = await this.#usuarioRepository.findByRut(rut);
-        if (!usuario) {
+        // Crear instancia de Usuario con repositorio inyectado
+        const usuario = new Usuario({ rut }, this.#usuarioRepository);
+
+        // El Modelo se carga a sí mismo desde BD
+        const encontrado = await usuario.cargarPorRut();
+        
+        if (!encontrado) {
             throw new Error('Usuario no encontrado');
         }
 
-        // Hashear nueva contraseña
-        const bcrypt = require('bcryptjs');
-        const hasheada = await bcrypt.hash(nuevaContrasena, 10);
-
-        // Actualizar solo la contraseña en BD
-        await this.#usuarioRepository.actualizarContrasenia(usuario.usuarioId, hasheada);
+        // El Modelo resetea su propia contraseña
+        await usuario.resetearContrasena(nuevaContrasena);
 
         console.log('✅ Contraseña reseteada para RUT:', rut);
         return true;
