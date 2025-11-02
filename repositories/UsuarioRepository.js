@@ -20,6 +20,7 @@ class UsuarioRepository {
 
     /**
      * Listado paginado con filtros por estado y búsqueda por nombre/email/rut
+     * Retorna instancias del Modelo con Repositorio inyectado
      */
     async findAllPaginated({ page = 1, limit = 10, estado = 'all', search = '' } = {}) {
         const p = Number(page) > 0 ? Number(page) : 1;
@@ -54,14 +55,15 @@ class UsuarioRepository {
             params
         );
 
+        // IMPORTANTE: Inyectar repositorio en cada instancia
         const items = rowsRes.rows.map(row => new Usuario({
-            id: row.usuario_id,
+            usuarioId: row.usuario_id,
             nombre: row.nombre,
-            correo: row.email,
+            email: row.email,
             rut: row.rut,
             rol: row.rol,
             estado: row.estado
-        }));
+        }, this));
 
         return { items, total: totalRes.rows[0].total, page: p, limit: l };
     }

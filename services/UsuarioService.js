@@ -5,15 +5,35 @@ const Usuario = require('../models/Usuario');
  * Centraliza toda la lógica de negocio relacionada con usuarios
  */
 class UsuarioService {
+  /**
+   * @type {import('../repositories/UsuarioRepository')}
+   */
+  usuarioRepo;
+
+  /**
+   * @param {Object} dependencies
+   * @param {import('../repositories/UsuarioRepository')} dependencies.usuarioRepo
+   */
   constructor({ usuarioRepo }) {
     this.usuarioRepo = usuarioRepo;
   }
 
   /**
    * Listar usuarios con paginación y filtros
+   * COORDINACIÓN: El Servicio usa el Repositorio para obtener instancias, luego las convierte a JSON
    */
   async listarUsuarios({ page = 1, limit = 10, estado = 'all', search = '' }) {
-    return this.usuarioRepo.findAllPaginated({ page, limit, estado, search });
+    const resultado = await this.usuarioRepo.findAllPaginated({ page, limit, estado, search });
+    
+    // Convertir instancias de Usuario a JSON
+    const itemsJSON = resultado.items.map(usuario => usuario.toJSON());
+    
+    return {
+      items: itemsJSON,
+      total: resultado.total,
+      page: resultado.page,
+      limit: resultado.limit
+    };
   }
 
   /**
