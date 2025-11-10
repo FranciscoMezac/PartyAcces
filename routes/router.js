@@ -8,6 +8,9 @@ const SessionRepository = require('../repositories/SessionRepository');
 const CuentaPuntosRepository = require('../repositories/CuentaPuntosRepository');
 const AuthService = require('../services/AuthService');
 const PerfilService = require('../services/PerfilService');
+const QrService = require('../services/QrService');
+const QrRepository = require('../repositories/QrRepository');
+const QrController = require('../controllers/qrController');
 
 // Importar controladores
 const UsuariosController = require('../controllers/usuariosController');
@@ -25,6 +28,11 @@ const authController = new AuthController(authService);
 // Instanciar dependencias para PerfilController
 const perfilService = new PerfilService(usuarioRepository, sessionRepository, cuentaPuntosRepository);
 const perfilController = new PerfilController(perfilService);
+
+// Instanciar dependencias para QrController
+const qrRepository = new QrRepository(db);
+const qrService = new QrService(usuarioRepository, qrRepository, sessionRepository);
+const qrController = new QrController(qrService);
 
 // Definición de rutas
 const routes = {
@@ -112,6 +120,9 @@ const routes = {
         // Puntos
         '/api/puntos/acumular': require('../controllers/puntosController').acumular,
         '/api/puntos/canjear': require('../controllers/puntosController').canjear
+        ,
+        // QR
+        '/api/qr/generar': (req, res) => qrController.generarQR(req, res)
     },
     'PATCH': {
         // Perfil
