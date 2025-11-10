@@ -44,6 +44,22 @@ class QrRepository {
         );
         return new Qr(r.rows[0], this);
     }
+
+    /**
+     * Busca QR por referencia (para validación de acceso)
+     * @param {string} referencia
+     * @returns {Promise<Object|null>} - Retorna datos crudos (no modelo completo)
+     */
+    async findByReferencia(referencia) {
+        const r = await this.#db.query(
+            `SELECT qr_id, usuario_id, data, referencia, estado, creado_en
+             FROM qr
+             WHERE referencia = $1 AND estado = 'ACTIVO'
+             LIMIT 1`,
+            [referencia]
+        );
+        return r.rows[0] || null;
+    }
 }
 
 module.exports = QrRepository;

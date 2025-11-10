@@ -6,17 +6,20 @@ const db = require('../config/database');
 const UsuarioRepository = require('../repositories/UsuarioRepository');
 const SessionRepository = require('../repositories/SessionRepository');
 const CuentaPuntosRepository = require('../repositories/CuentaPuntosRepository');
+const QrRepository = require('../repositories/QrRepository');
+const AccesoRepository = require('../repositories/AccesoRepository');
 const AuthService = require('../services/AuthService');
 const PerfilService = require('../services/PerfilService');
 const QrService = require('../services/QrService');
-const QrRepository = require('../repositories/QrRepository');
-const QrController = require('../controllers/qrController');
+const AccesoService = require('../services/AccesoService');
 
 // Importar controladores
 const UsuariosController = require('../controllers/usuariosController');
 const HomeController = require('../controllers/homeController');
 const AuthController = require('../controllers/authController');
 const PerfilController = require('../controllers/perfilController');
+const QrController = require('../controllers/qrController');
+const AccesoController = require('../controllers/accesoController');
 
 // Instanciar dependencias para AuthController
 const usuarioRepository = new UsuarioRepository(db);
@@ -33,6 +36,11 @@ const perfilController = new PerfilController(perfilService);
 const qrRepository = new QrRepository(db);
 const qrService = new QrService(usuarioRepository, qrRepository, sessionRepository);
 const qrController = new QrController(qrService);
+
+// Instanciar dependencias para AccesoController
+const accesoRepository = new AccesoRepository(db);
+const accesoService = new AccesoService(qrRepository, accesoRepository, usuarioRepository);
+const accesoController = new AccesoController(accesoService);
 
 // Definición de rutas
 const routes = {
@@ -52,6 +60,7 @@ const routes = {
         '/editar-perfil': serveView('editar-perfil.html'),
         '/reset-password': serveView('reset-password.html'),
         '/qr': serveView('qr.html'),
+        '/scanner': serveView('scanner.html'),
         '/puntos/acumular': serveView('puntos_acumular.html'),
         '/puntos/canjear': serveView('puntos_canjear.html'),
         '/puntos/historial': serveView('puntos_historial.html'),
@@ -123,6 +132,9 @@ const routes = {
         ,
         // QR
         '/api/qr/generar': (req, res) => qrController.generarQR(req, res)
+        ,
+        // Acceso
+        '/api/acceso/validar': (req, res) => accesoController.validarAcceso(req, res)
     },
     'PATCH': {
         // Perfil
