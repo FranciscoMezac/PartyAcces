@@ -28,46 +28,62 @@
   </nav>
 
   <!-- Contenido principal -->
-  <main class="container">
-    <div class="row mt-5">
+  <main class="container mt-4">
+    <div class="row">
       <div class="col-12">
         <!-- Hero -->
-        <div class="hero-section text-center mb-5">
-          <h1 class="display-4">Panel de Administración</h1>
+        <div class="text-center mb-4">
+          <h1 class="display-5">Panel de Administración</h1>
           <p class="lead">Gestiona eventos, accesos y métricas en tiempo real.</p>
-          <p class="text-muted">Administra el flujo en puerta, promociones y reportes del club.</p>
         </div>
 
-        <!-- Acciones admin -->
-        <div class="text-center mb-5">
-          <a class="btn btn-primary btn-lg me-2" href="/dashboard">Ir al Dashboard</a>
-          <a class="btn btn-outline-secondary btn-lg" href="/qr">Ver QR de prueba</a>
+        <!-- Acciones rápidas -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+          <div>
+            <a class="btn btn-primary me-2" href="/scanner">📷 Escanear QR</a>
+            <a class="btn btn-outline-secondary me-2" href="/qr">Ver mi QR</a>
+            <a class="btn btn-info" href="/historial-cierres">📋 Historial de Cierres</a>
+          </div>
+          <button class="btn btn-success" id="btnRecargar">
+            <span id="iconoRecargar">🔄</span> Recargar Panel
+          </button>
         </div>
 
-        <!-- Bloques resumen (diseño) -->
-        <div class="row g-3">
-          <div class="col-12 col-md-4">
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <h6 class="text-muted">Invitados hoy</h6>
-                <div class="display-6">248</div>
-              </div>
-            </div>
+        <!-- Panel de usuarios en el local -->
+        <div class="card shadow mb-4">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Usuarios en el Local</h5>
+            <span class="badge bg-light text-dark fs-5" id="totalUsuarios">0</span>
           </div>
-          <div class="col-12 col-md-4">
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <h6 class="text-muted">Check-ins</h6>
-                <div class="display-6">193</div>
-              </div>
+          <div class="card-body">
+            <div id="alertaContainer"></div>
+            
+            <div class="table-responsive">
+              <table class="table table-hover table-striped mb-0">
+                <thead class="table-dark">
+                  <tr>
+                    <th class="d-none d-md-table-cell">ID</th>
+                    <th>Nombre</th>
+                    <th class="d-none d-lg-table-cell">RUT</th>
+                    <th class="d-none d-lg-table-cell">Email</th>
+                    <th>Hora Ingreso</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaIngresos">
+                  <tr>
+                    <td colspan="5" class="text-center py-4">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </div>
-          <div class="col-12 col-md-4">
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <h6 class="text-muted">Promos vendidas</h6>
-                <div class="display-6">57</div>
-              </div>
+
+            <div class="mt-3 text-muted">
+              <small>Última actualización: <span id="ultimaActualizacion">-</span></small>
+              <small class="ms-3">Recarga automática cada 30 segundos</small>
             </div>
           </div>
         </div>

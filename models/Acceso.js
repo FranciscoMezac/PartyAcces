@@ -68,6 +68,18 @@ class Acceso {
         const acceso = await this.#accesoRepository.findRecentByUsuarioId(this.#usuarioId, 0.016); // Cambiar a 0.016 para pruebas (1 minuto)
         return acceso !== null;
     }
+
+    /**
+     * Registra salida masiva (cierre de jornada)
+     * @param {Array<number>} usuarioIds - IDs de usuarios a registrar salida
+     * @returns {Promise<number>} Cantidad de salidas registradas
+     */
+    static async registrarSalidasMasivas(usuarioIds, accesoRepository) {
+        if (!accesoRepository) throw new Error('Repositorio no inyectado');
+        if (!Array.isArray(usuarioIds) || usuarioIds.length === 0) return 0;
+        
+        return await accesoRepository.insertSalidasMasivas(usuarioIds);
+    }
 }
 
 module.exports = Acceso;
