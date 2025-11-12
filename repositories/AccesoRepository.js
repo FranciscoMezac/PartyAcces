@@ -51,6 +51,7 @@ class AccesoRepository {
 
     /**
      * Obtiene usuarios cuyo último movimiento HOY es INGRESO (están actualmente en el local)
+     * Usa zona horaria de Chile para determinar "hoy"
      * @returns {Promise<Array>} Array con datos del último ingreso
      */
     async findIngresosHoy() {
@@ -69,7 +70,7 @@ class AccesoRepository {
                      fecha_hora,
                      tipo_acceso
                  FROM acceso
-                 WHERE DATE(fecha_hora) = CURRENT_DATE
+                 WHERE DATE(fecha_hora AT TIME ZONE 'America/Santiago') = (NOW() AT TIME ZONE 'America/Santiago')::date
                  ORDER BY usuario_id, fecha_hora DESC
              ) a
              WHERE a.tipo_acceso = 'INGRESO'
@@ -80,6 +81,7 @@ class AccesoRepository {
 
     /**
      * Cuenta cuántos usuarios están actualmente en el local (cuyo último movimiento hoy es INGRESO)
+     * Usa zona horaria de Chile
      * @returns {Promise<number>}
      */
     async countIngresosSinSalida() {
@@ -90,7 +92,7 @@ class AccesoRepository {
                      usuario_id, 
                      tipo_acceso
                  FROM acceso
-                 WHERE DATE(fecha_hora) = CURRENT_DATE
+                 WHERE DATE(fecha_hora AT TIME ZONE 'America/Santiago') = (NOW() AT TIME ZONE 'America/Santiago')::date
                  ORDER BY usuario_id, fecha_hora DESC
              ) AS ultimos_movimientos
              WHERE tipo_acceso = 'INGRESO'`
@@ -100,6 +102,7 @@ class AccesoRepository {
 
     /**
      * Obtiene IDs de usuarios cuyo último movimiento hoy es INGRESO (para cierre de jornada)
+     * Usa zona horaria de Chile
      * @returns {Promise<Array<number>>}
      */
     async findUsuariosConIngresoAbierto() {
@@ -110,7 +113,7 @@ class AccesoRepository {
                      usuario_id, 
                      tipo_acceso
                  FROM acceso
-                 WHERE DATE(fecha_hora) = CURRENT_DATE
+                 WHERE DATE(fecha_hora AT TIME ZONE 'America/Santiago') = (NOW() AT TIME ZONE 'America/Santiago')::date
                  ORDER BY usuario_id, fecha_hora DESC
              ) AS ultimos_movimientos
              WHERE tipo_acceso = 'INGRESO'`
@@ -177,13 +180,14 @@ class AccesoRepository {
 
     /**
      * Cuenta TODOS los ingresos del día (no solo únicos, incluye reingresos)
+     * Usa zona horaria de Chile
      * @returns {Promise<number>}
      */
     async countTotalIngresosHoy() {
         const r = await this.#db.query(
             `SELECT COUNT(*)::int AS total
              FROM acceso
-             WHERE DATE(fecha_hora) = CURRENT_DATE
+             WHERE DATE(fecha_hora AT TIME ZONE 'America/Santiago') = (NOW() AT TIME ZONE 'America/Santiago')::date
                AND tipo_acceso = 'INGRESO'`
         );
         return r.rows[0].total;
