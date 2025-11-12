@@ -1,20 +1,40 @@
 const { Pool } = require('pg');
-require('dotenv/config');
+const fs = require('fs');
+const path = require('path');
 
-const ssl = process.env.DB_SSL === 'true' 
-    ? { rejectUnauthorized: false }
-    : undefined;
+// Cargar variables de entorno desde .env y (si existe) desde 'env'
+try {
+  require('dotenv').config();
+  const envPath = path.join(process.cwd(), 'env');
+  if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+  }
+} catch (_) { /* noop */ }
 
-const pool = process.env.DATABASE_URL
-    ? new Pool({ connectionString: process.env.DATABASE_URL, ssl })
-    : new Pool({
-        user: process.env.DB_USER || 'tu_usuario',
-        host: process.env.DB_HOST || 'localhost',
-        database: process.env.DB_NAME || 'partyaccess',
-        password: process.env.DB_PASSWORD || 'tu_password',
-        port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
-        ssl
-    });
+// Permitir variables tipo PG* además de DB_*
+const ssl = (process.env.DB_SSL === 'true' || process.env.PGSSL === 'true')
+  ? { rejectUnauthorized: false }
+  : undefined;
+
+const connectionString = process.env.DATABASE_URL || process.env.PG_CONNECTION_STRING;
+
+const conf = connectionString
+  ? { connectionString, ssl }
+  : {
+      user: process.env.DB_USER || process.env.PGUSER || 'tu_usuario',
+      host: process.env.DB_HOST || process.env.PGHOST || 'localhost',
+      database: process.env.DB_NAME || process.env.PGDATABASE || 'partyaccess',
+      password: process.env.DB_PASSWORD || process.env.PGPASSWORD || 'tu_password',
+      port: Number(process.env.DB_PORT || process.env.PGPORT || 5432),
+      ssl
+    };
+
+// Aviso si se está usando la config por defecto (ayuda a detectar .env no cargado)
+if (conf.user === 'tu_usuario') {
+  console.warn('[DB] Advertencia: usando credenciales por defecto. ¿Está configurado .env? Variables esperadas: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD');
+}
+
+const pool = new Pool(conf);
 
 async function query(text, params) {
     const start = Date.now();

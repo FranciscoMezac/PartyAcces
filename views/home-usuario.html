@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -14,7 +14,7 @@
       <a class="navbar-brand" href="/">PartyAccess</a>
 
       <!-- Toggler vanilla (opcional) -->
-      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
+      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Men�">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
@@ -41,6 +41,7 @@
         <!-- Acciones cliente -->
         <div class="text-center mb-5">
           <a class="btn btn-primary btn-lg me-2" href="/qr">Ver mi QR</a>
+          <a class="btn btn-success btn-lg me-2" href="/puntos/canjear">Canjear productos</a>
           <a class="btn btn-outline-secondary btn-lg" href="/perfil-usuario">Mi perfil</a>
         </div>
 
@@ -55,7 +56,24 @@
         </div>
       </div>
     </div>
-  </main>
+      <!-- Recomendado para ti -->
+    <section class="recommend-block" data-carousel="for-you">
+      <div class="recommend-header">
+        <div>
+          <h2>Recomendado para ti</h2>
+          <p class="text-muted mb-0">Basado en tu actividad y tendencias de la noche.</p>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-btn" type="button" aria-label="Ver anterior" data-carousel-btn="prev">&#8249;</button>
+          <button class="carousel-btn" type="button" aria-label="Ver siguiente" data-carousel-btn="next">&#8250;</button>
+        </div>
+      </div>
+      <div class="recommend-carousel">
+        <div class="recommend-window">
+          <div id="for-you" class="recommend-track" role="list"></div>
+        </div>
+      </div>
+    </section></main>
 
   <!-- Bottom Navigation (cliente) -->
   <nav class="bottom-nav">
@@ -78,5 +96,127 @@
   <!-- JS vanilla para el toggler del navbar superior -->
   <script src="/public/js/nav-toggle.js"></script>
   <script src="/public/js/home-usuario.js"></script>
+    <script>
+    (function(){
+      const KEY = 'USER_TOKEN';
+      let userToken = null;
+      try { userToken = localStorage.getItem(KEY); } catch(_) {}
+      if (!userToken) {
+        userToken = 'u_' + Math.random().toString(36).slice(2) + Date.now();
+        try { localStorage.setItem(KEY, userToken); } catch(_) {}
+      }
+
+      const track = document.getElementById('for-you');
+      const sourceLabels = {
+        'category_history': 'Basado en tu actividad',
+        'global_popular': 'Mas populares',
+        'db_fallback': 'Catalogo'
+      };
+      const carousel = track?.closest('[data-carousel="for-you"]') || null;
+      const prevBtn = carousel?.querySelector('[data-carousel-btn="prev"]');
+      const nextBtn = carousel?.querySelector('[data-carousel-btn="next"]');
+
+      const scrollByStep = (dir) => {
+        if (!track) return;
+        const card = track.querySelector('.recommend-card');
+        const step = card ? card.getBoundingClientRect().width + 16 : 240;
+        track.scrollBy({ left: dir * step, behavior: 'smooth' });
+      };
+      const updateControls = () => {
+        if (!track) return;
+        const max = Math.max(0, track.scrollWidth - track.clientWidth);
+        const left = track.scrollLeft;
+        if (prevBtn) prevBtn.disabled = left <= 4;
+        if (nextBtn) nextBtn.disabled = left >= max - 4;
+      };
+
+      prevBtn?.addEventListener('click', () => scrollByStep(-1));
+      nextBtn?.addEventListener('click', () => scrollByStep(1));
+      track?.addEventListener('scroll', () => updateControls(), { passive: true });
+
+      async function loadForYou(){
+        if (!track) return;
+        track.innerHTML = '<div class="carousel-empty">Cargando recomendaciones...</div>';
+        updateControls();
+        try {
+          const res = await fetch(`/api/recommend/local?userToken=${encodeURIComponent(userToken)}`);
+          const data = await res.json();
+          const items = Array.isArray(data?.hits) ? data.hits : [];
+          console.log('[ForYou:local]', data?.source, 'count:', items.length);
+
+          if (!items.length) {
+            track.innerHTML = '<div class="carousel-empty">Sin recomendaciones por ahora.</div>';
+            updateControls();
+            return;
+          }
+
+          const frag = document.createDocumentFragment();
+          const badgeLabel = sourceLabels[data?.source] || 'Sugerido';
+          for (const it of items){
+            const card = document.createElement('article');
+            card.className = 'recommend-card';
+
+            {
+              const badge = document.createElement('small');
+              badge.className = 'badge';
+              badge.textContent = badgeLabel;
+              if (data?.source) badge.dataset.source = data.source;
+              card.appendChild(badge);
+            }
+            if (it.image){
+              const img = document.createElement('img');
+              img.src = it.image;
+              img.alt = it.name || 'Recompensa';
+              card.appendChild(img);
+            }
+            const h = document.createElement('h3');
+            h.textContent = it.name || 'Recompensa';
+            card.appendChild(h);
+
+            if (it.description) {
+              const d = document.createElement('p');
+              d.className = 'muted';
+              d.textContent = it.description;
+              card.appendChild(d);
+            }
+
+            const p = document.createElement('p');
+            p.textContent = (it.price ?? '') + ' pts';
+            card.appendChild(p);
+
+            const a = document.createElement('a');
+            a.className = 'btn';
+            a.href = '/puntos/canjear';
+            a.textContent = 'Ver';
+            card.appendChild(a);
+            frag.appendChild(card);
+          }
+
+          track.innerHTML = '';
+          track.appendChild(frag);
+          requestAnimationFrame(updateControls);
+        } catch (e) {
+          console.error('[ForYou:local] error', e);
+          track.innerHTML = '<div class="carousel-empty">No fue posible cargar recomendaciones.</div>';
+          updateControls();
+        }
+      }
+
+      loadForYou();
+    })();
+  </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+

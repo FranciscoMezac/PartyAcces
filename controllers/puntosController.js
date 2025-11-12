@@ -3,13 +3,17 @@ const PuntosService = require('../services/PuntosService');
 const CuentaRepository = require('../repositories/CuentaRepository');
 const ProductoRepository = require('../repositories/ProductoRepository');
 const MovimientoRepository = require('../repositories/MovimientoRepository');
+const TrackingEventosRepository = require('../repositories/TrackingEventosRepository');
+const TrackingEventosService = require('../services/TrackingEventosService');
 
 class PuntosController {
   constructor({ porcentaje } = {}) {
     const cuentaRepo = new CuentaRepository(db);
     const productoRepo = new ProductoRepository(db);
     const movimientoRepo = new MovimientoRepository(db);
+    const trackingRepo = new TrackingEventosRepository(db);
     this.service = new PuntosService({ db, cuentaRepo, productoRepo, movimientoRepo, porcentaje });
+    this.trackingService = new TrackingEventosService({ repository: trackingRepo });
 
     this.acumular = this.acumular.bind(this);
     this.canjear = this.canjear.bind(this);
@@ -48,6 +52,14 @@ class PuntosController {
 
       try {
         const result = await this.service.canjear(rut, pid);
+        if (this.trackingService) {
+          this.trackingService.registrarEvento({
+            eventType: 'conversion',
+            rut,
+            productoId: pid,
+            source: 'api:puntos/canjear'
+          }).catch(err => console.warn('[tracking] conversion', err.message));
+        }
         res.writeHead(201, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ success: true, rut, producto: { id: result.canje.productoId, nombre: result.canje.nombre }, costo: result.canje.costo, nuevoSaldo: result.nuevoSaldo }));
       } catch (e) {
@@ -129,4 +141,15 @@ class PuntosController {
 }
 
 module.exports = new PuntosController();
+
+
+
+
+
+
+
+
+
+
+
 

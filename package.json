@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "export:algolia": "node scripts/export_algolia_products.js",
+    "export:algolia:all": "node scripts/export_algolia_products.js --all"
   },
   "keywords": [
     "nodejs",

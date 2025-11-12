@@ -1,11 +1,10 @@
+const Usuario = require('../models/Usuario');
 /**
  * Patron de diseño: Repository Pattern
  * Propósito: Abstraer el acceso a datos de la entidad Usuario de la lógica de negocio
  * Problema que resuelve: Separa las consultas a base de datos del modelo de dominio,
  * permitiendo cambiar la fuente de datos sin afectar la lógica de negocio
  */
-
-const Usuario = require('../models/Usuario');
 
 class UsuarioRepository {
     #db;
@@ -19,6 +18,7 @@ class UsuarioRepository {
     }
 
     /**
+<<<<<<< Updated upstream
      * Listado paginado con filtros por estado y búsqueda por nombre/email/rut
      * Retorna instancias del Modelo con Repositorio inyectado
      */
@@ -69,8 +69,9 @@ class UsuarioRepository {
     }
 
     /**
+=======
+>>>>>>> Stashed changes
      * Busca un usuario por su email
-     * Retorna instancia del Modelo con Repositorio inyectado
      * @param {string} email 
      * @returns {Promise<Usuario|null>}
      */
@@ -81,8 +82,7 @@ class UsuarioRepository {
                 [email]
             );
             
-            // IMPORTANTE: Inyectar repositorio en la instancia retornada
-            return result.rows[0] ? new Usuario(result.rows[0], this) : null;
+            return result.rows[0] ? new Usuario(result.rows[0]) : null;
         } catch (error) {
             console.error('Error al buscar usuario por email:', error);
             throw error;
@@ -91,7 +91,6 @@ class UsuarioRepository {
 
     /**
      * Busca un usuario por su ID
-     * Retorna instancia del Modelo con Repositorio inyectado
      * @param {number} id 
      * @returns {Promise<Usuario|null>}
      */
@@ -102,8 +101,7 @@ class UsuarioRepository {
                 [id]
             );
             
-            // IMPORTANTE: Inyectar repositorio en la instancia retornada
-            return result.rows[0] ? new Usuario(result.rows[0], this) : null;
+            return result.rows[0] ? new Usuario(result.rows[0]) : null;
         } catch (error) {
             console.error('Error al buscar usuario por ID:', error);
             throw error;
@@ -112,7 +110,6 @@ class UsuarioRepository {
 
     /**
      * Busca un usuario por su RUT
-     * Retorna instancia del Modelo con Repositorio inyectado
      * @param {string} rut 
      * @returns {Promise<Usuario|null>}
      */
@@ -123,8 +120,7 @@ class UsuarioRepository {
                 [rut]
             );
             
-            // IMPORTANTE: Inyectar repositorio en la instancia retornada
-            return result.rows[0] ? new Usuario(result.rows[0], this) : null;
+            return result.rows[0] ? new Usuario(result.rows[0]) : null;
         } catch (error) {
             console.error('Error al buscar usuario por RUT:', error);
             throw error;
@@ -132,76 +128,7 @@ class UsuarioRepository {
     }
 
     /**
-     * Verifica si existe un usuario con el RUT dado (solo existencia, no crea objeto)
-     * Solución al problema de creación dual de objetos Usuario
-     * @param {string} rut 
-     * @returns {Promise<boolean>}
-     */
-    async existsByRut(rut) {
-        try {
-            const result = await this.#db.query(
-                'SELECT EXISTS(SELECT 1 FROM usuario WHERE rut = $1) as existe',
-                [rut]
-            );
-            return result.rows[0].existe;
-        } catch (error) {
-            console.error('Error al verificar existencia por RUT:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Verifica si existe un usuario con el email dado (solo existencia, no crea objeto)
-     * Solución al problema de creación dual de objetos Usuario
-     * @param {string} email 
-     * @returns {Promise<boolean>}
-     */
-    async existsByEmail(email) {
-        try {
-            const result = await this.#db.query(
-                'SELECT EXISTS(SELECT 1 FROM usuario WHERE email = $1) as existe',
-                [email]
-            );
-            return result.rows[0].existe;
-        } catch (error) {
-            console.error('Error al verificar existencia por email:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Bloquea (estado = BLOQUEADO) a un usuario por RUT.
-     * Retorna la fila actualizada como dominio o null si no se actualizó.
-     */
-    async bloquear(rut, { motivo = null, adminId = null } = {}) {
-        try {
-            const r = await this.#db.query(
-                `UPDATE usuario
-                   SET estado = 'BLOQUEADO'
-                 WHERE rut = $1 AND estado <> 'BLOQUEADO'
-                 RETURNING *`,
-                [rut]
-            );
-            if (r.rows[0]) return new Usuario(r.rows[0]);
-
-            // Si no actualizó, determinamos si ya está bloqueado o no existe
-            const current = await this.findByRut(rut);
-            if (!current) return null;
-            if ((current.estado || '').trim() === 'BLOQUEADO') {
-                const err = new Error('Ya está bloqueado');
-                err.code = 'ALREADY_BLOCKED';
-                throw err;
-            }
-            return null;
-        } catch (error) {
-            console.error('Error al bloquear usuario:', error);
-            throw error;
-        }
-    }
-
-    /**
      * Obtiene todos los usuarios
-     * Retorna array de instancias del Modelo con Repositorio inyectado
      * @returns {Promise<Array<Usuario>>}
      */
     async findAll() {
@@ -210,8 +137,7 @@ class UsuarioRepository {
                 'SELECT * FROM usuario ORDER BY created_at DESC'
             );
             
-            // IMPORTANTE: Inyectar repositorio en cada instancia
-            return result.rows.map(row => new Usuario(row, this));
+            return result.rows.map(row => new Usuario(row));
         } catch (error) {
             console.error('Error al obtener todos los usuarios:', error);
             throw error;
@@ -220,7 +146,6 @@ class UsuarioRepository {
 
     /**
      * Crea un nuevo usuario (sin transacción externa)
-     * Retorna instancia del Modelo con Repositorio inyectado
      * @param {Usuario} usuario 
      * @returns {Promise<Usuario>}
      */
@@ -233,8 +158,7 @@ class UsuarioRepository {
                 [data.nombre, data.rut, data.email, data.contrasenia, data.rol, data.estado]
             );
             
-            // IMPORTANTE: Inyectar repositorio en la instancia retornada
-            return new Usuario(result.rows[0], this);
+            return new Usuario(result.rows[0]);
         } catch (error) {
             console.error('Error al crear usuario:', error);
             throw error;
@@ -265,7 +189,6 @@ class UsuarioRepository {
 
     /**
      * Actualiza un usuario existente
-     * Retorna instancia del Modelo con Repositorio inyectado
      * @param {number} id 
      * @param {Object} data 
      * @returns {Promise<Usuario|null>}
@@ -305,8 +228,7 @@ class UsuarioRepository {
 
             const result = await this.#db.query(query, valores);
             
-            // IMPORTANTE: Inyectar repositorio en la instancia retornada
-            return result.rows[0] ? new Usuario(result.rows[0], this) : null;
+            return result.rows[0] ? new Usuario(result.rows[0]) : null;
         } catch (error) {
             console.error('Error al actualizar usuario:', error);
             throw error;
@@ -354,7 +276,6 @@ class UsuarioRepository {
 
     /**
      * Busca usuarios por rol
-     * Retorna array de instancias del Modelo con Repositorio inyectado
      * @param {string} rol 
      * @returns {Promise<Array<Usuario>>}
      */
@@ -365,8 +286,7 @@ class UsuarioRepository {
                 [rol]
             );
             
-            // IMPORTANTE: Inyectar repositorio en cada instancia
-            return result.rows.map(row => new Usuario(row, this));
+            return result.rows.map(row => new Usuario(row));
         } catch (error) {
             console.error('Error al buscar usuarios por rol:', error);
             throw error;
@@ -375,7 +295,6 @@ class UsuarioRepository {
 
     /**
      * Busca todos los usuarios activos
-     * Retorna array de instancias del Modelo con Repositorio inyectado
      * @returns {Promise<Array<Usuario>>}
      */
     async findActive() {
@@ -385,8 +304,7 @@ class UsuarioRepository {
                 ['ACTIVO']
             );
             
-            // IMPORTANTE: Inyectar repositorio en cada instancia
-            return result.rows.map(row => new Usuario(row, this));
+            return result.rows.map(row => new Usuario(row));
         } catch (error) {
             console.error('Error al buscar usuarios activos:', error);
             throw error;

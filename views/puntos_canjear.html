@@ -1,10 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
-<head>
+  <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Canje de Puntos</title>
   <link rel="stylesheet" href="/public/css/styles.css" />
+  <!-- Carga del tema de Algolia Recommend en el <head> para evitar bloqueos del navegador -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@algolia/recommend-js@latest/dist/recommend-theme.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     .container { max-width: 960px; margin: 2rem auto; padding: 1rem; }
     .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
@@ -17,6 +20,17 @@
     .msg { margin-top: 1rem; padding:.75rem; border-radius:6px; }
     .msg.ok { background:#e7f6ec; color:#146c2e; }
     .msg.err { background:#fdecea; color:#b3261e; }
+
+    /* Estilo del bloque de recomendaciones */
+    #rec-related ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 16px; }
+    #rec-related li { list-style: none; }
+    .product-card { display:inline-block; width:200px; border:1px solid #e1e5ee; border-radius:8px; padding:12px; background:#fff; }
+    .product-card img { width:100%; height:120px; object-fit:cover; border-radius:6px; }
+    .product-card h3 { font-size:1rem; margin:.5rem 0; }
+    .product-card p { margin:0 0 .5rem; }
+    .product-card .btn { display:inline-block; padding:.5rem .75rem; border:1px solid #d0d2d6; border-radius:999px; text-decoration:none; color:#1f1f1f; }
+    /* Oculta controles técnicos de prueba en la vista de cliente */
+    #algolia-form { display:none; }
   </style>
   <script defer src="/public/js/canjear.js"></script>
 </head>
@@ -26,16 +40,153 @@
     <p class="muted">Selecciona un producto del catálogo e ingresa el RUT del cliente.</p>
 
     <div class="toolbar">
-      <label for="rut">RUT</label>
-      <input id="rut" placeholder="12.345.678-9" required />
-      <button id="btn-refrescar" type="button">Actualizar catálogo</button>
-      <a href="/dashboard" style="margin-left:auto">Volver</a>
+      <label for="f-category">Categoría</label>      <select id="f-category"><option value="">Todas</option></select>      <label for="f-search">Buscar</label>      <input id="f-search" placeholder="Nombre del producto" />     <button id="btn-refrescar" type="button">Aplicar</button>     <a href="/dashboard" style="margin-left:auto">Volver</a>
     </div>
 
     <div id="resultado" class="msg" style="display:none"></div>
 
-    <div id="grid" class="grid"></div>
+    <div id="grid" class="grid"></div>    <div id="pager" class="toolbar" style="justify-content:center; gap:.5rem; margin-top:1rem"></div>
+
+    <hr style="margin:2rem 0" />
+    <section>
+      <h2>Podría interesarte</h2>
+      <p class="muted">Sugerencias basadas en tu última selección.</p>
+      <form id="algolia-form" class="toolbar">
+        <label for="algolia-objectid">objectID</label>
+        <input id="algolia-objectid" placeholder="ej: 12345" />
+        <label for="algolia-threshold">threshold</label>
+        <input id="algolia-threshold" type="number" min="10" max="100" step="5" value="70" style="width:90px" />
+        <button type="submit">Cargar similares</button>
+      </form>
+      <div id="rec-related"></div>
+    </section>
   </div>
+  
+  <!-- Estilos opcionales de la UI de Recommend (si alguno falla, no bloquea funcionalidad) -->
+  <script type="module">
+    // Cargar configuraciÃ³n pÃºblica desde el backend
+    async function getPublicConfig() {
+      try {
+        const res = await fetch('/api/public-config');
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.algolia || null;
+      } catch (_) { return null; }
+    }
+
+    async function mountRelated(objectID) {
+  const container = document.querySelector('#rec-related');
+  if (!objectID) {
+    container.innerHTML = '<div class="muted">Ingresa un objectID para ver recomendaciones.</div>';
+    return;
+  }
+  const algolia = await getPublicConfig();
+  if (!algolia || !algolia.appId || !algolia.searchApiKey || !algolia.indexProducts) {
+    container.innerHTML = '<div class="msg err">Faltan credenciales públicas de Algolia. Revisa tu .env.</div>';
+    return;
+  }
+  container.innerHTML = '<div class="muted">Cargando recomendaciones…</div>';
+  const indexName = new URLSearchParams(location.search).get('index') || algolia.indexProducts;
+  const thParam = new URLSearchParams(location.search).get('th');
+  const th = Number.isFinite(Number(thParam)) ? Number(thParam) : 70;
+  try {
+    const res = await fetch(`/api/recommend/looking-similar?index=${encodeURIComponent(indexName)}&objectID=${encodeURIComponent(String(objectID))}&threshold=${th}`);
+    const data = await res.json();
+    const items = data?.hits || [];
+    if (!items.length) {
+      container.innerHTML = '<div class="muted">Sin recomendaciones para este objectID.</div>';
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    for (const item of items) {
+      const article = document.createElement('article');
+      article.className = 'product-card';
+      const imgSrc = item.image || item.img || '';
+      if (imgSrc) { const img = document.createElement('img'); img.src = imgSrc; img.alt = item.name || item.title || item.nombre || 'Producto'; article.appendChild(img); }
+      const h3 = document.createElement('h3'); h3.textContent = item.name || item.title || item.nombre || 'Producto'; article.appendChild(h3);
+      const pts = (item.price ?? item.points ?? item.puntos ?? ''); if (pts !== '') { const p = document.createElement('p'); p.textContent = `${pts} pts`; article.appendChild(p); }
+      const a = document.createElement('a'); a.className = 'btn'; a.href = item.url || '#'; a.textContent = 'Ver'; article.appendChild(a);
+      frag.appendChild(article);
+    }
+    container.innerHTML = '';
+    container.appendChild(frag);
+  } catch (e) {
+    container.innerHTML = '<div class="msg err">No fue posible cargar recomendaciones.</div>';
+    console.warn('mountRelated error', e);
+  }
+}
+// Soporte para ?objectID=...
+    const params = new URLSearchParams(window.location.search);
+    const initial = params.get('objectID') || (function(){ try { return localStorage.getItem('ALGOLIA_LAST_OID'); } catch(_) { return null; } })();
+    if (initial) {
+      mountRelated(initial);
+      // Si el widget no pintó nada (por DNS/CORS/CDN), usa el proxy del servidor
+      setTimeout(() => {
+        const c = document.querySelector('#rec-related');
+        if (!c || c.children.length === 0) {
+          window.mountAlgoliaRelatedFallback?.(initial);
+        }
+      }, 900);
+    }
+
+    // Controles técnicos deshabilitados en vista de cliente
+
+    // Expone una funciÃ³n global para que otros scripts (p.ej., canjear.js)
+    // puedan solicitar recomendaciones al hacer click en "Canjear".
+    window.mountAlgoliaRelated = (id) => mountRelated(id);
+  </script>
+  <script>
+    // Fallback: si el widget no dibuja nada, consulta la API REST y renderiza tarjetas.
+    (function(){
+      async function getCfg(){
+        try{ const r = await fetch('/api/public-config'); if(!r.ok) return null; const j = await r.json(); return j.algolia; }catch(_){ return null; }
+      }
+      function render(items){
+        const c = document.querySelector('#rec-related');
+        if(!c) return;
+        if(!items || !items.length){ c.innerHTML = '<div class="muted">Sin recomendaciones para este objectID.</div>'; return; }
+        const frag = document.createDocumentFragment();
+        for(const it of items){
+          const art = document.createElement('article'); art.className='product-card';
+          const imgSrc = it.image || it.img || '';
+          if(imgSrc){ const img=document.createElement('img'); img.src=imgSrc; img.alt=it.name||it.title||it.nombre||'Producto'; art.appendChild(img);} 
+          const h3=document.createElement('h3'); h3.textContent=it.name||it.title||it.nombre||'Producto'; art.appendChild(h3);
+          const pts=(it.price ?? it.points ?? it.puntos ?? ''); if(pts!==''){ const p=document.createElement('p'); p.textContent=`${pts} pts`; art.appendChild(p);} 
+          const a=document.createElement('a'); a.className='btn'; a.href=it.url||'#'; a.textContent='Ver'; art.appendChild(a);
+          frag.appendChild(art);
+        }
+        c.innerHTML=''; c.appendChild(frag);
+      }
+      async function fallback(objectID){
+        const cfg = await getCfg(); if(!cfg) return;
+        const index = new URLSearchParams(location.search).get('index') || cfg.indexProducts;
+        const th = Number(new URLSearchParams(location.search).get('th'))||70;
+        try{
+          const res = await fetch(`/api/recommend/looking-similar?index=${encodeURIComponent(index)}&objectID=${encodeURIComponent(objectID)}&threshold=${th}`);
+          const json = await res.json();
+          const items = json?.hits || [];
+          render(items);
+        }catch(e){ console.warn('Recommend fallback error', e); }
+      }
+      // expone para que otros scripts puedan invocarlo
+      window.mountAlgoliaRelatedFallback = fallback;
+      // tras submit, si no hay contenido, dispara fallback
+      document.getElementById('algolia-form')?.addEventListener('submit', (e)=>{
+        setTimeout(()=>{
+          const c=document.querySelector('#rec-related');
+          if(c && c.children.length===0){
+            const id = document.getElementById('algolia-objectid')?.value?.trim();
+            if(id) fallback(id);
+          }
+        }, 1000);
+      });
+    })();
+  </script>
 </body>
 </html>
+
+
+
+
+
 
