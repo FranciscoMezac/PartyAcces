@@ -18,7 +18,6 @@ class UsuarioRepository {
     }
 
     /**
-<<<<<<< Updated upstream
      * Listado paginado con filtros por estado y búsqueda por nombre/email/rut
      * Retorna instancias del Modelo con Repositorio inyectado
      */
@@ -69,8 +68,6 @@ class UsuarioRepository {
     }
 
     /**
-=======
->>>>>>> Stashed changes
      * Busca un usuario por su email
      * @param {string} email 
      * @returns {Promise<Usuario|null>}

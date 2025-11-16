@@ -23,16 +23,13 @@ const UsuariosController = require('../controllers/usuariosController');
 const HomeController = require('../controllers/homeController');
 const AuthController = require('../controllers/authController');
 const PerfilController = require('../controllers/perfilController');
-<<<<<<< Updated upstream
 const QrController = require('../controllers/qrController');
 const AccesoController = require('../controllers/accesoController');
 const PanelController = require('../controllers/panelController');
 const AccesosController = require('../controllers/accesosController');
 const HistorialController = require('../controllers/historialController');
-=======
 const RecommendController = require('../controllers/recommendController');
 const TrackingController = require('../controllers/trackingController');
->>>>>>> Stashed changes
 
 // Instanciar dependencias para AuthController
 const usuarioRepository = new UsuarioRepository(db);
@@ -103,7 +100,6 @@ const routes = {
         // API de navegación
         '/api/navigation': HomeController.getNavigationData,
         
-<<<<<<< Updated upstream
         // API de panel de ingresados
         '/api/panel/ingresos': (req, res) => panelController.obtenerIngresos(req, res),
         
@@ -111,9 +107,7 @@ const routes = {
         '/api/historial/cierres': (req, res) => historialController.obtenerHistorial(req, res),
         '/api/historial/estadisticas': (req, res) => historialController.obtenerEstadisticas(req, res),
         '/api/historial/usuarios/:fecha': (req, res) => historialController.obtenerUsuariosPorFecha(req, res),
-=======
         '/api/recommend/local': (req, res) => recommendController.localForUser(req, res),
->>>>>>> Stashed changes
         
         // Health checks
         '/health': async (_req, res) => {
@@ -606,21 +600,19 @@ const routes = {
         
         // Puntos
         '/api/puntos/acumular': require('../controllers/puntosController').acumular,
-<<<<<<< Updated upstream
-        '/api/puntos/canjear': require('../controllers/puntosController').canjear
-        ,
-        // QR
-        '/api/qr/generar': (req, res) => qrController.generarQR(req, res)
-        ,
-        // Acceso
-        '/api/acceso/validar': (req, res) => accesoController.validarAcceso(req, res)
-        ,
-        // Cierre de jornada (llamado por scheduler)
-        '/internal/accesos/cierre-jornada': (req, res) => accesosController.cerrarJornada(req, res)
-=======
         '/api/puntos/canjear': require('../controllers/puntosController').canjear,
+        
+        // QR
+        '/api/qr/generar': (req, res) => qrController.generarQR(req, res),
+        
+        // Acceso
+        '/api/acceso/validar': (req, res) => accesoController.validarAcceso(req, res),
+        
+        // Cierre de jornada manual (guardado de panel)
+        '/api/accesos/guardar-panel': (req, res) => accesosController.cerrarJornada(req, res),
+        
+        // Tracking de eventos
         '/api/tracking/events': (req, res) => trackingController.registrar(req, res)
->>>>>>> Stashed changes
     },
     'PATCH': {
         // Perfil
