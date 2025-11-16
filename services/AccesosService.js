@@ -20,8 +20,8 @@ class AccesosService {
     }
 
     /**
-     * Cierra la jornada registrando salida para todos los usuarios con INGRESO sin SALIDA
-     * Guarda el historial del cierre
+     * Guarda el panel registrando salida para todos los usuarios con INGRESO sin SALIDA
+     * Guarda el historial del guardado
      * @returns {Promise<{procesados: number, totalIngresos: number, historial: Object}>}
      */
     async cerrarJornada() {
@@ -43,7 +43,7 @@ class AccesosService {
             const cierreHistorial = new HistorialCierre({
                 totalIngresos: totalIngresos,
                 usuariosProcesados: procesados,
-                observaciones: `Cierre automático - ${procesados} salidas registradas de ${totalIngresos} ingresos totales`
+                observaciones: `Guardado manual por administrador - ${procesados} salidas registradas de ${totalIngresos} ingresos totales`
             }, this.#historialCierreRepository);
 
             historial = await cierreHistorial.registrar();

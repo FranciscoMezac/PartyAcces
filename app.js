@@ -70,9 +70,6 @@ function serveStaticFile(pathname, res) {
 server.listen(config.port, config.host, () => {
     console.log(`Servidor corriendo en http://${config.host}:${config.port}`);
     console.log(`Archivos estáticos desde: ${path.join(__dirname, 'public')}`);
-    
-    // Iniciar scheduler de cierre de jornada
-    iniciarScheduler();
 });
 
 // Comprobación de conexión a la base de datos al inicio
@@ -85,23 +82,5 @@ setTimeout(async () => {
         console.error('DB FAIL:', err.code || '', err.message);
     }
 }, 0);
-
-/**
- * Inicializa el scheduler para el cierre automático de jornada a las 14:00
- */
-function iniciarScheduler() {
-    const JornadaScheduler = require('./utils/jornadaScheduler');
-    const AccesosService = require('./services/AccesosService');
-    const AccesoRepository = require('./repositories/AccesoRepository');
-    const HistorialCierreRepository = require('./repositories/HistorialCierreRepository');
-    const db = require('./config/database');
-    
-    const accesoRepository = new AccesoRepository(db);
-    const historialCierreRepository = new HistorialCierreRepository(db);
-    const accesosService = new AccesosService(accesoRepository, historialCierreRepository);
-    const scheduler = new JornadaScheduler(accesosService, "14:00");
-    
-    scheduler.iniciar();
-}
 
 module.exports = server;
