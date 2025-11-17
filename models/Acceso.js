@@ -58,14 +58,13 @@ class Acceso {
 
     /**
      * Verifica si ya existe un acceso reciente (últimas 8 horas)
-     * NOTA: Para pruebas, puedes cambiar 8 a 0.016 (1 minuto) temporalmente
      * @returns {Promise<boolean>}
      */
     async existeAccesoReciente() {
         if (!this.#accesoRepository) throw new Error('Repositorio no inyectado en Acceso');
         if (!this.#usuarioId) throw new Error('usuarioId requerido');
 
-        const acceso = await this.#accesoRepository.findRecentByUsuarioId(this.#usuarioId, 0.016); // Cambiar a 0.016 para pruebas (1 minuto)
+        const acceso = await this.#accesoRepository.findRecentByUsuarioId(this.#usuarioId, 0.004);
         return acceso !== null;
     }
 

@@ -16,17 +16,19 @@ class AccesoRepository {
     }
 
     /**
-     * Inserta un nuevo acceso con hora de Chile (America/Santiago)
+     * Inserta un nuevo acceso con hora actual
      * @param {Acceso} acceso
      * @returns {Promise<Acceso>}
      */
     async insert(acceso) {
         const r = await this.#db.query(
             `INSERT INTO acceso (usuario_id, qr_referencia, tipo_acceso, fecha_hora)
-             VALUES ($1, $2, $3, NOW() AT TIME ZONE 'America/Santiago')
+             VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
              RETURNING acceso_id, usuario_id, qr_referencia, fecha_hora, tipo_acceso`,
             [acceso.usuarioId, acceso.qrReferencia, acceso.tipoAcceso]
         );
+        
+        console.log('✅ Acceso insertado en BD:', r.rows[0]);
         return new Acceso(r.rows[0], this);
     }
 
@@ -55,6 +57,9 @@ class AccesoRepository {
      * @returns {Promise<Array>} Array con datos del último ingreso
      */
     async findIngresosHoy() {
+        console.log('🔍 Buscando ingresos de hoy...');
+        console.log('🕐 Hora servidor:', new Date().toISOString());
+        
         const r = await this.#db.query(
             `SELECT 
                 a.acceso_id,
@@ -76,6 +81,8 @@ class AccesoRepository {
              WHERE a.tipo_acceso = 'INGRESO'
              ORDER BY a.fecha_hora DESC`
         );
+        
+        console.log('📋 Resultados findIngresosHoy:', r.rows);
         return r.rows;
     }
 
@@ -122,17 +129,17 @@ class AccesoRepository {
     }
 
     /**
-     * Registra salidas masivas para cierre de jornada con hora de Chile
+     * Registra salidas masivas para cierre de jornada
      * @param {Array<number>} usuarioIds
      * @returns {Promise<number>} Cantidad de salidas registradas
      */
     async insertSalidasMasivas(usuarioIds) {
         if (!Array.isArray(usuarioIds) || usuarioIds.length === 0) return 0;
 
-        // Construir placeholders correctamente: ($1, $2, $3, NOW()), ($4, $5, $6, NOW()), ...
+        // Construir placeholders correctamente: ($1, $2, $3, CURRENT_TIMESTAMP), ($4, $5, $6, CURRENT_TIMESTAMP), ...
         const values = usuarioIds.map((_, idx) => {
             const base = idx * 3;
-            return `($${base + 1}, $${base + 2}, $${base + 3}, NOW() AT TIME ZONE 'America/Santiago')`;
+            return `($${base + 1}, $${base + 2}, $${base + 3}, CURRENT_TIMESTAMP)`;
         }).join(', ');
 
         // Construir parámetros en el mismo orden

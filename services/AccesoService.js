@@ -58,6 +58,8 @@ class AccesoService {
         const acceso = new Acceso({ usuarioId, qrReferencia: referencia }, this.#accesoRepository);
         const yaIngreso = await acceso.existeAccesoReciente();
 
+        console.log(`🚪 Usuario ${usuarioId} - Ya ingresó: ${yaIngreso}`);
+
         if (yaIngreso) {
             // Usuario ya ingresó recientemente
             const err = new Error('Usuario ya ingresó en las últimas 8 horas');
@@ -66,7 +68,9 @@ class AccesoService {
         }
 
         // Registrar nuevo acceso
+        console.log(`✅ Registrando nuevo acceso para usuario ${usuarioId}`);
         await acceso.registrar();
+        console.log(`✅ Acceso registrado:`, acceso.toJSON());
 
         // Obtener datos del usuario
         const usuarioData = await this.#usuarioRepository.findById(usuarioId);

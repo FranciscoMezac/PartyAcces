@@ -608,10 +608,10 @@ const routes = {
         '/api/qr/generar': (req, res) => qrController.generarQR(req, res)
         ,
         // Acceso
-        '/api/acceso/validar': (req, res) => accesoController.validarAcceso(req, res)
-        ,
-        // Cierre de jornada (llamado por scheduler)
-        '/internal/accesos/cierre-jornada': (req, res) => accesosController.cerrarJornada(req, res)
+        '/api/acceso/validar': (req, res) => accesoController.validarAcceso(req, res),
+        
+        // Guardado manual del panel (cierre de jornada)
+        '/api/accesos/guardar-panel': (req, res) => accesosController.cerrarJornada(req, res)
     },
     'PATCH': {
         // Perfil

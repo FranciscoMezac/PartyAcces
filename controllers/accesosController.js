@@ -33,6 +33,7 @@ class AccesosController extends BaseController {
             }
 
             const resultado = await this.#accesosService.cerrarJornada();
+            console.log('📤 Enviando al frontend:', JSON.stringify(resultado, null, 2));
             return this.sendSuccess(res, resultado, 200);
         } catch (error) {
             return this.handleError(res, error, 'guardado de panel');
