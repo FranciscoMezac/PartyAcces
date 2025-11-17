@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tablaIngresos = document.getElementById('tablaIngresos');
     const totalUsuarios = document.getElementById('totalUsuarios');
     const btnRecargar = document.getElementById('btnRecargar');
+    const btnGuardarPanel = document.getElementById('btnGuardarPanel');
     const iconoRecargar = document.getElementById('iconoRecargar');
     const ultimaActualizacion = document.getElementById('ultimaActualizacion');
     const alertaContainer = document.getElementById('alertaContainer');
@@ -42,6 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnRecargar) {
         btnRecargar.addEventListener('click', () => {
             cargarPanel(true);
+        });
+    }
+
+    // Botón de guardar panel
+    if (btnGuardarPanel) {
+        btnGuardarPanel.addEventListener('click', () => {
+            guardarPanel();
         });
     }
 
@@ -188,6 +196,71 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ultimaActualizacion) {
             const ahora = new Date();
             ultimaActualizacion.textContent = ahora.toLocaleTimeString('es-CL');
+        }
+    }
+
+    /**
+     * Guarda el panel registrando salidas para todos los usuarios actualmente en el local
+     */
+    async function guardarPanel() {
+        try {
+            // Confirmar acción
+            const confirmar = confirm('¿Desea guardar el panel actual? Esto registrará la salida de todos los usuarios actualmente en el local.');
+            if (!confirmar) return;
+
+            // Deshabilitar botón mientras procesa
+            if (btnGuardarPanel) {
+                btnGuardarPanel.disabled = true;
+                btnGuardarPanel.innerHTML = '⏳ Guardando...';
+            }
+
+            const response = await fetch('/api/accesos/guardar-panel', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status === 401) {
+                mostrarAlerta('Sesión expirada. Redirigiendo...', 'warning');
+                setTimeout(() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                }, 2000);
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error('Error al guardar panel');
+            }
+
+            const resultado = await response.json();
+
+            if (resultado.success) {
+                const data = resultado.data || {};
+                mostrarAlerta(
+                    `Panel guardado correctamente. ${data.procesados || 0} salidas registradas de ${data.totalIngresos || 0} ingresos totales.`,
+                    'success',
+                    5000
+                );
+                // Recargar panel después de 2 segundos
+                setTimeout(() => {
+                    cargarPanel();
+                }, 2000);
+            } else {
+                throw new Error(resultado.message || 'Error desconocido');
+            }
+        } catch (error) {
+            console.error('Error al guardar panel:', error);
+            mostrarAlerta('Error al guardar el panel. Intente nuevamente.', 'danger');
+        } finally {
+            // Rehabilitar botón
+            if (btnGuardarPanel) {
+                btnGuardarPanel.disabled = false;
+                btnGuardarPanel.innerHTML = '💾 Guardar Panel';
+            }
         }
     }
 
