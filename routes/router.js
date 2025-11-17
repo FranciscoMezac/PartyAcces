@@ -17,6 +17,8 @@ const AccesoService = require('../services/AccesoService');
 const PanelService = require('../services/PanelService');
 const AccesosService = require('../services/AccesosService');
 const HistorialService = require('../services/HistorialService');
+const MetricsRepository = require('../repositories/MetricsRepository');
+const MetricsService = require('../services/MetricsService');
 const RecommendController = require('../controllers/recommendController');
 const TrackingController = require('../controllers/trackingController');
 
@@ -30,6 +32,7 @@ const AccesoController = require('../controllers/accesoController');
 const PanelController = require('../controllers/panelController');
 const AccesosController = require('../controllers/accesosController');
 const HistorialController = require('../controllers/historialController');
+const MetricsController = require('../controllers/metricsController');
 
 // Instanciar dependencias para AuthController
 const usuarioRepository = new UsuarioRepository(db);
@@ -66,6 +69,9 @@ const accesosController = new AccesosController(accesosService);
 // Instanciar dependencias para HistorialController
 const historialService = new HistorialService(historialCierreRepository, accesoRepository);
 const historialController = new HistorialController(historialService);
+const metricsRepository = new MetricsRepository(db);
+const metricsService = new MetricsService({ repository: metricsRepository });
+const metricsController = new MetricsController(metricsService);
 
 // DefiniciÃ³n de rutas
 const routes = {
@@ -93,6 +99,7 @@ const routes = {
         
         // API de usuarios
         '/api/usuarios': UsuariosController.listar,
+        '/api/metrics/overview': (req, res) => metricsController.overview(req, res),
         
         // API de perfil
         '/api/perfil': (req, res) => perfilController.obtenerPerfil(req, res),
