@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
 const db = require('../config/database');
 const url = require('url');
@@ -17,22 +17,19 @@ const AccesoService = require('../services/AccesoService');
 const PanelService = require('../services/PanelService');
 const AccesosService = require('../services/AccesosService');
 const HistorialService = require('../services/HistorialService');
+const RecommendController = require('../controllers/recommendController');
+const TrackingController = require('../controllers/trackingController');
 
 // Importar controladores
 const UsuariosController = require('../controllers/usuariosController');
 const HomeController = require('../controllers/homeController');
 const AuthController = require('../controllers/authController');
 const PerfilController = require('../controllers/perfilController');
-<<<<<<< Updated upstream
 const QrController = require('../controllers/qrController');
 const AccesoController = require('../controllers/accesoController');
 const PanelController = require('../controllers/panelController');
 const AccesosController = require('../controllers/accesosController');
 const HistorialController = require('../controllers/historialController');
-=======
-const RecommendController = require('../controllers/recommendController');
-const TrackingController = require('../controllers/trackingController');
->>>>>>> Stashed changes
 
 // Instanciar dependencias para AuthController
 const usuarioRepository = new UsuarioRepository(db);
@@ -70,7 +67,7 @@ const accesosController = new AccesosController(accesosService);
 const historialService = new HistorialService(historialCierreRepository, accesoRepository);
 const historialController = new HistorialController(historialService);
 
-// Definición de rutas
+// DefiniciÃ³n de rutas
 const routes = {
     'GET': {
         '/': serveView('index.html'),            // << antes: HomeController.index
@@ -100,10 +97,11 @@ const routes = {
         // API de perfil
         '/api/perfil': (req, res) => perfilController.obtenerPerfil(req, res),
         
-        // API de navegación
+        // API de navegaciÃ³n
         '/api/navigation': HomeController.getNavigationData,
+        '/api/recommend/local': (req, res) => recommendController.localForUser(req, res),
+        '/api/recommend/cf': (req, res) => recommendController.collaborativeForUser(req, res),
         
-<<<<<<< Updated upstream
         // API de panel de ingresados
         '/api/panel/ingresos': (req, res) => panelController.obtenerIngresos(req, res),
         
@@ -111,9 +109,6 @@ const routes = {
         '/api/historial/cierres': (req, res) => historialController.obtenerHistorial(req, res),
         '/api/historial/estadisticas': (req, res) => historialController.obtenerEstadisticas(req, res),
         '/api/historial/usuarios/:fecha': (req, res) => historialController.obtenerUsuariosPorFecha(req, res),
-=======
-        '/api/recommend/local': (req, res) => recommendController.localForUser(req, res),
->>>>>>> Stashed changes
         
         // Health checks
         '/health': async (_req, res) => {
@@ -137,7 +132,7 @@ const routes = {
             }
         },
         
-        // Catálogo de productos para canje
+        // CatÃ¡logo de productos para canje
         '/api/productos': async (req, res) => {
             try {
                 const urlLib = require('url');
@@ -215,7 +210,7 @@ const routes = {
             }
         },
 
-        // Config pública (exponer claves seguras para frontend)
+        // Config pÃºblica (exponer claves seguras para frontend)
         '/api/public-config': (_req, res) => {
             const payload = {
                 algolia: {
@@ -229,7 +224,7 @@ const routes = {
         },
         
 
-        // Endpoints de diagnóstico de Algolia (solo DEV)
+        // Endpoints de diagnÃ³stico de Algolia (solo DEV)
         '/debug/algolia/settings': async (req, res) => {
             try {
                 const appId = process.env.ALGOLIA_APP_ID;
@@ -354,7 +349,7 @@ const routes = {
 
                 if (!appId || !apiKey || !indexName || !objectID) {
                     res.writeHead(400, { 'Content-Type': 'application/json' });
-                    return res.end(JSON.stringify({ ok: false, error: 'Parámetros requeridos: objectID e índice; y variables ALGOLIA_*' }));
+                    return res.end(JSON.stringify({ ok: false, error: 'ParÃ¡metros requeridos: objectID e Ã­ndice; y variables ALGOLIA_*' }));
                 }
 
                 const hosts = [
@@ -453,7 +448,7 @@ const routes = {
                     let hits = rpSuccess?.json?.results?.[0]?.hits ?? [];
                     if (!hits.length) {
                         try {
-                            // Fallback final desde BD: sugerencias por categoría o aleatorias
+                            // Fallback final desde BD: sugerencias por categorÃ­a o aleatorias
                             const params = [];
                             let sql = `SELECT id::text AS "objectID", nombre AS name, image_url AS image, puntos_requeridos AS price, url,
                                               category, brand, tags
@@ -535,7 +530,7 @@ const routes = {
 
                 let hits = success?.json?.results?.[0]?.hits ?? [];
 
-                // Fallback a related-products (usa el último seleccionado si llega por header/query)
+                // Fallback a related-products (usa el Ãºltimo seleccionado si llega por header/query)
                 if (!hits.length) {
                     const rpPayload = {
                         indexName,
@@ -565,7 +560,7 @@ const routes = {
                     }
                 }
 
-                // Fallback final desde BD (por categoría o aleatorio)
+                // Fallback final desde BD (por categorÃ­a o aleatorio)
                 if (!hits.length) {
                     try {
                         const params = [];
@@ -595,19 +590,19 @@ const routes = {
         '/api/puntos/saldo/stream': require('../controllers/puntosController').saldoStream,
     },
     'POST': {
-        // Autenticación (usar /api/register como ruta principal)
+        // AutenticaciÃ³n (usar /api/register como ruta principal)
         '/api/register': (req, res) => authController.register(req, res),
         '/api/login': (req, res) => authController.login(req, res),
         '/api/logout': (req, res) => authController.logout(req, res),
         '/api/reset-password': (req, res) => authController.resetPassword(req, res),
         
-        // Gestión de usuarios (admin)
+        // GestiÃ³n de usuarios (admin)
         '/api/usuarios/bloquear': UsuariosController.bloquear,
         
         // Puntos
         '/api/puntos/acumular': require('../controllers/puntosController').acumular,
-<<<<<<< Updated upstream
-        '/api/puntos/canjear': require('../controllers/puntosController').canjear
+        '/api/puntos/canjear': require('../controllers/puntosController').canjear,
+        '/api/tracking/events': (req, res) => trackingController.registrar(req, res)
         ,
         // QR
         '/api/qr/generar': (req, res) => qrController.generarQR(req, res)
@@ -617,10 +612,6 @@ const routes = {
         ,
         // Cierre de jornada (llamado por scheduler)
         '/internal/accesos/cierre-jornada': (req, res) => accesosController.cerrarJornada(req, res)
-=======
-        '/api/puntos/canjear': require('../controllers/puntosController').canjear,
-        '/api/tracking/events': (req, res) => trackingController.registrar(req, res)
->>>>>>> Stashed changes
     },
     'PATCH': {
         // Perfil
@@ -628,7 +619,7 @@ const routes = {
     }
 };
 
-// Función auxiliar para servir vistas HTML
+// FunciÃ³n auxiliar para servir vistas HTML
 function serveView(viewName) {
     return (req, res) => {
         const viewPath = path.join(__dirname, '../views', viewName);
@@ -656,7 +647,7 @@ function handleRequest(req, res, pathname) {
         return;
     }
     
-    // Buscar rutas con parámetros
+    // Buscar rutas con parÃ¡metros
     if (routes[method]) {
         for (const route in routes[method]) {
             const paramMatch = matchRoute(route, pathname);
@@ -677,7 +668,7 @@ function handleRequest(req, res, pathname) {
     }));
 }
 
-// Función para hacer match de rutas con parámetros
+// FunciÃ³n para hacer match de rutas con parÃ¡metros
 function matchRoute(routePattern, pathname) {
     const routeParts = routePattern.split('/').filter(Boolean);
     const pathParts = pathname.split('/').filter(Boolean);
@@ -690,7 +681,7 @@ function matchRoute(routePattern, pathname) {
     
     for (let i = 0; i < routeParts.length; i++) {
         if (routeParts[i].startsWith(':')) {
-            // Es un parámetro
+            // Es un parÃ¡metro
             const paramName = routeParts[i].substring(1);
             params[paramName] = pathParts[i];
         } else if (routeParts[i] !== pathParts[i]) {
@@ -705,3 +696,4 @@ function matchRoute(routePattern, pathname) {
 module.exports = {
     handleRequest
 };
+

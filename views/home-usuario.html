@@ -108,9 +108,11 @@
 
       const track = document.getElementById('for-you');
       const sourceLabels = {
+        'collaborative': 'Recomendado para ti',
         'category_history': 'Basado en tu actividad',
         'global_popular': 'Mas populares',
-        'db_fallback': 'Catalogo'
+        'db_fallback': 'Catalogo',
+        'local_fallback': 'Explora mas'
       };
       const carousel = track?.closest('[data-carousel="for-you"]') || null;
       const prevBtn = carousel?.querySelector('[data-carousel-btn="prev"]');
@@ -139,7 +141,7 @@
         track.innerHTML = '<div class="carousel-empty">Cargando recomendaciones...</div>';
         updateControls();
         try {
-          const res = await fetch(`/api/recommend/local?userToken=${encodeURIComponent(userToken)}`);
+          const res = await fetch(`/api/recommend/cf?userToken=${encodeURIComponent(userToken)}`);
           const data = await res.json();
           const items = Array.isArray(data?.hits) ? data.hits : [];
           console.log('[ForYou:local]', data?.source, 'count:', items.length);
@@ -207,6 +209,11 @@
   </script>
 </body>
 </html>
+
+
+
+
+
 
 
 
