@@ -44,6 +44,24 @@ function getHomeRoute() {
   }
 }
 
+/**
+ * Obtiene la ruta del perfil seg��n el estado de sesión
+ * Si no hay usuario autenticado, redirige al login
+ */
+function getProfileRoute() {
+  try {
+    const user = localStorage.getItem('user');
+    if (!user) return '/login';
+    
+    const userData = JSON.parse(user);
+    const rol = userData.rol || 'USER';
+    return rol === 'ADMIN' ? '/perfil-admin' : '/perfil-usuario';
+  } catch (err) {
+    console.warn('Error obteniendo profile route:', err);
+    return '/login';
+  }
+}
+
 /* ========= Fetch de datos ========= */
 async function loadNavigationData() {
   try {
@@ -70,6 +88,7 @@ function renderBottomNavigation(items) {
   container.innerHTML = '';
   const currentPath = normalizePath(location.pathname || '/');
   const homeRoute = getHomeRoute(); // Obtener ruta de home según rol
+  const profileRoute = getProfileRoute();
 
   items.forEach((item) => {
     // datos robustos
@@ -78,6 +97,14 @@ function renderBottomNavigation(items) {
     // Si el item apunta a '/' (home raíz), redirigir al home del usuario según rol
     if (href === '/' && homeRoute !== '/') {
       href = homeRoute;
+    }
+    
+    // Si es el item de perfil/usuario, usar la ruta correcta según la sesión
+    const isProfileItem = (item?.icon || '').toLowerCase() === 'user'
+      || (item?.icon || '').toLowerCase() === 'usuario'
+      || /usuario/i.test(item?.label || '');
+    if (isProfileItem) {
+      href = profileRoute;
     }
     
     const label = item?.label || '';
