@@ -81,7 +81,7 @@ const routes = {
         '/home_client': serveView('home_client.html'),
         '/home_admin': serveView('home_admin.html'),
         '/login': serveView('login.html'),
-        '/usuario': serveView('login.html'),
+        '/usuario': serveView('perfil-usuario.html'),
         '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
         '/home-usuario': serveView('home-usuario.html'),
