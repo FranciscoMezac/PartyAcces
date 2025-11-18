@@ -2,10 +2,12 @@
   "name": "partyaccess2",
   "version": "1.0.0",
   "description": "Aplicación web Node.js puro con arquitectura MVC",
-  "main": "app.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "node app.js"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "export:algolia": "node scripts/export_algolia_products.js",
+    "export:algolia:all": "node scripts/export_algolia_products.js --all"
   },
   "keywords": [
     "nodejs",
@@ -17,6 +19,8 @@
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.3",
-    "pg": "^8.11.3"
+    "node-fetch": "^3.3.2",
+    "pg": "^8.11.3",
+    "recommend": "^0.0.3"
   }
 }

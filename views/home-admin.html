@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PartyAccess - Inicio (Admin)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/public/css/styles.css">
+</head>
+<body>
+  <!-- Navbar superior (Admin con link a Dashboard) -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">PartyAccess</a>
+
+      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+          <li class="nav-item">
+            <button class="btn btn-outline-light" id="logoutBtn">Cerrar Sesión</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="container mt-4">
+    <div class="row">
+      <div class="col-12">
+        <!-- Hero -->
+        <div class="text-center mb-4">
+          <h1 class="display-5">Panel de Administración</h1>
+          <p class="lead">Gestiona eventos, accesos y métricas en tiempo real.</p>
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+          <div>
+            <a class="btn btn-primary me-2" href="/scanner">📷 Escanear QR</a>
+            <a class="btn btn-outline-secondary me-2" href="/qr">Ver mi QR</a>
+            <a class="btn btn-info" href="/historial-cierres">📋 Historial de Cierres</a>
+          </div>
+          <div>
+            <button class="btn btn-success me-2" id="btnRecargar">
+              <span id="iconoRecargar">🔄</span> Recargar Panel
+            </button>
+            <button class="btn btn-warning" id="btnGuardarPanel">
+              💾 Guardar Panel
+            </button>
+          </div>
+        </div>
+
+        <!-- Panel de usuarios en el local -->
+        <div class="card shadow mb-4">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Usuarios en el Local</h5>
+            <span class="badge bg-light text-dark fs-5" id="totalUsuarios">0</span>
+          </div>
+          <div class="card-body">
+            <div id="alertaContainer"></div>
+            
+            <div class="table-responsive">
+              <table class="table table-hover table-striped mb-0">
+                <thead class="table-dark">
+                  <tr>
+                    <th class="d-none d-md-table-cell">ID</th>
+                    <th>Nombre</th>
+                    <th class="d-none d-lg-table-cell">RUT</th>
+                    <th class="d-none d-lg-table-cell">Email</th>
+                    <th>Hora Ingreso</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaIngresos">
+                  <tr>
+                    <td colspan="5" class="text-center py-4">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-3 text-muted">
+              <small>Última actualización: <span id="ultimaActualizacion">-</span></small>
+              <small class="ms-3">Recarga automática cada 30 segundos</small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation (admin con Dashboard) -->
+  <nav class="bottom-nav">
+    <div class="nav-container">
+      <a href="/home-admin" class="nav-item active">
+        <div class="nav-icon"><span class="icon-emoji">🏠</span></div>
+        <span class="nav-label">Inicio</span>
+      </a>
+      <a href="/dashboard" class="nav-item">
+        <div class="nav-icon"><span class="icon-emoji">📊</span></div>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a href="/qr" class="nav-item">
+        <div class="nav-icon"><span class="icon-emoji">📱</span></div>
+        <span class="nav-label">QR</span>
+      </a>
+      <a href="/perfil-admin" class="nav-item">
+        <div class="nav-icon"><span class="icon-emoji">👤</span></div>
+        <span class="nav-label">Usuario</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- JS vanilla para el toggler del navbar superior -->
+  <script src="/public/js/nav-toggle.js"></script>
+  <script src="/public/js/home-admin.js"></script>
+</body>
+</html>

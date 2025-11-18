@@ -1,0 +1,870 @@
+[
+  {
+    "objectID": "21",
+    "name": "10% descuento en la cuenta",
+    "image": "https://picsum.photos/seed/discount10/400/260",
+    "price": 900,
+    "url": "/rewards/discount-10",
+    "category": "Promoción",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "descuento",
+      "cuenta",
+      "restorán"
+    ],
+    "activo": true,
+    "stock": null
+  },
+  {
+    "objectID": "22",
+    "name": "20% descuento en botella",
+    "image": "https://picsum.photos/seed/discount20/400/260",
+    "price": 2400,
+    "url": "/rewards/discount-20",
+    "category": "Promoción",
+    "brand": "Disco Aurora",
+    "tags": [
+      "descuento",
+      "botella",
+      "barra"
+    ],
+    "activo": true,
+    "stock": null
+  },
+  {
+    "objectID": "19",
+    "name": "Acceso VIP pista",
+    "image": "https://picsum.photos/seed/vip/400/260",
+    "price": 3200,
+    "url": "/rewards/vip-access",
+    "category": "VIP",
+    "brand": "Disco Aurora",
+    "tags": [
+      "vip",
+      "pista",
+      "acceso"
+    ],
+    "activo": true,
+    "stock": 60
+  },
+  {
+    "objectID": "49",
+    "name": "Affogato",
+    "image": "https://picsum.photos/seed/affogato/400/260",
+    "price": 1200,
+    "url": "/rewards/affogato",
+    "category": "Café",
+    "brand": "Coffee Spot",
+    "tags": [
+      "cafe",
+      "helado",
+      "postre"
+    ],
+    "activo": true,
+    "stock": 110
+  },
+  {
+    "objectID": "32",
+    "name": "Agua de pepino",
+    "image": "https://picsum.photos/seed/pepino/400/260",
+    "price": 800,
+    "url": "/rewards/agua-pepino",
+    "category": "Mocktail",
+    "brand": "Juice Corner",
+    "tags": [
+      "pepino",
+      "hierbas",
+      "refrescante"
+    ],
+    "activo": true,
+    "stock": 220
+  },
+  {
+    "objectID": "41",
+    "name": "Arepa reina pepiada",
+    "image": "https://picsum.photos/seed/arepa/400/260",
+    "price": 1700,
+    "url": "/rewards/arepa-reina",
+    "category": "Comida",
+    "brand": "Street Eats",
+    "tags": [
+      "arepa",
+      "pollo",
+      "palta"
+    ],
+    "activo": true,
+    "stock": 100
+  },
+  {
+    "objectID": "39",
+    "name": "Bao de cerdo",
+    "image": "https://picsum.photos/seed/bao/400/260",
+    "price": 1800,
+    "url": "/rewards/bao-cerdo",
+    "category": "Comida",
+    "brand": "Street Eats",
+    "tags": [
+      "bao",
+      "oriental",
+      "cerdo"
+    ],
+    "activo": true,
+    "stock": 110
+  },
+  {
+    "objectID": "14",
+    "name": "Brownie + bola de helado",
+    "image": "https://picsum.photos/seed/brownie/400/260",
+    "price": 1200,
+    "url": "/rewards/brownie",
+    "category": "Comida",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "postre",
+      "chocolate",
+      "helado"
+    ],
+    "activo": true,
+    "stock": 110
+  },
+  {
+    "objectID": "15",
+    "name": "Café americano",
+    "image": "https://picsum.photos/seed/coffee/400/260",
+    "price": 600,
+    "url": "/rewards/coffee",
+    "category": "Comida",
+    "brand": "Coffee Spot",
+    "tags": [
+      "café",
+      "americano",
+      "caliente"
+    ],
+    "activo": true,
+    "stock": 300
+  },
+  {
+    "objectID": "1",
+    "name": "Café gratis",
+    "image": null,
+    "price": 800,
+    "url": null,
+    "category": null,
+    "brand": null,
+    "tags": [],
+    "activo": true,
+    "stock": null
+  },
+  {
+    "objectID": "50",
+    "name": "Capuccino grande",
+    "image": "https://picsum.photos/seed/capu/400/260",
+    "price": 1000,
+    "url": "/rewards/capu-grande",
+    "category": "Café",
+    "brand": "Coffee Spot",
+    "tags": [
+      "cafe",
+      "leche",
+      "espuma"
+    ],
+    "activo": true,
+    "stock": 150
+  },
+  {
+    "objectID": "4",
+    "name": "Cerveza artesanal 2x1",
+    "image": "https://picsum.photos/seed/beer/400/260",
+    "price": 1200,
+    "url": "/rewards/beer-2x1",
+    "category": "Bebidas",
+    "brand": "Bar Central",
+    "tags": [
+      "cerveza",
+      "2x1",
+      "happy-hour"
+    ],
+    "activo": true,
+    "stock": 200
+  },
+  {
+    "objectID": "47",
+    "name": "Cheesecake maracuya",
+    "image": "https://picsum.photos/seed/maracuya/400/260",
+    "price": 1400,
+    "url": "/rewards/cheesecake-maracuya",
+    "category": "Postre",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "postre",
+      "maracuya",
+      "queso"
+    ],
+    "activo": true,
+    "stock": 90
+  },
+  {
+    "objectID": "16",
+    "name": "Combo burger + bebida",
+    "image": "https://picsum.photos/seed/combo/400/260",
+    "price": 2600,
+    "url": "/rewards/combo-burger",
+    "category": "Comida",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "combo",
+      "hamburguesa",
+      "bebida"
+    ],
+    "activo": true,
+    "stock": 90
+  },
+  {
+    "objectID": "54",
+    "name": "Cover + consumición",
+    "image": "https://picsum.photos/seed/covercons/400/260",
+    "price": 1800,
+    "url": "/rewards/cover-consumo",
+    "category": "Entrada",
+    "brand": "Disco Aurora",
+    "tags": [
+      "cover",
+      "consumo",
+      "noche"
+    ],
+    "activo": true,
+    "stock": 140
+  },
+  {
+    "objectID": "17",
+    "name": "Cover sin fila",
+    "image": "https://picsum.photos/seed/cover/400/260",
+    "price": 1800,
+    "url": "/rewards/cover-fast",
+    "category": "Entrada",
+    "brand": "Disco Aurora",
+    "tags": [
+      "cover",
+      "entrada",
+      "fastlane"
+    ],
+    "activo": true,
+    "stock": 200
+  },
+  {
+    "objectID": "48",
+    "name": "Creme brulee",
+    "image": "https://picsum.photos/seed/brulee/400/260",
+    "price": 1500,
+    "url": "/rewards/creme-brulee",
+    "category": "Postre",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "postre",
+      "vainilla",
+      "caramelo"
+    ],
+    "activo": true,
+    "stock": 80
+  },
+  {
+    "objectID": "38",
+    "name": "Croquetas de jamón (6u)",
+    "image": "https://picsum.photos/seed/croquetas/400/260",
+    "price": 1700,
+    "url": "/rewards/croquetas-jamon",
+    "category": "Comida",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "tapas",
+      "croquetas",
+      "jamon"
+    ],
+    "activo": true,
+    "stock": 100
+  },
+  {
+    "objectID": "23",
+    "name": "Cupón $5.000 consumo",
+    "image": "https://picsum.photos/seed/coupon/400/260",
+    "price": 5000,
+    "url": "/rewards/coupon-5000",
+    "category": "Promoción",
+    "brand": "Bar Central",
+    "tags": [
+      "cupón",
+      "consumo",
+      "saldo"
+    ],
+    "activo": true,
+    "stock": 300
+  },
+  {
+    "objectID": "31",
+    "name": "Dark & Stormy",
+    "image": "https://picsum.photos/seed/darkstormy/400/260",
+    "price": 1650,
+    "url": "/rewards/dark-stormy",
+    "category": "Coctel",
+    "brand": "Disco Aurora",
+    "tags": [
+      "ron",
+      "ginger-beer",
+      "limon"
+    ],
+    "activo": true,
+    "stock": 100
+  },
+  {
+    "objectID": "2",
+    "name": "Descuento $2.000",
+    "image": null,
+    "price": 2000,
+    "url": null,
+    "category": null,
+    "brand": null,
+    "tags": [],
+    "activo": true,
+    "stock": null
+  },
+  {
+    "objectID": "53",
+    "name": "Descuento 25% en cuenta",
+    "image": "https://picsum.photos/seed/desc25/400/260",
+    "price": 1700,
+    "url": "/rewards/desc-25",
+    "category": "Promoción",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "descuento",
+      "cuenta",
+      "cocina"
+    ],
+    "activo": true,
+    "stock": null
+  },
+  {
+    "objectID": "24",
+    "name": "Entrada anticipada (antes 23:00)",
+    "image": "https://picsum.photos/seed/early/400/260",
+    "price": 700,
+    "url": "/rewards/early-entry",
+    "category": "Entrada",
+    "brand": "Disco Aurora",
+    "tags": [
+      "entrada",
+      "early",
+      "antes-23"
+    ],
+    "activo": true,
+    "stock": 120
+  },
+  {
+    "objectID": "3",
+    "name": "Entrada VIP",
+    "image": null,
+    "price": 5000,
+    "url": null,
+    "category": null,
+    "brand": null,
+    "tags": [],
+    "activo": true,
+    "stock": null
+  },
+  {
+    "objectID": "20",
+    "name": "Estacionamiento noche completa",
+    "image": "https://picsum.photos/seed/parking/400/260",
+    "price": 1000,
+    "url": "/rewards/parking",
+    "category": "Entrada",
+    "brand": "Parking Club",
+    "tags": [
+      "estacionamiento",
+      "noche",
+      "auto"
+    ],
+    "activo": true,
+    "stock": 80
+  },
+  {
+    "objectID": "40",
+    "name": "Falafel con hummus",
+    "image": "https://picsum.photos/seed/falafel/400/260",
+    "price": 1500,
+    "url": "/rewards/falafel-hummus",
+    "category": "Comida",
+    "brand": "Street Eats",
+    "tags": [
+      "falafel",
+      "veg",
+      "medio-oriente"
+    ],
+    "activo": true,
+    "stock": 120
+  },
+  {
+    "objectID": "30",
+    "name": "French 75",
+    "image": "https://picsum.photos/seed/french75/400/260",
+    "price": 2000,
+    "url": "/rewards/french-75",
+    "category": "Coctel",
+    "brand": "Disco Aurora",
+    "tags": [
+      "gin",
+      "espumante",
+      "limon"
+    ],
+    "activo": true,
+    "stock": 90
+  },
+  {
+    "objectID": "5",
+    "name": "Gin Tonic clásico",
+    "image": "https://picsum.photos/seed/gintonic/400/260",
+    "price": 1500,
+    "url": "/rewards/gin-tonic",
+    "category": "Bebidas",
+    "brand": "Disco Aurora",
+    "tags": [
+      "gin",
+      "tonica",
+      "clásico"
+    ],
+    "activo": true,
+    "stock": 150
+  },
+  {
+    "objectID": "44",
+    "name": "Gnocchi al pesto",
+    "image": "https://picsum.photos/seed/gnocchi/400/260",
+    "price": 1900,
+    "url": "/rewards/gnocchi-pesto",
+    "category": "Comida",
+    "brand": "La Fornería",
+    "tags": [
+      "pasta",
+      "gnocchi",
+      "pesto"
+    ],
+    "activo": true,
+    "stock": 90
+  },
+  {
+    "objectID": "9",
+    "name": "Hamburguesa clásica",
+    "image": "https://picsum.photos/seed/burger/400/260",
+    "price": 2200,
+    "url": "/rewards/burger",
+    "category": "Comida",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "hamburguesa",
+      "carne",
+      "papas"
+    ],
+    "activo": true,
+    "stock": 120
+  },
+  {
+    "objectID": "43",
+    "name": "Lasaña bolonesa",
+    "image": "https://picsum.photos/seed/lasagna/400/260",
+    "price": 2000,
+    "url": "/rewards/lasagna-bolo",
+    "category": "Comida",
+    "brand": "La Fornería",
+    "tags": [
+      "pasta",
+      "lasana",
+      "bolonesa"
+    ],
+    "activo": true,
+    "stock": 80
+  },
+  {
+    "objectID": "33",
+    "name": "Limonada frutilla",
+    "image": "https://picsum.photos/seed/limofrutilla/400/260",
+    "price": 900,
+    "url": "/rewards/limonada-frutilla",
+    "category": "Mocktail",
+    "brand": "Juice Corner",
+    "tags": [
+      "limonada",
+      "frutilla",
+      "dulce"
+    ],
+    "activo": true,
+    "stock": 210
+  },
+  {
+    "objectID": "18",
+    "name": "Mesa reservada (2 pax)",
+    "image": "https://picsum.photos/seed/table/400/260",
+    "price": 3800,
+    "url": "/rewards/mesa-2",
+    "category": "VIP",
+    "brand": "Disco Aurora",
+    "tags": [
+      "mesa",
+      "reservado",
+      "pareja"
+    ],
+    "activo": true,
+    "stock": 40
+  },
+  {
+    "objectID": "6",
+    "name": "Mojito refrescante",
+    "image": "https://picsum.photos/seed/mojito/400/260",
+    "price": 1500,
+    "url": "/rewards/mojito",
+    "category": "Bebidas",
+    "brand": "Bar Central",
+    "tags": [
+      "ron",
+      "menta",
+      "limón"
+    ],
+    "activo": true,
+    "stock": 180
+  },
+  {
+    "objectID": "12",
+    "name": "Nachos con guacamole",
+    "image": "https://picsum.photos/seed/nachos/400/260",
+    "price": 1500,
+    "url": "/rewards/nachos",
+    "category": "Comida",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "nachos",
+      "guacamole",
+      "snack"
+    ],
+    "activo": true,
+    "stock": 130
+  },
+  {
+    "objectID": "26",
+    "name": "Pale Ale artesanal",
+    "image": "https://picsum.photos/seed/pale-ale/400/260",
+    "price": 1250,
+    "url": "/rewards/pale-ale",
+    "category": "Bebidas",
+    "brand": "Tap House",
+    "tags": [
+      "cerveza",
+      "pale-ale",
+      "lupulo"
+    ],
+    "activo": true,
+    "stock": 160
+  },
+  {
+    "objectID": "10",
+    "name": "Papas fritas con cheddar",
+    "image": "https://picsum.photos/seed/fries/400/260",
+    "price": 1100,
+    "url": "/rewards/fries-cheddar",
+    "category": "Comida",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "papas",
+      "cheddar",
+      "snack"
+    ],
+    "activo": true,
+    "stock": 140
+  },
+  {
+    "objectID": "51",
+    "name": "Pase pista ladies night",
+    "image": "https://picsum.photos/seed/ladies/400/260",
+    "price": 1000,
+    "url": "/rewards/pase-ladies",
+    "category": "Entrada",
+    "brand": "Disco Aurora",
+    "tags": [
+      "entrada",
+      "promo",
+      "pista"
+    ],
+    "activo": true,
+    "stock": 180
+  },
+  {
+    "objectID": "25",
+    "name": "Pinta Stout",
+    "image": "https://picsum.photos/seed/stout/400/260",
+    "price": 1300,
+    "url": "/rewards/pinta-stout",
+    "category": "Bebidas",
+    "brand": "Tap House",
+    "tags": [
+      "cerveza",
+      "stout",
+      "tostada"
+    ],
+    "activo": true,
+    "stock": 140
+  },
+  {
+    "objectID": "11",
+    "name": "Pizza individual pepperoni",
+    "image": "https://picsum.photos/seed/pizza/400/260",
+    "price": 2000,
+    "url": "/rewards/pizza-pepperoni",
+    "category": "Comida",
+    "brand": "La Fornería",
+    "tags": [
+      "pizza",
+      "pepperoni",
+      "horno"
+    ],
+    "activo": true,
+    "stock": 90
+  },
+  {
+    "objectID": "42",
+    "name": "Pizza prosciutto rucula",
+    "image": "https://picsum.photos/seed/prosciutto/400/260",
+    "price": 2100,
+    "url": "/rewards/pizza-prosciutto",
+    "category": "Comida",
+    "brand": "La Fornería",
+    "tags": [
+      "pizza",
+      "prosciutto",
+      "rucula"
+    ],
+    "activo": true,
+    "stock": 70
+  },
+  {
+    "objectID": "55",
+    "name": "Pulsera area fumadores",
+    "image": "https://picsum.photos/seed/fumadores/400/260",
+    "price": 600,
+    "url": "/rewards/pulsera-fumadores",
+    "category": "Entrada",
+    "brand": "Disco Aurora",
+    "tags": [
+      "pulsera",
+      "fumadores",
+      "acceso"
+    ],
+    "activo": true,
+    "stock": 300
+  },
+  {
+    "objectID": "13",
+    "name": "Roll de sushi (8 piezas)",
+    "image": "https://picsum.photos/seed/sushi/400/260",
+    "price": 1800,
+    "url": "/rewards/sushi-roll",
+    "category": "Comida",
+    "brand": "Sushi Bar",
+    "tags": [
+      "sushi",
+      "roll",
+      "soja"
+    ],
+    "activo": true,
+    "stock": 100
+  },
+  {
+    "objectID": "45",
+    "name": "Roll Philadelphia (8u)",
+    "image": "https://picsum.photos/seed/philadelphia/400/260",
+    "price": 1800,
+    "url": "/rewards/roll-philadelphia",
+    "category": "Comida",
+    "brand": "Sushi Bar",
+    "tags": [
+      "sushi",
+      "queso",
+      "salmon"
+    ],
+    "activo": true,
+    "stock": 100
+  },
+  {
+    "objectID": "36",
+    "name": "Sándwich ave palta",
+    "image": "https://picsum.photos/seed/avepalta/400/260",
+    "price": 1600,
+    "url": "/rewards/sandwich-ave-palta",
+    "category": "Comida",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "sandwich",
+      "pollo",
+      "palta"
+    ],
+    "activo": true,
+    "stock": 120
+  },
+  {
+    "objectID": "35",
+    "name": "Shot de limoncello",
+    "image": "https://picsum.photos/seed/limoncello/400/260",
+    "price": 1000,
+    "url": "/rewards/shot-limoncello",
+    "category": "Shots",
+    "brand": "Bar Central",
+    "tags": [
+      "limoncello",
+      "italiano",
+      "citrus"
+    ],
+    "activo": true,
+    "stock": 150
+  },
+  {
+    "objectID": "34",
+    "name": "Shot de sambuca",
+    "image": "https://picsum.photos/seed/sambuca/400/260",
+    "price": 1100,
+    "url": "/rewards/shot-sambuca",
+    "category": "Shots",
+    "brand": "Bar Central",
+    "tags": [
+      "sambuca",
+      "anis",
+      "shot"
+    ],
+    "activo": true,
+    "stock": 140
+  },
+  {
+    "objectID": "8",
+    "name": "Shots 3x2",
+    "image": "https://picsum.photos/seed/shots/400/260",
+    "price": 1300,
+    "url": "/rewards/shots-3x2",
+    "category": "Bebidas",
+    "brand": "Bar Central",
+    "tags": [
+      "shots",
+      "promo",
+      "3x2"
+    ],
+    "activo": true,
+    "stock": 120
+  },
+  {
+    "objectID": "27",
+    "name": "Sidra de manzana",
+    "image": "https://picsum.photos/seed/cider/400/260",
+    "price": 1100,
+    "url": "/rewards/sidra-manzana",
+    "category": "Bebidas",
+    "brand": "Cider Club",
+    "tags": [
+      "sidra",
+      "manzana",
+      "frutal"
+    ],
+    "activo": true,
+    "stock": 150
+  },
+  {
+    "objectID": "28",
+    "name": "Tom Collins",
+    "image": "https://picsum.photos/seed/tomcollins/400/260",
+    "price": 1700,
+    "url": "/rewards/tom-collins",
+    "category": "Coctel",
+    "brand": "Bar Central",
+    "tags": [
+      "gin",
+      "limon",
+      "soda"
+    ],
+    "activo": true,
+    "stock": 120
+  },
+  {
+    "objectID": "37",
+    "name": "Tortilla española",
+    "image": "https://picsum.photos/seed/tortilla/400/260",
+    "price": 1500,
+    "url": "/rewards/tortilla-espanola",
+    "category": "Comida",
+    "brand": "Kitchen Lab",
+    "tags": [
+      "tapas",
+      "huevo",
+      "papas"
+    ],
+    "activo": true,
+    "stock": 90
+  },
+  {
+    "objectID": "52",
+    "name": "Upgrade barra premium",
+    "image": "https://picsum.photos/seed/barpremium/400/260",
+    "price": 2400,
+    "url": "/rewards/upgrade-barra",
+    "category": "VIP",
+    "brand": "Disco Aurora",
+    "tags": [
+      "vip",
+      "barra",
+      "premium"
+    ],
+    "activo": true,
+    "stock": 50
+  },
+  {
+    "objectID": "7",
+    "name": "Vodka + jugos (mesa)",
+    "image": "https://picsum.photos/seed/vodka/400/260",
+    "price": 5000,
+    "url": "/rewards/vodka-jugos",
+    "category": "Bebidas",
+    "brand": "Disco Aurora",
+    "tags": [
+      "vodka",
+      "botella",
+      "mesa"
+    ],
+    "activo": true,
+    "stock": 40
+  },
+  {
+    "objectID": "29",
+    "name": "Whisky Sour",
+    "image": "https://picsum.photos/seed/whiskysour/400/260",
+    "price": 1900,
+    "url": "/rewards/whisky-sour",
+    "category": "Coctel",
+    "brand": "Bar Central",
+    "tags": [
+      "whisky",
+      "limon",
+      "bitters"
+    ],
+    "activo": true,
+    "stock": 110
+  },
+  {
+    "objectID": "46",
+    "name": "Yakimeshi mixto",
+    "image": "https://picsum.photos/seed/yakimeshi/400/260",
+    "price": 1600,
+    "url": "/rewards/yakimeshi",
+    "category": "Comida",
+    "brand": "Sushi Bar",
+    "tags": [
+      "arroz",
+      "salteado",
+      "mixto"
+    ],
+    "activo": true,
+    "stock": 110
+  }
+]

@@ -29,10 +29,182 @@
                 <hr>
             </div>
         </div>
-        
-        <div class="row mb-4">
-            <div class="col-md-12">
+        <div class="row align-items-center mb-3">
+            <div class="col-12 col-md-6">
+                <p class="text-muted mb-1">Panel de control con m��tricas operativas y del recomendador</p>
+            </div>
+            <div class="col-12 col-md-6 d-flex align-items-center justify-content-md-end gap-2">
+                <label for="metricsRange" class="form-label mb-0">Rango</label>
+                <select id="metricsRange" class="form-select form-select-sm" style="max-width: 160px;">
+                    <option value="7" selected>��ltimos 7 d��as</option>
+                    <option value="14">��ltimos 14 d��as</option>
+                    <option value="30">��ltimos 30 d��as</option>
+                </select>
+            </div>
+        </div>
+        <div id="metricsLoading" class="alert alert-info py-2 px-3 d-none">Cargando m��tricas...</div>
+        <div class="row g-3 mb-3" id="metricsCardsRow">
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <p class="text-muted text-uppercase small mb-1">Usuarios</p>
+                        <h3 class="mb-0" id="kpiUsersTotal">-</h3>
+                        <small class="text-muted">totales</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <p class="text-muted text-uppercase small mb-1">Activos</p>
+                        <h3 class="mb-0" id="kpiUsersActive">-</h3>
+                        <small class="text-muted">usuarios</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <p class="text-muted text-uppercase small mb-1">Puntos emitidos</p>
+                        <h3 class="mb-0" id="kpiPointsIssued">-</h3>
+                        <small class="text-muted">��ltimo rango</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <p class="text-muted text-uppercase small mb-1">Puntos canjeados</p>
+                        <h3 class="mb-0" id="kpiPointsRedeemed">-</h3>
+                        <small class="text-muted">��ltimo rango</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <p class="text-muted text-uppercase small mb-1">Ingresos de hoy</p>
+                        <h3 class="mb-0" id="kpiIngresosHoy">-</h3>
+                        <small class="text-muted">por QR</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <p class="text-muted text-uppercase small mb-1">CTR Recs</p>
+                        <h3 class="mb-0" id="kpiCtr">-</h3>
+                        <small class="text-muted">clics �� canjes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-lg-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Movimientos de puntos</h5>
+                        <small class="text-muted">Emitidos vs canjeados</small>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="pointsChart" height="240"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Embudo de recomendaciones</h5>
+                        <small class="text-muted">Vistas, clics y conversiones</small>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="funnelChart" height="240"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-3 mb-4">
+            <div class="col-lg-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Accesos por hora</h5>
+                        <small class="text-muted">Ingresos y salidas</small>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="qrChart" height="240"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Top productos recomendados</h5>
+                        <small class="text-muted">Basado en eventos</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th class="text-end">Vistas</th>
+                                        <th class="text-end">Clics</th>
+                                        <th class="text-end">Canjes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topProductsBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">Sin datos disponibles</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Saldo en tiempo real -->
+        <div class="card mb-3">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div>
+                    <label for="saldoRut" class="form-label">RUT para saldo</label>
+                    <input id="saldoRut" class="form-control" placeholder="12.345.678-9" style="min-width:220px" />
+                </div>
+                <button class="btn btn-outline-primary" id="saldoBtn">Ver saldo</button>
+                <div class="ms-auto">
+                    <span class="text-muted">Saldo:</span>
+                    <strong id="saldoValor">—</strong>
+                    <span class="badge bg-light text-dark" id="saldoStatus">sin suscripción</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3 g-2 align-items-end">
+            <div class="col-md-2">
+                <label for="search" class="form-label">Buscar</label>
+                <input id="search" class="form-control" placeholder="nombre, email o RUT" />
+            </div>
+            <div class="col-md-2">
+                <label for="estado" class="form-label">Estado</label>
+                <select id="estado" class="form-select">
+                    <option value="all">Todos</option>
+                    <option value="ACTIVO">ACTIVO</option>
+                    <option value="BLOQUEADO">BLOQUEADO</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="limit" class="form-label">Por página</label>
+                <select id="limit" class="form-select">
+                    <option>5</option>
+                    <option selected>10</option>
+                    <option>20</option>
+                </select>
+            </div>
+            <div class="col-md-6">
                 <button class="btn btn-primary" id="loadUsersBtn">Cargar Usuarios</button>
+                <a class="btn btn-outline-secondary ms-2" href="/puntos/acumular">Acumular puntos</a>
+                <a class="btn btn-outline-success ms-2" href="/puntos/canjear?role=worker">Canjear puntos</a>
+                <a class="btn btn-outline-info ms-2" href="/puntos/historial">Ver historial</a>
             </div>
         </div>
         
@@ -58,17 +230,27 @@
                                         <th>ID</th>
                                         <th>Nombre</th>
                                         <th>Email</th>
-                                        <th>Fecha de Creación</th>
+                                        <th>RUT</th>
+                                        <th>Rol</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody id="usersTableBody">
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted">
+                                        <td colspan="7" class="text-center text-muted">
                                             Haz clic en "Cargar Usuarios" para ver los datos
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <div id="usersPageInfo" class="text-muted"></div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary" id="prevUsers">Anterior</button>
+                                    <button class="btn btn-sm btn-outline-secondary" id="nextUsers">Siguiente</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -86,6 +268,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/public/js/auth-nav.js"></script>
     <script src="/public/js/navigation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="/public/js/dashboard.js"></script>
 </body>
 </html>

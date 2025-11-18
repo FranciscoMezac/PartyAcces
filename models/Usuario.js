@@ -1,5 +1,10 @@
-const db = require('../config/database');
+const bcrypt = require('bcryptjs');
 
+/**
+ * Patron de diseño: Active Record / Rich Domain Model
+ * Propósito: Entidad de dominio ACTIVA que conoce su repositorio y se comunica con él
+ * El Modelo NO es solo contenedor de datos, tiene comportamiento y lógica de negocio
+ */
 class Usuario {
     #usuarioId;
     #nombre;
@@ -9,19 +14,28 @@ class Usuario {
     #rol;
     #estado;
     #createdAt;
+    
+    /**
+     * @type {import('../repositories/UsuarioRepository')|null}
+     */
+    #usuarioRepository; // El Modelo conoce su Repositorio (Active Record Pattern)
 
     /**
-     * @param {Object} data 
+     * Constructor con inyección del repositorio
+     * @param {Object} data - Datos del usuario
+     * @param {import('../repositories/UsuarioRepository')|null} usuarioRepository - Repositorio inyectado (opcional)
      */
-    constructor(data = {}) {
+    constructor(data = {}, usuarioRepository = null) {
         this.#usuarioId = data.usuarioId || data.usuario_id || null;
-        this.#nombre = data.nombre || '';
-        this.#rut = data.rut || '';
-        this.#email = data.email || '';
-        this.#contrasenia = data.contrasenia || '';
-        this.#rol = data.rol || 'USER';
-        this.#estado = data.estado || 'ACTIVO';
+        // Trim para eliminar espacios que agrega CHAR(256)
+        this.#nombre = (data.nombre || '').trim();
+        this.#rut = (data.rut || '').trim();
+        this.#email = (data.email || '').trim();
+        this.#contrasenia = (data.contrasenia || '').trim();
+        this.#rol = (data.rol || 'USER').trim();
+        this.#estado = (data.estado || 'ACTIVO').trim();
         this.#createdAt = data.created_at || data.createdAt || null;
+        this.#usuarioRepository = usuarioRepository; // Inyección de dependencia
     }
 
     get usuarioId() {
@@ -190,170 +204,461 @@ class Usuario {
 
 
     /**
-
-     * @param {string} email 
-     * @returns {Promise<Usuario|null>}
+     * Hashea la contraseña del usuario
+     * @returns {Promise<void>}
      */
-    static async findByEmail(email) {
-        try {
-            const result = await db.query(
-                'SELECT * FROM usuario WHERE email = $1',
-                [email]
-            );
-            
-            return result.rows[0] ? new Usuario(result.rows[0]) : null;
-        } catch (error) {
-            console.error('Error al buscar usuario por email:', error);
-            throw error;
+    async hashPassword() {
+        if (this.#contrasenia) {
+            this.#contrasenia = await bcrypt.hash(this.#contrasenia, 10);
         }
     }
 
     /**
-     * @param {number} id 
-     * @returns {Promise<Usuario|null>}
-     */
-    static async findById(id) {
-        try {
-            const result = await db.query(
-                'SELECT * FROM usuario WHERE usuario_id = $1',
-                [id]
-            );
-            
-            return result.rows[0] ? new Usuario(result.rows[0]) : null;
-        } catch (error) {
-            console.error('Error al buscar usuario por ID:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * @returns {Promise<Array<Usuario>>}
-     */
-    static async findAll() {
-        try {
-            const result = await db.query(
-                'SELECT * FROM usuario ORDER BY created_at DESC'
-            );
-            
-            return result.rows.map(row => new Usuario(row));
-        } catch (error) {
-            console.error('Error al obtener todos los usuarios:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * @param {Object} client
-     * @param {Usuario} usuario 
-     * @returns {Promise<number>} 
-     */
-    static async insert(client, usuario) {
-        try {
-            const data = usuario.toDatabase();
-            
-            const result = await client.query(
-                'INSERT INTO usuario (nombre, rut, email, contrasenia, rol, estado) VALUES ($1, $2, $3, $4, $5, $6) RETURNING usuario_id',
-                [data.nombre, data.rut, data.email, data.contrasenia, data.rol, data.estado]
-            );
-            
-            return result.rows[0].usuario_id;
-        } catch (error) {
-            console.error('Error al insertar usuario:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * @param {Usuario} usuario 
-     * @returns {Promise<Usuario>}
-     */
-    static async create(usuario) {
-        try {
-            const data = usuario.toDatabase();
-            
-            const result = await db.query(
-                'INSERT INTO usuario (nombre, email, contrasenia, rol, estado) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-                [data.nombre, data.email, data.contrasenia, data.rol, data.estado]
-            );
-            
-            return new Usuario(result.rows[0]);
-        } catch (error) {
-            console.error('Error al crear usuario:', error);
-            throw error;
-        }
-    }
-
-    /**
-
-     * @param {number} id 
-     * @param {Object} data 
-     * @returns {Promise<Usuario|null>}
-     */
-    static async update(id, data) {
-        try {
-            const result = await db.query(
-                'UPDATE usuario SET nombre = $1, email = $2, rol = $3, estado = $4 WHERE usuario_id = $5 RETURNING *',
-                [data.nombre, data.email, data.rol, data.estado, id]
-            );
-            
-            return result.rows[0] ? new Usuario(result.rows[0]) : null;
-        } catch (error) {
-            console.error('Error al actualizar usuario:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * @param {number} id 
+     * Compara una contraseña con la contraseña hasheada del usuario
+     * @param {string} plainPassword 
      * @returns {Promise<boolean>}
      */
-    static async delete(id) {
-        try {
-            const result = await db.query(
-                'DELETE FROM usuario WHERE usuario_id = $1 RETURNING usuario_id',
-                [id]
-            );
-            
-            return result.rows.length > 0;
-        } catch (error) {
-            console.error('Error al eliminar usuario:', error);
-            throw error;
+    async comparePassword(plainPassword) {
+        const hashLimpio = this.#contrasenia.trim();
+        return await bcrypt.compare(plainPassword, hashLimpio);
+    }
+
+    // ==================== MÉTODOS ACTIVE RECORD ====================
+    // El Modelo se comunica con su Repositorio
+
+    /**
+     * Verifica si el usuario ya existe en la base de datos por RUT
+     * COMPORTAMIENTO: El Modelo usa su Repositorio
+     * SOLUCIÓN: Usa existsByRut() en lugar de findByRut() para evitar crear segundo objeto
+     * @returns {Promise<boolean>}
+     */
+    async verificarExistenciaPorRut() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
         }
+        // NO crear segundo objeto Usuario, solo verificar existencia
+        return await this.#usuarioRepository.existsByRut(this.#rut);
     }
 
     /**
-     * @param {string} rol 
-     * @returns {Promise<Array<Usuario>>}
+     * Verifica si el usuario ya existe en la base de datos por Email
+     * COMPORTAMIENTO: El Modelo usa su Repositorio
+     * SOLUCIÓN: Usa existsByEmail() en lugar de findByEmail() para evitar crear segundo objeto
+     * @returns {Promise<boolean>}
      */
-    static async findByRole(rol) {
-        try {
-            const result = await db.query(
-                'SELECT * FROM usuario WHERE rol = $1 ORDER BY created_at DESC',
-                [rol]
-            );
-            
-            return result.rows.map(row => new Usuario(row));
-        } catch (error) {
-            console.error('Error al buscar usuarios por rol:', error);
-            throw error;
+    async verificarExistenciaPorEmail() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
         }
+        // NO crear segundo objeto Usuario, solo verificar existencia
+        return await this.#usuarioRepository.existsByEmail(this.#email);
     }
 
     /**
-     * @returns {Promise<Array<Usuario>>}
+     * Guarda el usuario en la base de datos
+     * COMPORTAMIENTO: El Modelo se guarda a sí mismo
+     * @param {Object} client - Cliente de transacción (opcional)
+     * @returns {Promise<number>} - ID del usuario creado
      */
-    static async findActive() {
-        try {
-            const result = await db.query(
-                'SELECT * FROM usuario WHERE estado = $1 ORDER BY created_at DESC',
-                ['ACTIVO']
-            );
-            
-            return result.rows.map(row => new Usuario(row));
-        } catch (error) {
-            console.error('Error al buscar usuarios activos:', error);
+    async guardar(client = null) {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        // Validar antes de guardar
+        const validacion = this.validate();
+        if (!validacion.isValid) {
+            throw new Error(validacion.errors.join(', '));
+        }
+
+        // Hashear contraseña antes de guardar
+        await this.hashPassword();
+
+        // Insertar en BD
+        const id = await this.#usuarioRepository.insert(client, this);
+        this.#usuarioId = id;
+        return id;
+    }
+
+    /**
+     * Carga el usuario desde la base de datos por email
+     * COMPORTAMIENTO: El Modelo se carga a sí mismo desde BD
+     * @returns {Promise<boolean>} - true si encontró y cargó datos, false si no existe
+     */
+    async cargarPorEmail() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#email) {
+            throw new Error('Email requerido para cargar usuario');
+        }
+
+        const usuarioEncontrado = await this.#usuarioRepository.findByEmail(this.#email);
+        
+        if (!usuarioEncontrado) {
+            return false;
+        }
+
+        // Poblar este objeto con los datos encontrados
+        this.#usuarioId = usuarioEncontrado.usuarioId;
+        this.#nombre = usuarioEncontrado.nombre;
+        this.#rut = usuarioEncontrado.rut;
+        this.#contrasenia = usuarioEncontrado.contrasenia;
+        this.#rol = usuarioEncontrado.rol;
+        this.#estado = usuarioEncontrado.estado;
+        this.#createdAt = usuarioEncontrado.createdAt;
+
+        return true;
+    }
+
+    /**
+     * Carga el usuario desde la base de datos por RUT
+     * COMPORTAMIENTO: El Modelo se carga a sí mismo desde BD
+     * @returns {Promise<boolean>} - true si encontró y cargó datos, false si no existe
+     */
+    async cargarPorRut() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#rut) {
+            throw new Error('RUT requerido para cargar usuario');
+        }
+
+        const usuarioEncontrado = await this.#usuarioRepository.findByRut(this.#rut);
+        
+        if (!usuarioEncontrado) {
+            return false;
+        }
+
+        // Poblar este objeto con los datos encontrados
+        this.#usuarioId = usuarioEncontrado.usuarioId;
+        this.#nombre = usuarioEncontrado.nombre;
+        this.#email = usuarioEncontrado.email;
+        this.#contrasenia = usuarioEncontrado.contrasenia;
+        this.#rol = usuarioEncontrado.rol;
+        this.#estado = usuarioEncontrado.estado;
+        this.#createdAt = usuarioEncontrado.createdAt;
+
+        return true;
+    }
+
+    /**
+     * Carga el usuario desde la base de datos por ID
+     * COMPORTAMIENTO: El Modelo se carga a sí mismo desde BD
+     * @returns {Promise<boolean>} - true si encontró y cargó datos, false si no existe
+     */
+    async cargarPorId() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#usuarioId) {
+            throw new Error('ID requerido para cargar usuario');
+        }
+
+        const usuarioEncontrado = await this.#usuarioRepository.findById(this.#usuarioId);
+        
+        if (!usuarioEncontrado) {
+            return false;
+        }
+
+        // Poblar este objeto con los datos encontrados
+        this.#nombre = usuarioEncontrado.nombre;
+        this.#rut = usuarioEncontrado.rut;
+        this.#email = usuarioEncontrado.email;
+        this.#contrasenia = usuarioEncontrado.contrasenia;
+        this.#rol = usuarioEncontrado.rol;
+        this.#estado = usuarioEncontrado.estado;
+        this.#createdAt = usuarioEncontrado.createdAt;
+
+        return true;
+    }
+
+    /**
+     * Actualiza el perfil del usuario en la base de datos
+     * COMPORTAMIENTO: El Modelo se actualiza a sí mismo
+     * @param {Object} datosNuevos - Datos a actualizar (nombre, email, password opcional)
+     * @returns {Promise<boolean>}
+     */
+    async actualizarPerfil(datosNuevos) {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#usuarioId) {
+            throw new Error('No se puede actualizar un usuario sin ID');
+        }
+
+        // Actualizar datos internos
+        if (datosNuevos.nombre) this.#nombre = datosNuevos.nombre;
+        if (datosNuevos.email) this.#email = datosNuevos.email;
+        
+        // Si hay password, hashear
+        if (datosNuevos.password) {
+            this.#contrasenia = await bcrypt.hash(datosNuevos.password, 10);
+        }
+
+        // Validar antes de actualizar
+        const validacion = this.validate();
+        if (!validacion.isValid) {
+            throw new Error(validacion.errors.join(', '));
+        }
+
+        // Preparar datos para BD
+        const datosActualizacion = {
+            nombre: this.#nombre,
+            email: this.#email,
+            rol: this.#rol,
+            estado: this.#estado
+        };
+
+        // Si se actualizó password, incluirlo
+        if (datosNuevos.password) {
+            datosActualizacion.contrasenia = this.#contrasenia;
+        }
+
+        // Actualizar en BD
+        const usuarioActualizado = await this.#usuarioRepository.update(this.#usuarioId, datosActualizacion);
+        
+        return usuarioActualizado !== null;
+    }
+
+    /**
+     * Actualiza el usuario en la base de datos
+     * COMPORTAMIENTO: El Modelo se actualiza a sí mismo
+     * @returns {Promise<boolean>}
+     */
+    async actualizar() {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#usuarioId) {
+            throw new Error('No se puede actualizar un usuario sin ID');
+        }
+
+        // Validar antes de actualizar
+        const validacion = this.validate();
+        if (!validacion.isValid) {
+            throw new Error(validacion.errors.join(', '));
+        }
+
+        return await this.#usuarioRepository.update(this.#usuarioId, this);
+    }
+
+    /**
+     * Bloquea el usuario en la base de datos
+     * COMPORTAMIENTO: El Modelo se bloquea a sí mismo
+     * @param {Object} opciones - { motivo, adminId }
+     * @returns {Promise<boolean>}
+     */
+    async bloquearUsuario({ motivo = null, adminId = null } = {}) {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#rut) {
+            throw new Error('RUT requerido para bloquear usuario');
+        }
+
+        // Verificar que no esté ya bloqueado
+        if (this.isBloqueado()) {
+            const error = new Error('Usuario ya está bloqueado');
+            error.code = 'ALREADY_BLOCKED';
             throw error;
         }
+
+        // Cambiar estado en memoria
+        this.#estado = 'BLOQUEADO';
+
+        // Actualizar en BD
+        const datosActualizacion = {
+            nombre: this.#nombre,
+            email: this.#email,
+            rol: this.#rol,
+            estado: 'BLOQUEADO'
+        };
+
+        const usuarioActualizado = await this.#usuarioRepository.update(this.#usuarioId, datosActualizacion);
+        
+        return usuarioActualizado !== null;
+    }
+
+    /**
+     * Resetea la contraseña del usuario
+     * COMPORTAMIENTO: El Modelo resetea su propia contraseña
+     * @param {string} nuevaContrasena - Nueva contraseña en texto plano
+     * @returns {Promise<boolean>}
+     */
+    async resetearContrasena(nuevaContrasena) {
+        if (!this.#usuarioRepository) {
+            throw new Error('Repositorio no inyectado en Usuario');
+        }
+
+        if (!this.#usuarioId) {
+            throw new Error('No se puede resetear contraseña sin ID de usuario');
+        }
+
+        if (!nuevaContrasena || nuevaContrasena.length < 8) {
+            throw new Error('La contraseña debe tener al menos 8 caracteres');
+        }
+
+        // Hashear nueva contraseña
+        this.#contrasenia = await bcrypt.hash(nuevaContrasena, 10);
+
+        // Actualizar solo la contraseña en BD
+        const datosActualizacion = {
+            nombre: this.#nombre,
+            email: this.#email,
+            rol: this.#rol,
+            estado: this.#estado,
+            contrasenia: this.#contrasenia
+        };
+
+        const usuarioActualizado = await this.#usuarioRepository.update(this.#usuarioId, datosActualizacion);
+        
+        return usuarioActualizado !== null;
+    }
+
+    // ==================== FIN MÉTODOS ACTIVE RECORD ====================
+
+    /**
+     * Verifica si el usuario es administrador
+     * @returns {boolean}
+     */
+    isAdmin() {
+        return this.#rol === 'ADMIN';
+    }
+
+    /**
+     * Verifica si el usuario está activo
+     * @returns {boolean}
+     */
+    isActive() {
+        return this.#estado === 'ACTIVO';
+    }
+
+    /**
+     * Verifica si el usuario está bloqueado
+     * @returns {boolean}
+     */
+    isBloqueado() {
+        return this.#estado === 'BLOQUEADO';
+    }
+
+    /**
+     * Cambia el estado del usuario
+     * @param {string} nuevoEstado - ACTIVO, INACTIVO o BLOQUEADO
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    cambiarEstado(nuevoEstado) {
+        const estadosValidos = ['ACTIVO', 'INACTIVO', 'BLOQUEADO'];
+        if (!estadosValidos.includes(nuevoEstado)) {
+            throw new Error('Estado inválido. Debe ser ACTIVO, INACTIVO o BLOQUEADO');
+        }
+        this.#estado = nuevoEstado;
+        return this;
+    }
+
+    /**
+     * Actualiza el rol del usuario
+     * @param {string} nuevoRol - USER o ADMIN
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    cambiarRol(nuevoRol) {
+        const rolesValidos = ['USER', 'ADMIN'];
+        if (!rolesValidos.includes(nuevoRol)) {
+            throw new Error('Rol inválido. Debe ser USER o ADMIN');
+        }
+        this.#rol = nuevoRol;
+        return this;
+    }
+
+    /**
+     * Actualiza la información del usuario
+     * @param {Object} datos - Objeto con los campos a actualizar
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    actualizarDatos(datos) {
+        if (datos.nombre) this.nombre = datos.nombre;
+        if (datos.email) this.email = datos.email;
+        if (datos.rut) this.rut = datos.rut;
+        if (datos.rol) this.cambiarRol(datos.rol);
+        if (datos.estado) this.cambiarEstado(datos.estado);
+        return this;
+    }
+
+    /**
+     * Desactiva el usuario
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    desactivar() {
+        this.#estado = 'INACTIVO';
+        return this;
+    }
+
+    /**
+     * Activa el usuario
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    activar() {
+        this.#estado = 'ACTIVO';
+        return this;
+    }
+
+    /**
+     * Promover a administrador
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    promoverAAdmin() {
+        this.#rol = 'ADMIN';
+        return this;
+    }
+
+    /**
+     * Degradar a usuario normal
+     * @returns {Usuario} - Retorna this para permitir method chaining
+     */
+    degradarAUser() {
+        this.#rol = 'USER';
+        return this;
+    }
+
+    /**
+     * Verifica si este usuario puede modificar a otro usuario
+     * @param {Usuario} otroUsuario - Instancia de otro usuario
+     * @returns {boolean}
+     */
+    puedeModificar(otroUsuario) {
+        // Solo los administradores pueden modificar otros usuarios
+        if (!this.isAdmin()) {
+            return false;
+        }
+        // Un usuario no puede modificarse a sí mismo para evitar bloqueos
+        if (this.#usuarioId === otroUsuario.usuarioId) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Verifica si este usuario tiene los mismos privilegios que otro
+     * @param {Usuario} otroUsuario - Instancia de otro usuario
+     * @returns {boolean}
+     */
+    tieneLosMismosPrivilegiosQue(otroUsuario) {
+        return this.#rol === otroUsuario.rol;
+    }
+
+    /**
+     * Verifica si este usuario tiene más privilegios que otro
+     * @param {Usuario} otroUsuario - Instancia de otro usuario
+     * @returns {boolean}
+     */
+    tieneMasPrivilegiosQue(otroUsuario) {
+        return this.isAdmin() && !otroUsuario.isAdmin();
     }
 }
 

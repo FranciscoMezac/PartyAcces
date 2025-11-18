@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acumulación de Puntos</title>
+  <link rel="stylesheet" href="/public/css/styles.css" />
+  <style>
+    .container { max-width: 720px; margin: 2rem auto; padding: 1rem; }
+    .card { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    label { display:block; font-weight:600; margin-bottom: .25rem; }
+    input { width:100%; padding:.5rem; }
+    button { padding:.6rem 1rem; border:0; border-radius: 999px; background:#6c4bd4; color:#fff; font-weight:600; }
+    .msg { margin-top: 1rem; padding:.75rem; border-radius:6px; }
+    .msg.ok { background:#e7f6ec; color:#146c2e; }
+    .msg.err { background:#fdecea; color:#b3261e; }
+    .muted{ color:#666; font-size:.9rem }
+  </style>
+  <script>
+    // Exponer porcentaje para mostrarlo en UI si se definió en el servidor via env y servido como estático.
+  </script>
+  <script defer src="/public/js/puntos.js"></script>
+  </head>
+<body>
+  <div class="container">
+    <h1>Acumulación de Puntos por Compra</h1>
+    <p class="muted">Ingresa RUT del cliente y monto de la compra. Se acreditan puntos según el porcentaje configurado.</p>
+
+    <div class="card">
+      <form id="form-acumular">
+        <div class="row">
+          <div>
+            <label for="rut">RUT</label>
+            <input id="rut" name="rut" placeholder="12.345.678-9" required />
+          </div>
+          <div>
+            <label for="monto">Monto (entero)</label>
+            <input id="monto" name="monto" type="number" min="1" step="1" placeholder="25000" required />
+          </div>
+        </div>
+        <div style="margin-top: .75rem">
+          <button type="submit">Acreditar puntos</button>
+          <a href="/dashboard" style="margin-left:.5rem">Volver</a>
+        </div>
+      </form>
+
+      <div id="resultado" class="msg" style="display:none"></div>
+    </div>
+  </div>
+</body>
+</html>
+

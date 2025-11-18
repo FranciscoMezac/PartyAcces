@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PartyAccess - Inicio (Cliente)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/public/css/styles.css">
+</head>
+<body>
+  <!-- Navbar superior (solo brand) -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">PartyAccess</a>
+
+      <!-- Toggler vanilla (opcional) -->
+      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Men�">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <button class="btn btn-outline-light" id="logoutBtn">Cerrar Sesión</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="container">
+    <div class="row mt-5">
+      <div class="col-12">
+        <!-- Hero -->
+        <div class="hero-section text-center mb-5">
+          <h1 class="display-4">Bienvenido a PartyAccess</h1>
+          <p class="lead">Tu pase a la diversión: ingresa con QR y acumula puntos por consumo.</p>
+          <p class="text-muted">Gestiona tu acceso y beneficios desde tu móvil, sin filas.</p>
+        </div>
+
+        <!-- Acciones cliente -->
+        <div class="text-center mb-5">
+          <a class="btn btn-primary btn-lg me-2" href="/qr">Ver mi QR</a>
+          <a class="btn btn-success btn-lg me-2" href="/puntos/canjear">Canjear productos</a>
+          <a class="btn btn-outline-secondary btn-lg" href="/perfil-usuario">Mi perfil</a>
+        </div>
+
+        <!-- Bloque informativo -->
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Próximos eventos</h5>
+            <p class="card-text">
+              Descubre promociones, listas de invitados y experiencias únicas pensadas para ti.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+      <!-- Recomendado para ti -->
+    <section class="recommend-block" data-carousel="for-you">
+      <div class="recommend-header">
+        <div>
+          <h2>Recomendado para ti</h2>
+          <p class="text-muted mb-0">Basado en tu actividad y tendencias de la noche.</p>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-btn" type="button" aria-label="Ver anterior" data-carousel-btn="prev">&#8249;</button>
+          <button class="carousel-btn" type="button" aria-label="Ver siguiente" data-carousel-btn="next">&#8250;</button>
+        </div>
+      </div>
+      <div class="recommend-carousel">
+        <div class="recommend-window">
+          <div id="for-you" class="recommend-track" role="list"></div>
+        </div>
+      </div>
+    </section></main>
+
+  <!-- Bottom Navigation (cliente) -->
+  <nav class="bottom-nav">
+    <div class="nav-container" id="bottomNavContainer">
+      <a href="/home-usuario" class="nav-item active">
+        <div class="nav-icon"><span class="icon-emoji">🏠</span></div>
+        <span class="nav-label">Inicio</span>
+      </a>
+      <a href="/qr" class="nav-item">
+        <div class="nav-icon"><span class="icon-emoji">📱</span></div>
+        <span class="nav-label">QR</span>
+      </a>
+      <a href="/perfil-usuario" class="nav-item">
+        <div class="nav-icon"><span class="icon-emoji">👤</span></div>
+        <span class="nav-label">Usuario</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- JS vanilla para el toggler del navbar superior -->
+  <script src="/public/js/nav-toggle.js"></script>
+  <script src="/public/js/home-usuario.js"></script>
+    <script>
+    (function(){
+      const KEY = 'USER_TOKEN';
+      let userToken = null;
+      try { userToken = localStorage.getItem(KEY); } catch(_) {}
+      if (!userToken) {
+        userToken = 'u_' + Math.random().toString(36).slice(2) + Date.now();
+        try { localStorage.setItem(KEY, userToken); } catch(_) {}
+      }
+
+      const track = document.getElementById('for-you');
+      const sourceLabels = {
+        'collaborative': 'Recomendado para ti',
+        'category_history': 'Basado en tu actividad',
+        'global_popular': 'Mas populares',
+        'db_fallback': 'Catalogo',
+        'local_fallback': 'Explora mas'
+      };
+      const carousel = track?.closest('[data-carousel="for-you"]') || null;
+      const prevBtn = carousel?.querySelector('[data-carousel-btn="prev"]');
+      const nextBtn = carousel?.querySelector('[data-carousel-btn="next"]');
+
+      const scrollByStep = (dir) => {
+        if (!track) return;
+        const card = track.querySelector('.recommend-card');
+        const step = card ? card.getBoundingClientRect().width + 16 : 240;
+        track.scrollBy({ left: dir * step, behavior: 'smooth' });
+      };
+      const updateControls = () => {
+        if (!track) return;
+        const max = Math.max(0, track.scrollWidth - track.clientWidth);
+        const left = track.scrollLeft;
+        if (prevBtn) prevBtn.disabled = left <= 4;
+        if (nextBtn) nextBtn.disabled = left >= max - 4;
+      };
+
+      prevBtn?.addEventListener('click', () => scrollByStep(-1));
+      nextBtn?.addEventListener('click', () => scrollByStep(1));
+      track?.addEventListener('scroll', () => updateControls(), { passive: true });
+
+      async function loadForYou(){
+        if (!track) return;
+        track.innerHTML = '<div class="carousel-empty">Cargando recomendaciones...</div>';
+        updateControls();
+        try {
+          const res = await fetch(`/api/recommend/cf?userToken=${encodeURIComponent(userToken)}`);
+          const data = await res.json();
+          const items = Array.isArray(data?.hits) ? data.hits : [];
+          console.log('[ForYou:local]', data?.source, 'count:', items.length);
+
+          if (!items.length) {
+            track.innerHTML = '<div class="carousel-empty">Sin recomendaciones por ahora.</div>';
+            updateControls();
+            return;
+          }
+
+          const frag = document.createDocumentFragment();
+          const badgeLabel = sourceLabels[data?.source] || 'Sugerido';
+          for (const it of items){
+            const card = document.createElement('article');
+            card.className = 'recommend-card';
+
+            {
+              const badge = document.createElement('small');
+              badge.className = 'badge';
+              badge.textContent = badgeLabel;
+              if (data?.source) badge.dataset.source = data.source;
+              card.appendChild(badge);
+            }
+            if (it.image){
+              const img = document.createElement('img');
+              img.src = it.image;
+              img.alt = it.name || 'Recompensa';
+              card.appendChild(img);
+            }
+            const h = document.createElement('h3');
+            h.textContent = it.name || 'Recompensa';
+            card.appendChild(h);
+
+            if (it.description) {
+              const d = document.createElement('p');
+              d.className = 'muted';
+              d.textContent = it.description;
+              card.appendChild(d);
+            }
+
+            const p = document.createElement('p');
+            p.textContent = (it.price ?? '') + ' pts';
+            card.appendChild(p);
+
+            const a = document.createElement('a');
+            a.className = 'btn';
+            a.href = '/puntos/canjear';
+            a.textContent = 'Ver';
+            card.appendChild(a);
+            frag.appendChild(card);
+          }
+
+          track.innerHTML = '';
+          track.appendChild(frag);
+          requestAnimationFrame(updateControls);
+        } catch (e) {
+          console.error('[ForYou:local] error', e);
+          track.innerHTML = '<div class="carousel-empty">No fue posible cargar recomendaciones.</div>';
+          updateControls();
+        }
+      }
+
+      loadForYou();
+    })();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
