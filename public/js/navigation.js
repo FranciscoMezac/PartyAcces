@@ -44,6 +44,24 @@ function getHomeRoute() {
   }
 }
 
+/**
+ * Obtiene la ruta del perfil según el estado de sesión
+ * Si no hay usuario autenticado, redirige al login
+ */
+function getProfileRoute() {
+  try {
+    const user = localStorage.getItem('user');
+    if (!user) return '/login';
+    
+    const userData = JSON.parse(user);
+    const rol = userData.rol || 'USER';
+    return rol === 'ADMIN' ? '/perfil-admin' : '/perfil-usuario';
+  } catch (err) {
+    console.warn('Error obteniendo profile route:', err);
+    return '/login';
+  }
+}
+
 /* ========= Fetch de datos ========= */
 async function loadNavigationData() {
   try {
