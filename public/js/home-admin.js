@@ -195,7 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function actualizarHora() {
         if (ultimaActualizacion) {
             const ahora = new Date();
-            ultimaActualizacion.textContent = ahora.toLocaleTimeString('es-CL');
+            ultimaActualizacion.textContent = ahora.toLocaleTimeString('es-CL', {
+                timeZone: 'America/Santiago'
+            });
         }
     }
 
@@ -239,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const resultado = await response.json();
 
             if (resultado.success) {
-                const data = resultado.data || {};
+                const data = resultado.data || resultado;
                 mostrarAlerta(
                     `Panel guardado correctamente. ${data.procesados || 0} salidas registradas de ${data.totalIngresos || 0} ingresos totales.`,
                     'success',
@@ -291,7 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const fecha = new Date(fechaHora);
         return fecha.toLocaleTimeString('es-CL', {
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            timeZone: 'America/Santiago'
         });
     }
 

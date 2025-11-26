@@ -66,6 +66,7 @@ class AccesoRepository {
                 a.usuario_id,
                 a.qr_referencia,
                 a.fecha_hora,
+                a.fecha_hora AT TIME ZONE 'America/Santiago' AS fecha_hora_chile,
                 a.tipo_acceso
              FROM (
                  SELECT DISTINCT ON (usuario_id)
@@ -171,14 +172,14 @@ class AccesoRepository {
                 a.acceso_id,
                 a.usuario_id,
                 a.fecha_hora,
+                a.fecha_hora AT TIME ZONE 'America/Santiago' AS fecha_hora_chile,
                 u.nombre,
                 u.rut,
                 u.email
              FROM acceso a
              INNER JOIN usuario u ON u.usuario_id = a.usuario_id
-             WHERE DATE(a.fecha_hora) = $1
+             WHERE DATE(a.fecha_hora AT TIME ZONE 'America/Santiago') = $1
                AND a.tipo_acceso = 'INGRESO'
-               AND EXTRACT(HOUR FROM a.fecha_hora) < 14
              ORDER BY a.fecha_hora ASC`,
             [fecha]
         );
