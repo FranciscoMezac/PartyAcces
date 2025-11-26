@@ -68,10 +68,28 @@
   </style>
 </head>
 <body>
+  <!-- Navbar superior -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+      <a class="navbar-brand" href="/">PartyAccess</a>
+
+      <!-- Toggler vanilla (opcional) -->
+      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Men�">
+=======
       <a class="navbar-brand" href="/home-usuario">PartyAccess</a>
       <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
+>>>>>>> Stashed changes
+=======
+      <a class="navbar-brand" href="/home-usuario">PartyAccess</a>
+      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
+>>>>>>> Stashed changes
+=======
+      <a class="navbar-brand" href="/home-usuario">PartyAccess</a>
+      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
+>>>>>>> Stashed changes
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
@@ -84,21 +102,25 @@
     </div>
   </nav>
 
+  <!-- Contenido principal -->
   <main class="container">
     <div class="row">
       <div class="col-12">
+        <!-- Hero -->
         <div class="hero-section text-center">
           <h1 id="heroWelcome">Bienvenido a PartyAccess</h1>
           <p class="lead">Tu pase a la diversión: ingresa con QR y acumula puntos por consumo.</p>
           <p class="text-muted">Gestiona tu acceso y beneficios desde tu móvil, sin filas.</p>
         </div>
 
+        <!-- Acciones cliente -->
         <div class="action-buttons">
           <a class="btn btn-primary btn-lg" href="/qr">Ver mi QR</a>
           <a class="btn btn-success btn-lg" href="/puntos/canjear">Canjear productos</a>
           <a class="btn btn-outline-secondary btn-lg" href="/perfil-usuario">Mi perfil</a>
         </div>
 
+        <!-- Recomendado para ti -->
         <section class="recommend-block" data-carousel="for-you">
           <div class="recommend-header">
             <div>
@@ -120,11 +142,14 @@
     </div>
   </main>
 
+  <!-- Bottom Navigation (dinámico) -->
   <nav class="bottom-nav">
     <div class="nav-container" id="bottomNavContainer">
-      </div>
+      <!-- Los items se renderizan con /public/js/navigation.js -->
+    </div>
   </nav>
 
+  <!-- Scripts -->
   <script src="/public/js/nav-toggle.js"></script>
   <script src="/public/js/navigation.js"></script>
   <script src="/public/js/home-usuario.js"></script>
