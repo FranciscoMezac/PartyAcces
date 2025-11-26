@@ -6,6 +6,73 @@
   <title>PartyAccess - Inicio (Admin)</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/public/css/styles.css">
+  <style>
+    /* Estilos responsivos para móvil */
+    .hero-admin {
+      padding: 1.5rem 0;
+    }
+    .hero-admin h1 {
+      font-size: 1.75rem;
+    }
+    .hero-admin .lead {
+      font-size: 0.95rem;
+    }
+    
+    /* Grid de acciones rápidas */
+    .acciones-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .acciones-grid .btn {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+    
+    /* En pantallas más grandes */
+    @media (min-width: 576px) {
+      .hero-admin h1 {
+        font-size: 2.25rem;
+      }
+      .hero-admin .lead {
+        font-size: 1.1rem;
+      }
+      .acciones-grid {
+        grid-template-columns: repeat(4, auto);
+        justify-content: center;
+        gap: 1rem;
+      }
+      .acciones-grid .btn {
+        padding: 0.75rem 1.25rem;
+        font-size: 1rem;
+      }
+    }
+    
+    /* Card del panel */
+    .card-usuarios {
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .card-usuarios .card-header {
+      padding: 1rem;
+    }
+    .card-usuarios .card-body {
+      padding: 1rem;
+    }
+    
+    @media (max-width: 575px) {
+      main.container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- Navbar superior (Admin con link a Dashboard) -->
@@ -18,7 +85,6 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
           <li class="nav-item">
             <button class="btn btn-outline-light" id="logoutBtn">Cerrar Sesión</button>
           </li>
@@ -28,37 +94,32 @@
   </nav>
 
   <!-- Contenido principal -->
-  <main class="container mt-4">
+  <main class="container mt-3">
     <div class="row">
       <div class="col-12">
         <!-- Hero -->
-        <div class="text-center mb-4">
-          <h1 class="display-5">Panel de Administración</h1>
-          <p class="lead">Gestiona eventos, accesos y métricas en tiempo real.</p>
+        <div class="text-center mb-3 hero-admin">
+          <h1>Panel de Administración</h1>
+          <p class="lead text-muted mb-0">Gestiona eventos, accesos y métricas en tiempo real.</p>
         </div>
 
-        <!-- Acciones rápidas -->
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-          <div>
-            <a class="btn btn-primary me-2" href="/scanner">📷 Escanear QR</a>
-            <a class="btn btn-outline-secondary me-2" href="/qr">Ver mi QR</a>
-            <a class="btn btn-info" href="/historial-cierres">📋 Historial de Cierres</a>
-          </div>
-          <div>
-            <button class="btn btn-success me-2" id="btnRecargar">
-              <span id="iconoRecargar">🔄</span> Recargar Panel
-            </button>
-            <button class="btn btn-warning" id="btnGuardarPanel">
-              💾 Guardar Panel
-            </button>
-          </div>
+        <!-- Acciones rápidas - Grid responsivo -->
+        <div class="acciones-grid">
+          <a class="btn btn-primary" href="/scanner">📷 Escanear QR</a>
+          <a class="btn btn-info text-white" href="/historial-cierres">📋 Historial</a>
+          <button class="btn btn-success" id="btnRecargar">
+            <span id="iconoRecargar">🔄</span> Recargar
+          </button>
+          <button class="btn btn-warning" id="btnGuardarPanel">
+            💾 Guardar
+          </button>
         </div>
 
         <!-- Panel de usuarios en el local -->
-        <div class="card shadow mb-4">
+        <div class="card shadow mb-4 card-usuarios">
           <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Usuarios en el Local</h5>
-            <span class="badge bg-light text-dark fs-5" id="totalUsuarios">0</span>
+            <h5 class="mb-0 fs-6">Usuarios en el Local</h5>
+            <span class="badge bg-light text-dark fs-6" id="totalUsuarios">0</span>
           </div>
           <div class="card-body">
             <div id="alertaContainer"></div>
@@ -97,30 +158,16 @@
     </div>
   </main>
 
-  <!-- Bottom Navigation (admin con Dashboard) -->
+  <!-- Bottom Navigation (dinámico) -->
   <nav class="bottom-nav">
-    <div class="nav-container">
-      <a href="/home-admin" class="nav-item active">
-        <div class="nav-icon"><span class="icon-emoji">🏠</span></div>
-        <span class="nav-label">Inicio</span>
-      </a>
-      <a href="/dashboard" class="nav-item">
-        <div class="nav-icon"><span class="icon-emoji">📊</span></div>
-        <span class="nav-label">Dashboard</span>
-      </a>
-      <a href="/qr" class="nav-item">
-        <div class="nav-icon"><span class="icon-emoji">📱</span></div>
-        <span class="nav-label">QR</span>
-      </a>
-      <a href="/perfil-admin" class="nav-item">
-        <div class="nav-icon"><span class="icon-emoji">👤</span></div>
-        <span class="nav-label">Usuario</span>
-      </a>
+    <div class="nav-container" id="bottomNavContainer">
+      <!-- Los items se renderizan con /public/js/navigation.js -->
     </div>
   </nav>
 
   <!-- JS vanilla para el toggler del navbar superior -->
   <script src="/public/js/nav-toggle.js"></script>
+  <script src="/public/js/navigation.js"></script>
   <script src="/public/js/home-admin.js"></script>
 </body>
 </html>
