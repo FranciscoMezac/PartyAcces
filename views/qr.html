@@ -14,10 +14,9 @@
 <body class="landing-body">
 
   <!-- Navbar (mismo diseño base, items se cargan dinámicamente) -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
       <a class="navbar-brand" href="/home-admin">PartyAccess</a>
-
       <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -30,7 +29,7 @@
       </div>
     </div>
   </nav>
-
+  
   <main class="container py-4">
     <div class="row g-4 align-items-start">
       <!-- IZQUIERDA: QR -->
@@ -50,7 +49,7 @@
           </div>
         </div>
       </div>
-
+      
       <!-- DERECHA: Panel con datos + última actualización + instrucciones -->
       <div class="col-12 col-lg-5">
         <div class="card shadow-sm side-panel">
@@ -66,7 +65,6 @@
             </dl>
 
             <hr class="my-4">
-
             <div class="d-flex align-items-center justify-content-between">
               <div>
                 <div class="text-muted small mb-1">Última actualización</div>
@@ -82,8 +80,7 @@
               Ver instrucciones
             </button>
 
-            <!-- Bloque de instrucciones (opcional).
-                Si lo eliminas, el botón no fallará. -->
+            <!-- Bloque de instrucciones (opcional).  Si lo eliminas, el botón no fallará. -->
             <div id="instrBody" class="collapse-block mt-3" hidden>
               <ol class="ps-3 mb-0 small">
                 <li>Mantén el brillo de tu pantalla al máximo.</li>
@@ -128,7 +125,7 @@
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         }
-      })
+        })
         .then(res => res.json())
         .then(() => doLogout())
         .catch(() => doLogout());
@@ -143,4 +140,3 @@
   </script>
 </body>
 </html>
-

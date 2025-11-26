@@ -22,7 +22,6 @@
     .hero-section .lead {
       font-size: 1rem;
     }
-    
     /* Botones responsivos */
     .action-buttons {
       display: flex;
@@ -37,8 +36,7 @@
       padding: 0.875rem 1.5rem;
       font-size: 1rem;
     }
-    
-    /* En pantallas más grandes, botones en fila */
+     /* En pantallas más grandes, botones en fila */
     @media (min-width: 576px) {
       .hero-section h1 {
         font-size: 2.5rem;
@@ -56,7 +54,6 @@
         width: auto;
       }
     }
-    
     /* Sección de recomendados */
     .recommend-block {
       margin-top: 1.5rem;
@@ -68,7 +65,7 @@
   </style>
 </head>
 <body>
-  <!-- Navbar superior -->
+   <!-- Navbar superior -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
       <a class="navbar-brand" href="/home-usuario">PartyAccess</a>
@@ -84,26 +81,24 @@
       </div>
     </div>
   </nav>
-
   <!-- Contenido principal -->
   <main class="container">
     <div class="row">
       <div class="col-12">
         <!-- Hero -->
-        <div class="hero-section text-center">
+          <div class="hero-section text-center">
           <h1 id="heroWelcome">Bienvenido a PartyAccess</h1>
           <p class="lead">Tu pase a la diversión: ingresa con QR y acumula puntos por consumo.</p>
           <p class="text-muted">Gestiona tu acceso y beneficios desde tu móvil, sin filas.</p>
         </div>
-
         <!-- Acciones cliente -->
-        <div class="action-buttons">
+          <div class="action-buttons">
           <a class="btn btn-primary btn-lg" href="/qr">Ver mi QR</a>
           <a class="btn btn-success btn-lg" href="/puntos/canjear">Canjear productos</a>
           <a class="btn btn-outline-secondary btn-lg" href="/perfil-usuario">Mi perfil</a>
         </div>
 
-        <!-- Recomendado para ti -->
+<!-- Recomendado para ti -->
         <section class="recommend-block" data-carousel="for-you">
           <div class="recommend-header">
             <div>
@@ -124,14 +119,12 @@
       </div>
     </div>
   </main>
-
   <!-- Bottom Navigation (dinámico) -->
   <nav class="bottom-nav">
     <div class="nav-container" id="bottomNavContainer">
       <!-- Los items se renderizan con /public/js/navigation.js -->
     </div>
   </nav>
-
   <!-- Scripts -->
   <script src="/public/js/nav-toggle.js"></script>
   <script src="/public/js/navigation.js"></script>
@@ -157,7 +150,7 @@
       const carousel = track?.closest('[data-carousel="for-you"]') || null;
       const prevBtn = carousel?.querySelector('[data-carousel-btn="prev"]');
       const nextBtn = carousel?.querySelector('[data-carousel-btn="next"]');
-
+      
       const scrollByStep = (dir) => {
         if (!track) return;
         const card = track.querySelector('.recommend-card');
@@ -171,7 +164,6 @@
         if (prevBtn) prevBtn.disabled = left <= 4;
         if (nextBtn) nextBtn.disabled = left >= max - 4;
       };
-
       prevBtn?.addEventListener('click', () => scrollByStep(-1));
       nextBtn?.addEventListener('click', () => scrollByStep(1));
       track?.addEventListener('scroll', () => updateControls(), { passive: true });
@@ -180,7 +172,7 @@
         if (!track) return;
         track.innerHTML = '<div class="carousel-empty">Cargando recomendaciones...</div>';
         updateControls();
-        try {
+        try { 
           const res = await fetch(`/api/recommend/cf?userToken=${encodeURIComponent(userToken)}`);
           const data = await res.json();
           const items = Array.isArray(data?.hits) ? data.hits : [];
@@ -191,7 +183,6 @@
             updateControls();
             return;
           }
-
           const frag = document.createDocumentFragment();
           const badgeLabel = sourceLabels[data?.source] || 'Sugerido';
           for (const it of items){
@@ -225,7 +216,7 @@
             const p = document.createElement('p');
             p.textContent = (it.price ?? '') + ' pts';
             card.appendChild(p);
-
+            
             const a = document.createElement('a');
             a.className = 'btn';
             a.href = '/puntos/canjear';

@@ -102,8 +102,7 @@ function renderBottomNavigation() {
       { label: 'Usuario', href: profileRoute, icon: 'usuario' }
     ];
   }
-
-  items.forEach((item) => {
+    items.forEach((item) => {
     const href = normalizePath(item.href);
     const isQr = isSameRoute(href, '/qr');
 
@@ -112,11 +111,12 @@ function renderBottomNavigation() {
     if (rol === 'ADMIN' && isSameRoute(href, currentPath) && !isQr) {
       return;
     }
-
+    const label = item?.label || '';
+    const iconName = (item?.icon || '').toLowerCase();
+    const iconSrc = item?.src || item?.icon_src || ''; // permitir backends distintos
     const a = document.createElement('a');
     a.href = href;
     a.className = 'nav-item';
-
     // Marcar activo la ruta actual
     if (isSameRoute(href, currentPath)) {
       a.classList.add('active');
@@ -126,14 +126,12 @@ function renderBottomNavigation() {
     const iconWrap = document.createElement('div');
     iconWrap.className = 'nav-icon';
     iconWrap.appendChild(createIconElement(item.icon, ''));
-
     const span = document.createElement('span');
     span.className = 'nav-label';
     span.textContent = item.label;
 
     a.appendChild(iconWrap);
     a.appendChild(span);
-
     a.addEventListener('click', () => {
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       a.classList.add('active');
@@ -160,7 +158,6 @@ function createIconElement(name, src) {
   span.textContent = getIconEmoji(name);
   return span;
 }
-
 function getIconEmoji(iconName) {
   const map = {
     home: '🏠',
@@ -195,7 +192,7 @@ function renderHomeContent(homeData = {}) {
     heroSubheadline.textContent = homeData.hero.subheadline;
   }
 
-  // Acciones (botones)
+   // Acciones (botones)
   const actionsContainer = document.getElementById('actionsContainer');
   if (actionsContainer && Array.isArray(homeData.actions)) {
     actionsContainer.innerHTML = '';
