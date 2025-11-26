@@ -71,8 +71,11 @@ function renderBottomNavigation() {
 
   const currentPath = normalizePath(location.pathname || '/');
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   const homeRoute = getHomeRoute(); // Obtener ruta de home según rol
 =======
+=======
+>>>>>>> Stashed changes
   const homeRoute = getHomeRoute();
   const profileRoute = getProfileRoute();
 >>>>>>> Stashed changes
@@ -107,6 +110,39 @@ function renderBottomNavigation() {
     ];
   }
 
+<<<<<<< Updated upstream
+=======
+  // Detectar rol para cambiar el texto del item QR
+  let rol = 'USER';
+  try {
+    const raw = localStorage.getItem('user');
+    if (raw) {
+      const data = JSON.parse(raw);
+      rol = data.rol || 'USER';
+    }
+  } catch (e) {
+    console.warn('navigation.js: no se pudo leer rol de usuario');
+  }
+
+  let items;
+  if (rol === 'ADMIN') {
+    // Admin: Scanner en lugar de QR, sin duplicar
+    items = [
+      { label: 'Inicio', href: homeRoute, icon: 'home' },
+      { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+      { label: 'Scanner', href: '/scanner', icon: 'scanner' },
+      { label: 'Usuario', href: profileRoute, icon: 'usuario' }
+    ];
+  } else {
+    // Cliente (USER): sin acceso directo a Dashboard ni Scanner
+    items = [
+      { label: 'Inicio', href: homeRoute, icon: 'home' },
+      { label: 'QR', href: '/qr', icon: 'qr' },
+      { label: 'Usuario', href: profileRoute, icon: 'usuario' }
+    ];
+  }
+
+>>>>>>> Stashed changes
   items.forEach((item) => {
     const href = normalizePath(item.href);
     const isQr = isSameRoute(href, '/qr');
@@ -117,10 +153,13 @@ function renderBottomNavigation() {
       return;
     }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
     const label = item?.label || '';
     const iconName = (item?.icon || '').toLowerCase();
     const iconSrc = item?.src || item?.icon_src || ''; // permitir backends distintos
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 
