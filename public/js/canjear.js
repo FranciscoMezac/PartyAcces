@@ -1,7 +1,9 @@
-(() => {
+﻿(() => {
   const ENDPOINT_PRODUCTS = '/api/productos';
   const ENDPOINT_REDEEM = '/api/puntos/canjear';
   const ENDPOINT_RELATED = '/api/recommend/looking-similar';
+  const TRACKING_ENDPOINT = '/api/tracking/events';
+  const USER_TOKEN_KEY = 'USER_TOKEN';
 
   const elements = {
     badge: document.getElementById('modeBadge'),
@@ -25,8 +27,22 @@
     mode: 'client',
     products: [],
     selectedProduct: null,
-    workerAllowed: false
+    workerAllowed: false,
+    userToken: null
   };
+
+  function ensureUserToken() {
+    try {
+      let token = localStorage.getItem(USER_TOKEN_KEY);
+      if (!token) {
+        token = 'u_' + Math.random().toString(36).slice(2) + Date.now();
+        localStorage.setItem(USER_TOKEN_KEY, token);
+      }
+      return token;
+    } catch (_) {
+      return null;
+    }
+  }
 
   function showStatus(type, message) {
     if (!elements.status) return;
@@ -91,7 +107,7 @@
     if (filters.category) params.set('category', filters.category);
     if (filters.query) params.set('q', filters.query);
     showStatus(null);
-    elements.catalog.innerHTML = '<p class="muted">Cargando catálogo…</p>';
+    elements.catalog.innerHTML = '<p class="muted">Cargando catálogo...</p>';
     try {
       const res = await fetch(`${ENDPOINT_PRODUCTS}?${params.toString()}`);
       const data = await res.json();
@@ -139,11 +155,11 @@
     elements.catalog.appendChild(frag);
   }
 
-  function onProductSelected(product) {
+  async function onProductSelected(product) {
     state.selectedProduct = product;
     if (state.mode === 'worker') {
       if (elements.workerProduct) {
-        elements.workerProduct.value = `${product.nombre} · ${product.puntos_requeridos} pts`;
+        elements.workerProduct.value = `${product.nombre} - ${product.puntos_requeridos} pts`;
       }
       if (elements.workerProductId) {
         elements.workerProductId.value = product.id;
@@ -154,13 +170,34 @@
       showStatus('success', 'Producto listo para canjear. Completa el RUT y confirma.');
     } else {
       showStatus('success', `Seleccionaste ${product.nombre}.`);
+      sendTracking('click', product);
       loadRecommendations(product);
+    }
+  }
+
+  async function sendTracking(eventType, product) {
+    if (!product || !product.id) return;
+    const payload = {
+      eventType,
+      productoId: product.id,
+      objectId: product.algolia_object_id || product.id,
+      userToken: state.userToken,
+      source: 'canjear-ui'
+    };
+    try {
+      await fetch(TRACKING_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (_) {
+      // best effort; no UI impact
     }
   }
 
   async function loadRecommendations(product) {
     if (!elements.recGrid) return;
-    elements.recGrid.innerHTML = '<p class="muted">Buscando recomendaciones…</p>';
+    elements.recGrid.innerHTML = '<p class="muted">Buscando recomendaciones...</p>';
     try {
       const objectID = product.algolia_object_id || product.id;
       const params = new URLSearchParams({
@@ -235,7 +272,7 @@
       elements.btnWorkerRedeem.disabled = true;
       try {
         const result = await redeemProduct(rut, productId);
-        showStatus('success', `Canje realizado para ${result.rut}. Nuevo saldo: ${result.nuevoSaldo ?? '—'} pts.`);
+        showStatus('success', `Canje realizado para ${result.rut}. Nuevo saldo: ${result.nuevoSaldo ?? '--'} pts.`);
         elements.workerForm.reset();
         if (elements.workerProduct) elements.workerProduct.value = '';
         if (elements.workerProductId) elements.workerProductId.value = '';
@@ -250,6 +287,7 @@
   function init() {
     attachEvents();
     const initialMode = determineInitialMode();
+    state.userToken = ensureUserToken();
     applyMode(initialMode);
     loadProducts();
   }
