@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const resultado = await response.json();
 
             if (resultado.success) {
-                const data = resultado.data || {};
+                const data = resultado.data || resultado;
                 mostrarAlerta(
                     `Panel guardado correctamente. ${data.procesados || 0} salidas registradas de ${data.totalIngresos || 0} ingresos totales.`,
                     'success',

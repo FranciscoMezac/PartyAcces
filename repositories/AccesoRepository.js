@@ -176,9 +176,8 @@ class AccesoRepository {
                 u.email
              FROM acceso a
              INNER JOIN usuario u ON u.usuario_id = a.usuario_id
-             WHERE DATE(a.fecha_hora) = $1
+             WHERE DATE(a.fecha_hora AT TIME ZONE 'America/Santiago') = $1
                AND a.tipo_acceso = 'INGRESO'
-               AND EXTRACT(HOUR FROM a.fecha_hora) < 14
              ORDER BY a.fecha_hora ASC`,
             [fecha]
         );

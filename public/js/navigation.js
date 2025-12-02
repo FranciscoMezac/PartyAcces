@@ -24,6 +24,44 @@ function isSameRoute(a, b) {
   return a === b;
 }
 
+/**
+ * Obtiene la ruta correcta de "home" según el rol del usuario
+ * Si no hay sesión, devuelve '/' (index)
+ */
+function getHomeRoute() {
+  try {
+    const user = localStorage.getItem('user');
+    if (!user) return '/';
+    
+    const userData = JSON.parse(user);
+    const rol = userData.rol || 'USER';
+    
+    // Devolver la home correcta según el rol
+    return rol === 'ADMIN' ? '/home-admin' : '/home-usuario';
+  } catch (err) {
+    console.warn('Error obteniendo home route:', err);
+    return '/';
+  }
+}
+
+/**
+ * Obtiene la ruta del perfil seg��n el estado de sesión
+ * Si no hay usuario autenticado, redirige al login
+ */
+function getProfileRoute() {
+  try {
+    const user = localStorage.getItem('user');
+    if (!user) return '/login';
+    
+    const userData = JSON.parse(user);
+    const rol = userData.rol || 'USER';
+    return rol === 'ADMIN' ? '/perfil-admin' : '/perfil-usuario';
+  } catch (err) {
+    console.warn('Error obteniendo profile route:', err);
+    return '/login';
+  }
+}
+
 /* ========= Fetch de datos ========= */
 async function loadNavigationData() {
   try {
@@ -49,10 +87,26 @@ function renderBottomNavigation(items) {
 
   container.innerHTML = '';
   const currentPath = normalizePath(location.pathname || '/');
+  const homeRoute = getHomeRoute(); // Obtener ruta de home según rol
+  const profileRoute = getProfileRoute();
 
   items.forEach((item) => {
     // datos robustos
-    const href = normalizePath(item?.href || '/');
+    let href = normalizePath(item?.href || '/');
+    
+    // Si el item apunta a '/' (home raíz), redirigir al home del usuario según rol
+    if (href === '/' && homeRoute !== '/') {
+      href = homeRoute;
+    }
+    
+    // Si es el item de perfil/usuario, usar la ruta correcta según la sesión
+    const isProfileItem = (item?.icon || '').toLowerCase() === 'user'
+      || (item?.icon || '').toLowerCase() === 'usuario'
+      || /usuario/i.test(item?.label || '');
+    if (isProfileItem) {
+      href = profileRoute;
+    }
+    
     const label = item?.label || '';
     const iconName = (item?.icon || '').toLowerCase();
     const iconSrc = item?.src || item?.icon_src || ''; // permitir backends distintos
