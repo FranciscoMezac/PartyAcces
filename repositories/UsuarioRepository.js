@@ -125,6 +125,42 @@ class UsuarioRepository {
     }
 
     /**
+     * Verifica si existe un usuario con el email dado
+     * @param {string} email 
+     * @returns {Promise<boolean>}
+     */
+    async existsByEmail(email) {
+        try {
+            const result = await this.#db.query(
+                'SELECT 1 FROM usuario WHERE email = $1 LIMIT 1',
+                [email]
+            );
+            return result.rows.length > 0;
+        } catch (error) {
+            console.error('Error al verificar existencia por email:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Verifica si existe un usuario con el RUT dado
+     * @param {string} rut 
+     * @returns {Promise<boolean>}
+     */
+    async existsByRut(rut) {
+        try {
+            const result = await this.#db.query(
+                'SELECT 1 FROM usuario WHERE rut = $1 LIMIT 1',
+                [rut]
+            );
+            return result.rows.length > 0;
+        } catch (error) {
+            console.error('Error al verificar existencia por RUT:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Obtiene todos los usuarios
      * @returns {Promise<Array<Usuario>>}
      */
