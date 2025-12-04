@@ -46,6 +46,7 @@ function getHomeRoute() {
 
 /**
  * Obtiene la ruta del perfil según el estado de sesión
+ * Obtiene la ruta del perfil seg��n el estado de sesión
  * Si no hay usuario autenticado, redirige al login
  */
 function getProfileRoute() {
@@ -88,7 +89,7 @@ function renderBottomNavigation() {
   container.innerHTML = '';
 
   const currentPath = normalizePath(location.pathname || '/');
-  const homeRoute = getHomeRoute();
+K  const homeRoute = getHomeRoute();
   const profileRoute = getProfileRoute();
 
   // Detectar rol para cambiar el texto del item QR
@@ -129,6 +130,15 @@ function renderBottomNavigation() {
     if (rol === 'ADMIN' && isSameRoute(href, currentPath) && !isQr) {
       return;
     }
+    
+    // Si es el item de perfil/usuario, usar la ruta correcta según la sesión
+    const isProfileItem = (item?.icon || '').toLowerCase() === 'user'
+      || (item?.icon || '').toLowerCase() === 'usuario'
+      || /usuario/i.test(item?.label || '');
+    if (isProfileItem) {
+      href = profileRoute;
+    }
+    
     const label = item?.label || '';
     const iconName = (item?.icon || '').toLowerCase();
     const iconSrc = item?.src || item?.icon_src || ''; // permitir backends distintos
