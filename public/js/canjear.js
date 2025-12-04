@@ -59,15 +59,19 @@
     elements.status.className = `status show ${type === 'error' ? 'err' : 'ok'}`;
   }
 
-  function getStoredUserRole() {
+  function getStoredUser() {
     try {
       const rawUser = localStorage.getItem('user');
       if (rawUser) {
-        const user = JSON.parse(rawUser);
-        return String(user.rol || '').toUpperCase();
+        return JSON.parse(rawUser);
       }
     } catch (_) {}
-    return '';
+    return null;
+  }
+
+  function getStoredUserRole() {
+    const user = getStoredUser();
+    return user ? String(user.rol || '').toUpperCase() : '';
   }
 
   function hasWorkerPrivileges(role) {
@@ -220,11 +224,14 @@
 
   async function sendTracking(eventType, product) {
     if (!product || !product.id) return;
+    const user = getStoredUser();
     const payload = {
       eventType,
       productoId: product.id,
       objectId: product.algolia_object_id || product.id,
       userToken: state.userToken,
+      usuarioId: user?.usuarioId || null,
+      rut: user?.rut || null,
       source: 'canjear-ui'
     };
     try {
