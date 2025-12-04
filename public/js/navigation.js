@@ -89,7 +89,7 @@ function renderBottomNavigation() {
   container.innerHTML = '';
 
   const currentPath = normalizePath(location.pathname || '/');
-K  const homeRoute = getHomeRoute();
+  const homeRoute = getHomeRoute();
   const profileRoute = getProfileRoute();
 
   // Detectar rol para cambiar el texto del item QR
@@ -122,7 +122,7 @@ K  const homeRoute = getHomeRoute();
     ];
   }
     items.forEach((item) => {
-    const href = normalizePath(item.href);
+    let href = normalizePath(item.href);
     const isQr = isSameRoute(href, '/qr');
 
     // Para ADMIN: Ocultar Scanner en su propia vista
@@ -130,18 +130,7 @@ K  const homeRoute = getHomeRoute();
     if (rol === 'ADMIN' && isSameRoute(href, currentPath) && !isQr) {
       return;
     }
-    
-    // Si es el item de perfil/usuario, usar la ruta correcta según la sesión
-    const isProfileItem = (item?.icon || '').toLowerCase() === 'user'
-      || (item?.icon || '').toLowerCase() === 'usuario'
-      || /usuario/i.test(item?.label || '');
-    if (isProfileItem) {
-      href = profileRoute;
-    }
-    
-    const label = item?.label || '';
-    const iconName = (item?.icon || '').toLowerCase();
-    const iconSrc = item?.src || item?.icon_src || ''; // permitir backends distintos
+
     const a = document.createElement('a');
     a.href = href;
     a.className = 'nav-item';
