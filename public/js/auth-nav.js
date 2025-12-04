@@ -28,6 +28,7 @@
     try {
       const userData = JSON.parse(user);
       const rol = userData.rol || 'USER';
+      const currentPath = window.location.pathname;
 
       // Limpiar navbar y agregar enlaces de usuario autenticado
       navbarNav.innerHTML = '';
@@ -42,8 +43,8 @@
       homeLink.appendChild(homeA);
       navbarNav.appendChild(homeLink);
 
-      // Link a dashboard (solo admin)
-      if (rol === 'ADMIN') {
+      // Link a dashboard (solo admin, pero no si ya estás en dashboard)
+      if (rol === 'ADMIN' && currentPath !== '/dashboard') {
         const dashLink = document.createElement('li');
         dashLink.className = 'nav-item';
         const dashA = document.createElement('a');

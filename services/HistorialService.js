@@ -83,7 +83,7 @@ class HistorialService {
             nombre: u.nombre,
             rut: u.rut,
             email: u.email,
-            fechaHora: u.fecha_hora
+            fechaHora: u.fecha_hora_chile || u.fecha_hora
         }));
     }
 }

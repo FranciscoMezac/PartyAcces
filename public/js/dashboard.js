@@ -129,15 +129,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const rut = user.rut ?? '';
       const rol = user.rol ?? '';
       const estado = user.estado ?? '';
-      const canBlock = rut && estado !== 'BLOQUEADO';
+      const isBloqueado = estado === 'BLOQUEADO';
+      const canBlock = rut && !isBloqueado;
+      
       return `
         <tr>
-          <td>${user.id ?? user.usuarioId ?? ''}</td>
+          <td class="d-none-mobile">${user.id ?? user.usuarioId ?? ''}</td>
           <td>${name}</td>
-          <td>${email}</td>
-          <td>${rut}</td>
-          <td>${rol}</td>
-          <td>${estado}</td>
+          <td class="d-none-mobile">${email}</td>
+          <td class="d-none-mobile">${rut}</td>
+          <td class="d-none-mobile">${rol}</td>
+          <td><span class="badge ${isBloqueado ? 'bg-danger' : 'bg-success'}">${estado}</span></td>
           <td>
             <button class="btn btn-sm btn-warning" data-action="bloquear" data-rut="${rut}" ${canBlock ? '' : 'disabled'} title="${canBlock ? 'Bloquear usuario' : (rut ? 'Ya bloqueado' : 'Sin RUT')}">Bloquear</button>
           </td>

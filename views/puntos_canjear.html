@@ -200,8 +200,96 @@
       body[data-mode="worker"] .worker-note {
         display: block;
       }
+      
+      /* Sistema de "Ver más" para móvil */
+      .btn-ver-mas {
+        display: none;
+        width: 100%;
+        padding: 14px 20px;
+        margin-top: 16px;
+        background: linear-gradient(135deg, var(--primary) 0%, #7c5ce7 100%);
+        border: none;
+        border-radius: 14px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .btn-ver-mas:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(90, 59, 231, 0.35);
+      }
+      .btn-ver-mas.visible {
+        display: block;
+      }
+      
+      /* En móvil: ocultar productos después del 4to */
+      @media (max-width: 576px) {
+        .page {
+          padding: 24px 16px 100px;
+        }
+        header h1 {
+          font-size: 1.5rem;
+        }
+        header p {
+          font-size: 0.9rem;
+        }
+        .panel {
+          padding: 16px;
+          border-radius: 16px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        .grid.collapsed .card:nth-child(n+5) {
+          display: none;
+        }
+        .toolbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .toolbar select,
+        .toolbar input {
+          min-width: 100%;
+        }
+        .toolbar label {
+          margin-top: 8px;
+        }
+        .toolbar label:first-child {
+          margin-top: 0;
+        }
+        .section-header h2 {
+          font-size: 1.1rem;
+        }
+      }
+      
+      /* Contador de productos ocultos */
+      .productos-info {
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-top: 12px;
+        display: none;
+      }
+      .productos-info.visible {
+        display: block;
+      }
     </style>
     <script defer src="/public/js/canjear.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const user = JSON.parse(localStorage.getItem('user') || 'null');
+        const btnVolver = document.getElementById('btnVolver');
+        
+        if (user && user.rol === 'ADMIN') {
+          btnVolver.href = '/dashboard';
+        } else {
+          btnVolver.href = '/home-usuario';
+        }
+      });
+    </script>
   </head>
   <body data-mode="client">
     <div class="page">
@@ -211,7 +299,7 @@
           <p>Explora el catálogo, selecciona tus favoritos y confirma tus canjes. Este espacio está pensado para ti, nuestro socio del programa.</p>
           <p class="worker-note">Selecciona el producto solicitado por el cliente y procede con el canje.</p>
         </div>
-        <span class="pill" id="modeBadge">Modo cliente</span>
+        <a id="btnVolver" style="align-self: flex-start; padding: 10px 20px; background: transparent; border: 1px solid var(--border); border-radius: 14px; color: var(--primary); text-decoration: none; font-weight: 600; white-space: nowrap;">← Volver</a>
       </header>
 
       <section class="panel">
@@ -226,7 +314,9 @@
           <button type="button" class="secondary" id="btnReset">Limpiar</button>
         </div>
         <div id="status" class="status"></div>
-        <div id="catalog" class="grid" aria-live="polite"></div>
+        <div id="catalog" class="grid collapsed" aria-live="polite"></div>
+        <p id="productosInfo" class="productos-info"></p>
+        <button id="btnVerMas" class="btn-ver-mas" type="button">Ver todos los productos</button>
       </section>
 
       <section id="recommendations" class="panel recommendations">

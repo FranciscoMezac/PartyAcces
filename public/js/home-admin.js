@@ -195,7 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function actualizarHora() {
         if (ultimaActualizacion) {
             const ahora = new Date();
-            ultimaActualizacion.textContent = ahora.toLocaleTimeString('es-CL');
+            ultimaActualizacion.textContent = ahora.toLocaleTimeString('es-CL', {
+                timeZone: 'America/Santiago'
+            });
         }
     }
 
@@ -291,7 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const fecha = new Date(fechaHora);
         return fecha.toLocaleTimeString('es-CL', {
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            timeZone: 'America/Santiago'
         });
     }
 

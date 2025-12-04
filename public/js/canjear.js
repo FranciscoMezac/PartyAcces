@@ -20,8 +20,12 @@
     workerProduct: document.getElementById('workerProduct'),
     workerProductId: document.getElementById('workerProductId'),
     workerRut: document.getElementById('workerRut'),
-    btnWorkerRedeem: document.getElementById('btnWorkerRedeem')
+    btnWorkerRedeem: document.getElementById('btnWorkerRedeem'),
+    btnVerMas: document.getElementById('btnVerMas'),
+    productosInfo: document.getElementById('productosInfo')
   };
+  
+  const MOBILE_LIMIT = 4; // Productos visibles en móvil antes de "Ver más"
 
   const state = {
     mode: 'client',
@@ -107,7 +111,10 @@
     if (filters.category) params.set('category', filters.category);
     if (filters.query) params.set('q', filters.query);
     showStatus(null);
-    elements.catalog.innerHTML = '<p class="muted">Cargando catálogo...</p>';
+    elements.catalog.innerHTML = '<p class="muted">Cargando catálogo…</p>';
+    // Restaurar estado colapsado al cargar nuevos productos
+    if (elements.catalog) elements.catalog.classList.add('collapsed');
+    hideVerMasButton();
     try {
       const res = await fetch(`${ENDPOINT_PRODUCTS}?${params.toString()}`);
       const data = await res.json();
@@ -117,6 +124,7 @@
       populateCategories(data.categories || []);
     } catch (error) {
       elements.catalog.innerHTML = `<p class="muted">${error.message}</p>`;
+      hideVerMasButton();
     }
   }
 
@@ -135,6 +143,7 @@
     if (!elements.catalog) return;
     if (!products.length) {
       elements.catalog.innerHTML = '<p class="muted">No se encontraron productos activos.</p>';
+      hideVerMasButton();
       return;
     }
     const frag = document.createDocumentFragment();
@@ -153,6 +162,40 @@
     });
     elements.catalog.innerHTML = '';
     elements.catalog.appendChild(frag);
+    
+    // Mostrar/ocultar botón "Ver más" según cantidad de productos
+    updateVerMasVisibility(products.length);
+  }
+  
+  function isMobile() {
+    return window.innerWidth <= 576;
+  }
+  
+  function updateVerMasVisibility(totalProducts) {
+    if (!elements.btnVerMas || !elements.productosInfo) return;
+    
+    const isCollapsed = elements.catalog.classList.contains('collapsed');
+    const hiddenCount = totalProducts - MOBILE_LIMIT;
+    
+    if (isMobile() && totalProducts > MOBILE_LIMIT && isCollapsed) {
+      elements.btnVerMas.classList.add('visible');
+      elements.btnVerMas.textContent = `Ver todos los productos (${totalProducts})`;
+      elements.productosInfo.classList.add('visible');
+      elements.productosInfo.textContent = `Mostrando ${MOBILE_LIMIT} de ${totalProducts} productos`;
+    } else {
+      hideVerMasButton();
+    }
+  }
+  
+  function hideVerMasButton() {
+    if (elements.btnVerMas) elements.btnVerMas.classList.remove('visible');
+    if (elements.productosInfo) elements.productosInfo.classList.remove('visible');
+  }
+  
+  function expandCatalog() {
+    if (!elements.catalog) return;
+    elements.catalog.classList.remove('collapsed');
+    hideVerMasButton();
   }
 
   async function onProductSelected(product) {
@@ -258,7 +301,21 @@
     elements.btnReset?.addEventListener('click', () => {
       if (elements.filterCategory) elements.filterCategory.value = '';
       if (elements.filterQuery) elements.filterQuery.value = '';
+      // Restaurar estado colapsado al limpiar filtros
+      if (elements.catalog) elements.catalog.classList.add('collapsed');
       loadProducts();
+    });
+    
+    // Botón "Ver más" para expandir catálogo en móvil
+    elements.btnVerMas?.addEventListener('click', () => {
+      expandCatalog();
+    });
+    
+    // Actualizar visibilidad del botón al cambiar tamaño de ventana
+    window.addEventListener('resize', () => {
+      if (state.products.length > 0) {
+        updateVerMasVisibility(state.products.length);
+      }
     });
 
     elements.workerForm?.addEventListener('submit', async (event) => {

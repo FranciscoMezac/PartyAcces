@@ -16,18 +16,20 @@
   <!-- Navbar (mismo diseño base, items se cargan dinámicamente) -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-      <a class="navbar-brand" href="/home-usuario">PartyAccess</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <a class="navbar-brand" href="/home-admin">PartyAccess</a>
+      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <!-- Los items se actualizarán dinámicamente con auth-nav.js -->
+          <li class="nav-item">
+            <button class="btn btn-outline-light" id="logoutBtn">Cerrar Sesión</button>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
-
+  
   <main class="container py-4">
     <div class="row g-4 align-items-start">
       <!-- IZQUIERDA: QR -->
@@ -47,7 +49,7 @@
           </div>
         </div>
       </div>
-
+      
       <!-- DERECHA: Panel con datos + última actualización + instrucciones -->
       <div class="col-12 col-lg-5">
         <div class="card shadow-sm side-panel">
@@ -63,7 +65,6 @@
             </dl>
 
             <hr class="my-4">
-
             <div class="d-flex align-items-center justify-content-between">
               <div>
                 <div class="text-muted small mb-1">Última actualización</div>
@@ -79,8 +80,7 @@
               Ver instrucciones
             </button>
 
-            <!-- Bloque de instrucciones (opcional).
-                 Si lo eliminas, el botón no fallará. -->
+            <!-- Bloque de instrucciones (opcional).  Si lo eliminas, el botón no fallará. -->
             <div id="instrBody" class="collapse-block mt-3" hidden>
               <ol class="ps-3 mb-0 small">
                 <li>Mantén el brillo de tu pantalla al máximo.</li>
@@ -106,9 +106,37 @@
   </nav>
 
   <!-- Scripts -->
-  <script src="/public/js/auth-nav.js"></script>
   <script src="/public/js/qr.js"></script>
   <script src="/public/js/navigation.js"></script>
+  <script>
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!confirm('¿Cerrar sesión?')) return;
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        doLogout();
+        return;
+      }
+
+      fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+        })
+        .then(res => res.json())
+        .then(() => doLogout())
+        .catch(() => doLogout());
+    });
+
+    function doLogout() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('adminToken');
+      window.location.href = '/';
+    }
+  </script>
 </body>
 </html>
-

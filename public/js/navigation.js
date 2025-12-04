@@ -45,6 +45,7 @@ function getHomeRoute() {
 }
 
 /**
+ * Obtiene la ruta del perfil según el estado de sesión
  * Obtiene la ruta del perfil seg��n el estado de sesión
  * Si no hay usuario autenticado, redirige al login
  */
@@ -81,22 +82,53 @@ async function loadNavigationData() {
 }
 
 /* ========= Render de la bottom-nav ========= */
-function renderBottomNavigation(items) {
+function renderBottomNavigation() {
   const container = document.getElementById('bottomNavContainer');
   if (!container) return; // página sin bottom-nav
 
   container.innerHTML = '';
+
   const currentPath = normalizePath(location.pathname || '/');
-  const homeRoute = getHomeRoute(); // Obtener ruta de home según rol
+K  const homeRoute = getHomeRoute();
   const profileRoute = getProfileRoute();
 
-  items.forEach((item) => {
-    // datos robustos
-    let href = normalizePath(item?.href || '/');
-    
-    // Si el item apunta a '/' (home raíz), redirigir al home del usuario según rol
-    if (href === '/' && homeRoute !== '/') {
-      href = homeRoute;
+  // Detectar rol para cambiar el texto del item QR
+  let rol = 'USER';
+  try {
+    const raw = localStorage.getItem('user');
+    if (raw) {
+      const data = JSON.parse(raw);
+      rol = data.rol || 'USER';
+    }
+  } catch (e) {
+    console.warn('navigation.js: no se pudo leer rol de usuario');
+  }
+
+  let items;
+  if (rol === 'ADMIN') {
+    // Admin: Scanner en lugar de QR, sin duplicar
+    items = [
+      { label: 'Inicio', href: homeRoute, icon: 'home' },
+      { label: 'Dashboard', href: '/dashboard', icon: 'dashboard' },
+      { label: 'Scanner', href: '/scanner', icon: 'scanner' },
+      { label: 'Usuario', href: profileRoute, icon: 'usuario' }
+    ];
+  } else {
+    // Cliente (USER): sin acceso directo a Dashboard ni Scanner
+    items = [
+      { label: 'Inicio', href: homeRoute, icon: 'home' },
+      { label: 'QR', href: '/qr', icon: 'qr' },
+      { label: 'Usuario', href: profileRoute, icon: 'usuario' }
+    ];
+  }
+    items.forEach((item) => {
+    const href = normalizePath(item.href);
+    const isQr = isSameRoute(href, '/qr');
+
+    // Para ADMIN: Ocultar Scanner en su propia vista
+    // Para USER: SIEMPRE mostrar los 3 items (Inicio, QR, Usuario)
+    if (rol === 'ADMIN' && isSameRoute(href, currentPath) && !isQr) {
+      return;
     }
     
     // Si es el item de perfil/usuario, usar la ruta correcta según la sesión
@@ -110,32 +142,24 @@ function renderBottomNavigation(items) {
     const label = item?.label || '';
     const iconName = (item?.icon || '').toLowerCase();
     const iconSrc = item?.src || item?.icon_src || ''; // permitir backends distintos
-
-    // <a class="nav-item" href="...">
     const a = document.createElement('a');
     a.href = href;
     a.className = 'nav-item';
-
-    // icono
-    const iconWrap = document.createElement('div');
-    iconWrap.className = 'nav-icon';
-    iconWrap.appendChild(createIconElement(iconName, iconSrc));
-
-    // etiqueta
-    const span = document.createElement('span');
-    span.className = 'nav-label';
-    span.textContent = label;
-
-    a.appendChild(iconWrap);
-    a.appendChild(span);
-
-    // activo por URL actual (independiente de lo que mande el backend)
+    // Marcar activo la ruta actual
     if (isSameRoute(href, currentPath)) {
       a.classList.add('active');
       a.setAttribute('aria-current', 'page');
     }
 
-    // feedback inmediato al click (sin impedir navegación normal)
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'nav-icon';
+    iconWrap.appendChild(createIconElement(item.icon, ''));
+    const span = document.createElement('span');
+    span.className = 'nav-label';
+    span.textContent = item.label;
+
+    a.appendChild(iconWrap);
+    a.appendChild(span);
     a.addEventListener('click', () => {
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       a.classList.add('active');
@@ -162,11 +186,12 @@ function createIconElement(name, src) {
   span.textContent = getIconEmoji(name);
   return span;
 }
-
 function getIconEmoji(iconName) {
   const map = {
     home: '🏠',
     qr: '📱',
+    scanner: '📷',
+    dashboard: '📊',
     user: '👤',
     usuario: '👤',
     events: '🎉',
@@ -195,7 +220,7 @@ function renderHomeContent(homeData = {}) {
     heroSubheadline.textContent = homeData.hero.subheadline;
   }
 
-  // Acciones (botones)
+   // Acciones (botones)
   const actionsContainer = document.getElementById('actionsContainer');
   if (actionsContainer && Array.isArray(homeData.actions)) {
     actionsContainer.innerHTML = '';
