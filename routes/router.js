@@ -21,6 +21,8 @@ const MetricsRepository = require('../repositories/MetricsRepository');
 const MetricsService = require('../services/MetricsService');
 const RecommendController = require('../controllers/recommendController');
 const TrackingController = require('../controllers/trackingController');
+const AlgoliaRecommendService = require('../services/AlgoliaRecommendService');
+const AlgoliaRecommendController = require('../controllers/algoliaRecommendController');
 
 // Importar controladores
 const UsuariosController = require('../controllers/usuariosController');
@@ -46,6 +48,13 @@ const perfilService = new PerfilService(usuarioRepository, sessionRepository, cu
 const perfilController = new PerfilController(perfilService);
 const recommendController = new RecommendController();
 const trackingController = new TrackingController();
+const algoliaRecommendService = new AlgoliaRecommendService({
+    appId: process.env.ALGOLIA_APP_ID,
+    apiKey: process.env.ALGOLIA_SEARCH_API_KEY,
+    indexName: process.env.ALGOLIA_INDEX_PRODUCTS,
+    db
+});
+const algoliaRecommendController = new AlgoliaRecommendController(algoliaRecommendService);
 
 // Instanciar dependencias para QrController
 const qrRepository = new QrRepository(db);
@@ -341,143 +350,8 @@ const routes = {
             }
         },
 
-        // API: Proxy server-side para evitar bloqueos DNS/CORS en el navegador
-        // GET /api/recommend/looking-similar?objectID=XXX&threshold=70&index=dev_productos
-        '/api/recommend/looking-similar': async (req, res) => {
-            try {
-                const appId = process.env.ALGOLIA_APP_ID;
-                const apiKey = process.env.ALGOLIA_SEARCH_API_KEY;
-                const parsed = url.parse(req.url, true);
-                const indexName = (parsed.query.index || process.env.ALGOLIA_INDEX_PRODUCTS || '').toString();
-                const objectID = (parsed.query.objectID || '').toString();
-                const baseThreshold = Number(parsed.query.threshold ?? 70);
-                const category = parsed.query.category ? String(parsed.query.category) : null;
-                const nofilters = parsed.query.nofilters === '1';
-
-                if (!appId || !apiKey || !indexName || !objectID) {
-                    res.writeHead(400, { 'Content-Type': 'application/json' });
-                    return res.end(JSON.stringify({ ok: false, error: 'ParÃ¡metros requeridos: objectID e Ã­ndice; y variables ALGOLIA_*' }));
-                }
-
-                const hosts = [
-                    `${appId}-dsn.algolianet.com`,
-                    `${appId}-dsn.algolia.net`,
-                    `${appId}-1.algolianet.com`,
-                    `${appId}-2.algolianet.com`,
-                    `${appId}-3.algolianet.com`
-                ];
-                const thresholds = [baseThreshold, 50, 30, 10].filter((v,i,self)=> Number.isFinite(v) && self.indexOf(v)===i);
-
-                let final = null;
-                for (const th of thresholds) {
-                    // probar varios hosts para cada threshold
-                    let success = null;
-                    for (const host of hosts) {
-                        try {
-                            const reqPayload = {
-                                indexName,
-                                objectID,
-                                model: 'looking-similar',
-                                threshold: th,
-                                maxRecommendations: 8
-                            };
-                            if (!nofilters) {
-                                reqPayload.queryParameters = { optionalFilters: ['activo:true', 'stock>0'] };
-                                if (category) {
-                                    reqPayload.queryParameters.facetFilters = [[`category:${category}`]];
-                                }
-                            }
-                            const body = { requests: [reqPayload] };
-                            const r = await fetch(`https://${host}/1/indexes/*/recommendations`, {
-                                method: 'POST',
-                                headers: {
-                                    'x-algolia-application-id': appId,
-                                    'x-algolia-api-key': apiKey,
-                                    'content-type': 'application/json'
-                                },
-                                body: JSON.stringify(body)
-                            });
-                            const json = await r.json().catch(() => ({}));
-                            if (r.ok || r.status !== 0) {
-                                success = { host, status: r.status, ok: r.ok, json };
-                                break;
-                            }
-                        } catch (_) { /* intenta siguiente host */ }
-                    }
-                    if (success) {
-                        const hits = success.json?.results?.[0]?.hits ?? [];
-                        if (hits.length > 0) {
-                            final = { threshold: th, host: success.host, hits };
-                            break;
-                        } else {
-                            final = final || { threshold: th, host: success.host, hits: [] };
-                        }
-                    }
-                }
-                if (!final) {
-                    res.writeHead(502, { 'Content-Type': 'application/json' });
-                    return res.end(JSON.stringify({ ok: false, error: 'No se pudo contactar a Algolia Recommend' }));
-                }
-
-                // Fallback: si no hay resultados tras probar thresholds, intenta related-products
-                if (!final.hits || final.hits.length === 0) {
-                    let rpSuccess = null;
-                    for (const host of hosts) {
-                        try {
-                            const rpPayload = {
-                                indexName,
-                                objectID,
-                                model: 'related-products',
-                                maxRecommendations: 8
-                            };
-                            if (!nofilters) {
-                                rpPayload.queryParameters = { optionalFilters: ['activo:true', 'stock>0'] };
-                                if (category) {
-                                    rpPayload.queryParameters.facetFilters = [[`category:${category}`]];
-                                }
-                            }
-                            const r = await fetch(`https://${host}/1/indexes/*/recommendations`, {
-                                method: 'POST',
-                                headers: {
-                                    'x-algolia-application-id': appId,
-                                    'x-algolia-api-key': apiKey,
-                                    'content-type': 'application/json'
-                                },
-                                body: JSON.stringify({ requests: [rpPayload] })
-                            });
-                            const json = await r.json().catch(() => ({}));
-                            if (r.ok || r.status !== 0) {
-                                rpSuccess = { host, status: r.status, ok: r.ok, json };
-                                break;
-                            }
-                        } catch (_) { /* siguiente host */ }
-                    }
-                    let hits = rpSuccess?.json?.results?.[0]?.hits ?? [];
-                    if (!hits.length) {
-                        try {
-                            // Fallback final desde BD: sugerencias por categorÃ­a o aleatorias
-                            const params = [];
-                            let sql = `SELECT id::text AS "objectID", nombre AS name, image_url AS image, puntos_requeridos AS price, url,
-                                              category, brand, tags
-                                       FROM productos
-                                       WHERE activo = TRUE AND (stock IS NULL OR stock > 0)`;
-                            if (category) { sql += ' AND category = $1'; params.push(category); }
-                            sql += ' ORDER BY random() LIMIT 8';
-                            const r = await db.query(sql, params);
-                            hits = r.rows;
-                        } catch (_) { /* ignora error de BD */ }
-                    }
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    return res.end(JSON.stringify({ ok: true, indexName, objectID, thresholdTried: thresholds, usedThreshold: final.threshold, fallbackModel: 'related-products|db', hits }));
-                }
-
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ ok: true, indexName, objectID, thresholdTried: thresholds, usedThreshold: final.threshold, hits: final.hits }));
-            } catch (err) {
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ ok: false, error: err.message }));
-            }
-        },
+        // Proxy Algolia (MVC): controlador + servicio
+        '/api/recommend/looking-similar': (req, res) => algoliaRecommendController.lookingSimilar(req, res),
 
         // Recomendaciones personalizadas: Trending + Personalization
         // GET /api/recommend/for-you?index=dev_productos&category=Comida
