@@ -85,18 +85,15 @@ const metricsController = new MetricsController(metricsService);
 // DefiniciÃ³n de rutas
 const routes = {
     'GET': {
-        '/': serveView('index.html'),            // << antes: HomeController.index
-        '/home': serveView('home.html'),
-        '/home_client': serveView('home_client.html'),
-        '/home_admin': serveView('home_admin.html'),
+        '/': serveView('index.html'),
         '/login': serveView('login.html'),
-        '/usuario': serveView('perfil-usuario.html'),
         '/register': serveView('register.html'),
         '/dashboard': serveView('dashboard.html'),
         '/home-usuario': serveView('home-usuario.html'),
         '/home-admin': serveView('home-admin.html'),
         '/perfil-usuario': serveView('perfil-usuario.html'),
         '/perfil-admin': serveView('perfil-admin.html'),
+        '/usuario': serveView('perfil-usuario.html'),
         '/editar-perfil': serveView('editar-perfil.html'),
         '/reset-password': serveView('reset-password.html'),
         '/qr': serveView('qr.html'),
@@ -174,7 +171,7 @@ const routes = {
                 where.push('activo = TRUE');
                 if (hasStock) where.push('(stock IS NULL OR stock > 0)');
                 if (hasCategory && category) { params.push(category); where.push(`category = $${params.length}`); }
-                if (q) { params.push(`%${q}%`); where.push(`unaccent(lower(nombre)) LIKE unaccent(lower($${params.length}))`); }
+                if (q) { params.push(`%${q}%`); where.push(`lower(nombre) LIKE lower($${params.length})`); }
 
                 const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
 
@@ -221,8 +218,9 @@ const routes = {
                     categories
                 }));
             } catch (err) {
+                console.error('Error en /api/productos:', err.message);
                 res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ success: false, error: err.message }));
+                res.end(JSON.stringify({ success: false, error: 'No se pudo cargar el catálogo. Intenta de nuevo más tarde.' }));
             }
         },
 

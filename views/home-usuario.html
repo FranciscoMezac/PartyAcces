@@ -6,15 +6,70 @@
   <title>PartyAccess - Inicio (Cliente)</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/public/css/styles.css">
+  <style>
+    /* Espaciado para la barra inferior */
+    body {
+      padding-bottom: 100px;
+    }
+    
+    /* Hero section con mejor espaciado */
+    .hero-section {
+      padding: 2rem 1rem;
+    }
+    .hero-section h1 {
+      font-size: 1.75rem;
+    }
+    .hero-section .lead {
+      font-size: 1rem;
+    }
+    /* Botones responsivos */
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 0 1rem;
+      max-width: 400px;
+      margin: 0 auto 2rem;
+    }
+    .action-buttons .btn {
+      width: 100%;
+      padding: 0.875rem 1.5rem;
+      font-size: 1rem;
+    }
+     /* En pantallas más grandes, botones en fila */
+    @media (min-width: 576px) {
+      .hero-section h1 {
+        font-size: 2.5rem;
+      }
+      .hero-section .lead {
+        font-size: 1.25rem;
+      }
+      .action-buttons {
+        flex-direction: row;
+        justify-content: center;
+        max-width: none;
+        flex-wrap: wrap;
+      }
+      .action-buttons .btn {
+        width: auto;
+      }
+    }
+    /* Sección de recomendados */
+    .recommend-block {
+      margin-top: 1.5rem;
+      padding: 0 1rem;
+    }
+    .recommend-block h2 {
+      font-size: 1.25rem;
+    }
+  </style>
 </head>
 <body>
-  <!-- Navbar superior (solo brand) -->
+   <!-- Navbar superior -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
       <a class="navbar-brand" href="/home-usuario">PartyAccess</a>
-
-      <!-- Toggler vanilla (opcional) -->
-      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Men�">
+      <button class="navbar-toggler" type="button" id="navToggle" aria-controls="navbarNav" aria-expanded="false" aria-label="Menú">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
@@ -26,75 +81,53 @@
       </div>
     </div>
   </nav>
-
   <!-- Contenido principal -->
   <main class="container">
-    <div class="row mt-5">
+    <div class="row">
       <div class="col-12">
         <!-- Hero -->
-        <div class="hero-section text-center mb-5">
-          <h1 class="display-4">Bienvenido a PartyAccess</h1>
+          <div class="hero-section text-center">
+          <h1 id="heroWelcome">Bienvenido a PartyAccess</h1>
           <p class="lead">Tu pase a la diversión: ingresa con QR y acumula puntos por consumo.</p>
           <p class="text-muted">Gestiona tu acceso y beneficios desde tu móvil, sin filas.</p>
         </div>
-
         <!-- Acciones cliente -->
-        <div class="text-center mb-5">
-          <a class="btn btn-primary btn-lg me-2" href="/qr">Ver mi QR</a>
-          <a class="btn btn-success btn-lg me-2" href="/puntos/canjear">Canjear productos</a>
+          <div class="action-buttons">
+          <a class="btn btn-primary btn-lg" href="/qr">Ver mi QR</a>
+          <a class="btn btn-success btn-lg" href="/puntos/canjear">Canjear productos</a>
           <a class="btn btn-outline-secondary btn-lg" href="/perfil-usuario">Mi perfil</a>
         </div>
 
-        <!-- Bloque informativo -->
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Próximos eventos</h5>
-            <p class="card-text">
-              Descubre promociones, listas de invitados y experiencias únicas pensadas para ti.
-            </p>
+<!-- Recomendado para ti -->
+        <section class="recommend-block" data-carousel="for-you">
+          <div class="recommend-header">
+            <div>
+              <h2>Recomendado para ti</h2>
+              <p class="text-muted mb-0">Basado en tu actividad y tendencias de la noche.</p>
+            </div>
+            <div class="carousel-controls">
+              <button class="carousel-btn" type="button" aria-label="Ver anterior" data-carousel-btn="prev">&#8249;</button>
+              <button class="carousel-btn" type="button" aria-label="Ver siguiente" data-carousel-btn="next">&#8250;</button>
+            </div>
           </div>
-        </div>
+          <div class="recommend-carousel">
+            <div class="recommend-window">
+              <div id="for-you" class="recommend-track" role="list"></div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
-      <!-- Recomendado para ti -->
-    <section class="recommend-block" data-carousel="for-you">
-      <div class="recommend-header">
-        <div>
-          <h2>Recomendado para ti</h2>
-          <p class="text-muted mb-0">Basado en tu actividad y tendencias de la noche.</p>
-        </div>
-        <div class="carousel-controls">
-          <button class="carousel-btn" type="button" aria-label="Ver anterior" data-carousel-btn="prev">&#8249;</button>
-          <button class="carousel-btn" type="button" aria-label="Ver siguiente" data-carousel-btn="next">&#8250;</button>
-        </div>
-      </div>
-      <div class="recommend-carousel">
-        <div class="recommend-window">
-          <div id="for-you" class="recommend-track" role="list"></div>
-        </div>
-      </div>
-    </section></main>
-
-  <!-- Bottom Navigation (cliente) -->
+  </main>
+  <!-- Bottom Navigation (dinámico) -->
   <nav class="bottom-nav">
     <div class="nav-container" id="bottomNavContainer">
-      <a href="/home-usuario" class="nav-item active">
-        <div class="nav-icon"><span class="icon-emoji">🏠</span></div>
-        <span class="nav-label">Inicio</span>
-      </a>
-      <a href="/qr" class="nav-item">
-        <div class="nav-icon"><span class="icon-emoji">📱</span></div>
-        <span class="nav-label">QR</span>
-      </a>
-      <a href="/perfil-usuario" class="nav-item">
-        <div class="nav-icon"><span class="icon-emoji">👤</span></div>
-        <span class="nav-label">Usuario</span>
-      </a>
+      <!-- Los items se renderizan con /public/js/navigation.js -->
     </div>
   </nav>
-
-  <!-- JS vanilla para el toggler del navbar superior -->
+  <!-- Scripts -->
   <script src="/public/js/nav-toggle.js"></script>
+  <script src="/public/js/navigation.js"></script>
   <script src="/public/js/home-usuario.js"></script>
     <script>
     (function(){
@@ -117,7 +150,7 @@
       const carousel = track?.closest('[data-carousel="for-you"]') || null;
       const prevBtn = carousel?.querySelector('[data-carousel-btn="prev"]');
       const nextBtn = carousel?.querySelector('[data-carousel-btn="next"]');
-
+      
       const scrollByStep = (dir) => {
         if (!track) return;
         const card = track.querySelector('.recommend-card');
@@ -131,7 +164,6 @@
         if (prevBtn) prevBtn.disabled = left <= 4;
         if (nextBtn) nextBtn.disabled = left >= max - 4;
       };
-
       prevBtn?.addEventListener('click', () => scrollByStep(-1));
       nextBtn?.addEventListener('click', () => scrollByStep(1));
       track?.addEventListener('scroll', () => updateControls(), { passive: true });
@@ -140,7 +172,7 @@
         if (!track) return;
         track.innerHTML = '<div class="carousel-empty">Cargando recomendaciones...</div>';
         updateControls();
-        try {
+        try { 
           const res = await fetch(`/api/recommend/cf?userToken=${encodeURIComponent(userToken)}`);
           const data = await res.json();
           const items = Array.isArray(data?.hits) ? data.hits : [];
@@ -151,7 +183,6 @@
             updateControls();
             return;
           }
-
           const frag = document.createDocumentFragment();
           const badgeLabel = sourceLabels[data?.source] || 'Sugerido';
           for (const it of items){
@@ -185,7 +216,7 @@
             const p = document.createElement('p');
             p.textContent = (it.price ?? '') + ' pts';
             card.appendChild(p);
-
+            
             const a = document.createElement('a');
             a.className = 'btn';
             a.href = '/puntos/canjear';
@@ -209,21 +240,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

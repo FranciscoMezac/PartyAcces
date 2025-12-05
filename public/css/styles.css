@@ -62,7 +62,36 @@ body {
 
 /* Tablas */
 .table-responsive { border-radius: 8px; }
-.table thead th { background-color: #f8f9fa; font-weight: 600; border-bottom: 2px solid #dee2e6; }
+.table thead th { font-weight: 600; border-bottom: 2px solid #dee2e6; }
+
+/* Fix para tablas con encabezado oscuro - asegurar texto visible */
+.table-dark,
+.table-dark th,
+.table-dark td,
+thead.table-dark,
+thead.table-dark th,
+thead.table-dark tr,
+.table thead.table-dark th {
+  color: #ffffff !important;
+  background-color: #212529 !important;
+  --bs-table-bg: #212529 !important;
+  --bs-table-color: #ffffff !important;
+}
+
+/* Tabla con filas alternadas - asegurar texto visible */
+.table-striped tbody tr td,
+.table-hover tbody tr td,
+.table tbody tr td {
+  color: #212529 !important;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Asegurar que el mensaje "No hay usuarios" sea visible */
+.table tbody td {
+  color: #212529 !important;
+}
 
 /* Spinner */
 .spinner-border { width: 3rem; height: 3rem; }

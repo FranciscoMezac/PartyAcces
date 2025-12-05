@@ -30,12 +30,13 @@ class PanelService {
         for (const acceso of accesos) {
             const usuario = await this.#usuarioRepository.findById(acceso.usuario_id);
             if (usuario) {
+                const fechaHora = acceso.fecha_hora_chile || acceso.fecha_hora;
                 items.push({
                     usuarioId: usuario.usuarioId,
                     nombre: usuario.nombre,
                     rut: usuario.rut,
                     email: usuario.email,
-                    fechaHora: acceso.fecha_hora
+                    fechaHora
                 });
             }
         }

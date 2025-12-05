@@ -1,7 +1,7 @@
 ﻿# Environment defaults
 PORT=3000
 NODE_ENV=development
-DB_HOST=magallanes.icci-unap.cl
+DB_HOST=146.83.165.21
 DB_PORT=5432
 DB_USER=fsciaraffiac
 DB_PASSWORD=fsciaraffiac2025
