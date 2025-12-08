@@ -10,18 +10,14 @@ ALTER COLUMN contrasenia TYPE VARCHAR(256),
 ALTER COLUMN rol TYPE VARCHAR(50),
 ALTER COLUMN estado TYPE VARCHAR(50);
 
--- Tabla: cuenta_puntos
-ALTER TABLE cuenta_puntos 
+-- Tabla: cuentas (nombre real de la tabla)
+ALTER TABLE cuentas 
 ALTER COLUMN rut TYPE VARCHAR(20);
 
--- Tabla: sesiones (si existe)
-DO $$ 
-BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'sesiones') THEN
-        EXECUTE 'ALTER TABLE sesiones ALTER COLUMN rut TYPE VARCHAR(20)';
-        EXECUTE 'ALTER TABLE sesiones ALTER COLUMN token TYPE VARCHAR(256)';
-    END IF;
-END $$;
+-- Tabla: sesiones
+ALTER TABLE sesiones 
+ALTER COLUMN rut TYPE VARCHAR(20),
+ALTER COLUMN token TYPE VARCHAR(256);
 
 -- Limpiar espacios existentes en todas las tablas
 UPDATE usuario SET 
@@ -32,7 +28,7 @@ UPDATE usuario SET
     rol = TRIM(rol),
     estado = TRIM(estado);
 
-UPDATE cuenta_puntos SET 
+UPDATE cuentas SET 
     rut = TRIM(rut);
 
 -- Verificar cambios
@@ -42,6 +38,6 @@ SELECT
     data_type, 
     character_maximum_length 
 FROM information_schema.columns 
-WHERE table_name IN ('usuario', 'cuenta_puntos', 'sesiones')
+WHERE table_name IN ('usuario', 'cuentas', 'sesiones')
 AND data_type IN ('character', 'character varying')
 ORDER BY table_name, column_name;
