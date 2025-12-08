@@ -22,29 +22,30 @@ class AccesosService {
     /**
      * Guarda el panel registrando salida para todos los usuarios con INGRESO sin SALIDA
      * Guarda el historial del guardado
+     * Sigue el patrón Active Record: Servicio → Modelo → Repositorio
      * @returns {Promise<{procesados: number, totalIngresos: number, historial: Object}>}
      */
     async cerrarJornada() {
         console.log('🔄 Iniciando cierre de jornada...');
         
         try {
-            // Contar TODOS los ingresos del día (incluye reingresos)
-            const totalIngresos = await this.#accesoRepository.countTotalIngresosHoy();
+            // Servicio usa método estático del MODELO (no del repositorio directamente)
+            const totalIngresos = await Acceso.contarTotalIngresosHoy(this.#accesoRepository);
             console.log(`📊 Total ingresos del día: ${totalIngresos}`);
 
-            // Obtener usuarios con ingreso abierto (último movimiento = INGRESO)
-            const usuarioIds = await this.#accesoRepository.findUsuariosConIngresoAbierto();
+            // Servicio usa método estático del MODELO (no del repositorio directamente)
+            const usuarioIds = await Acceso.obtenerUsuariosConIngresoAbierto(this.#accesoRepository);
             console.log(`👥 Usuarios con ingreso abierto: ${usuarioIds.length}`, usuarioIds);
 
             let procesados = 0;
             if (usuarioIds.length > 0) {
-                // Registrar salidas masivas usando método estático del Modelo
+                // Servicio usa método estático del MODELO para registrar salidas masivas
                 console.log('🚪 Registrando salidas masivas...');
                 procesados = await Acceso.registrarSalidasMasivas(usuarioIds, this.#accesoRepository);
                 console.log(`✅ Salidas procesadas: ${procesados}`);
             }
 
-            // Guardar historial del cierre
+            // Guardar historial del cierre usando el MODELO
             let historial = null;
             if (this.#historialCierreRepository) {
                 console.log('📝 Guardando historial...');
@@ -54,6 +55,7 @@ class AccesosService {
                     observaciones: `Guardado manual por administrador - ${procesados} salidas registradas de ${totalIngresos} ingresos totales`
                 }, this.#historialCierreRepository);
 
+                // El Modelo se registra a sí mismo
                 historial = await cierreHistorial.registrar();
                 console.log('✅ Historial guardado');
             }

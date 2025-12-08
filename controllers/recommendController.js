@@ -56,10 +56,10 @@ class RecommendController {
           const hasImageUrl = !hasImage && await columnExists('image_url');
           const imageColumn = hasImage ? 'image' : (hasImageUrl ? 'image_url' : null);
           const fields = [
-            'id::text AS "objectID"',
-            'nombre AS name',
+            '"objectID"::text AS "objectID"',
+            'name',
             hasDescripcion ? 'descripcion' : "NULL::text AS descripcion",
-            'puntos_requeridos AS price',
+            'price',
             imageColumn ? `${imageColumn} AS image` : "NULL::text AS image"
           ].join(',\n                ');
 
@@ -68,7 +68,7 @@ class RecommendController {
               SELECT
                 ${fields}
               FROM productos
-              WHERE id = ANY($1::int[])
+              WHERE "objectID" = ANY($1::int[])
             `,
             [ids]
           );

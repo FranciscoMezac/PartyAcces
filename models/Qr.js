@@ -96,6 +96,20 @@ class Qr {
         this.#estado = creado.estado;
         return this;
     }
+
+    /**
+     * Busca un QR por referencia (método estático para consulta)
+     * COMPORTAMIENTO: Método estático para operación de búsqueda
+     * @param {string} referencia - Referencia única del QR
+     * @param {QrRepository} qrRepository - Repositorio inyectado
+     * @returns {Promise<Object|null>} - Datos del QR o null si no existe
+     */
+    static async buscarPorReferencia(referencia, qrRepository) {
+        if (!qrRepository) throw new Error('Repositorio no inyectado');
+        if (!referencia) throw new Error('Referencia requerida');
+        
+        return await qrRepository.findByReferencia(referencia);
+    }
 }
 
 module.exports = Qr;

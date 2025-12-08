@@ -1,10 +1,12 @@
 /**
  * Patrón: Service Layer Pattern
  * Propósito: Coordinar la validación de acceso por escaneo de QR
+ * Sigue el patrón Active Record: Servicio → Modelo → Repositorio
  */
 
 const Acceso = require('../models/Acceso');
 const Qr = require('../models/Qr');
+const Usuario = require('../models/Usuario');
 
 class AccesoService {
     #qrRepository;
@@ -44,8 +46,8 @@ class AccesoService {
 
         const referencia = partes[2].replace('REF:', '');
 
-        // Buscar QR en la base de datos
-        const qrData = await this.#qrRepository.findByReferencia(referencia);
+        // Servicio usa método estático del MODELO Qr (no del repositorio directamente)
+        const qrData = await Qr.buscarPorReferencia(referencia, this.#qrRepository);
         if (!qrData) {
             const err = new Error('QR no encontrado');
             err.code = 'NOT_FOUND';
@@ -54,8 +56,10 @@ class AccesoService {
 
         const usuarioId = qrData.usuario_id;
 
-        // Verificar si ya existe acceso reciente (control de duplicados)
+        // Crear instancia del Modelo Acceso con repositorio inyectado
         const acceso = new Acceso({ usuarioId, qrReferencia: referencia }, this.#accesoRepository);
+        
+        // El Modelo se valida a sí mismo
         const yaIngreso = await acceso.existeAccesoReciente();
 
         console.log(`🚪 Usuario ${usuarioId} - Ya ingresó: ${yaIngreso}`);
@@ -67,20 +71,23 @@ class AccesoService {
             throw err;
         }
 
-        // Registrar nuevo acceso
+        // El Modelo se registra a sí mismo
         console.log(`✅ Registrando nuevo acceso para usuario ${usuarioId}`);
         await acceso.registrar();
         console.log(`✅ Acceso registrado:`, acceso.toJSON());
 
-        // Obtener datos del usuario
-        const usuarioData = await this.#usuarioRepository.findById(usuarioId);
+        // Crear instancia del Modelo Usuario con repositorio inyectado
+        const usuario = new Usuario({ usuarioId }, this.#usuarioRepository);
+        
+        // El Modelo se carga a sí mismo
+        await usuario.cargarPorId();
 
         return {
             acceso: acceso.toJSON(),
             usuario: {
-                nombre: usuarioData.nombre,
-                rut: usuarioData.rut,
-                email: usuarioData.email
+                nombre: usuario.nombre,
+                rut: usuario.rut,
+                email: usuario.email
             },
             duplicado: false
         };

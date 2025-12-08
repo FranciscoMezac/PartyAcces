@@ -95,6 +95,30 @@ class Acceso {
     }
 
     /**
+     * Cuenta TODOS los ingresos del día (incluye reingresos)
+     * COMPORTAMIENTO: Método estático para operación de conteo total
+     * @param {AccesoRepository} accesoRepository - Repositorio inyectado
+     * @returns {Promise<number>}
+     */
+    static async contarTotalIngresosHoy(accesoRepository) {
+        if (!accesoRepository) throw new Error('Repositorio no inyectado');
+        
+        return await accesoRepository.countTotalIngresosHoy();
+    }
+
+    /**
+     * Obtiene IDs de usuarios con ingreso abierto (para cierre de jornada)
+     * COMPORTAMIENTO: Método estático para operación de consulta
+     * @param {AccesoRepository} accesoRepository - Repositorio inyectado
+     * @returns {Promise<Array<number>>}
+     */
+    static async obtenerUsuariosConIngresoAbierto(accesoRepository) {
+        if (!accesoRepository) throw new Error('Repositorio no inyectado');
+        
+        return await accesoRepository.findUsuariosConIngresoAbierto();
+    }
+
+    /**
      * Registra salida masiva (cierre de jornada)
      * @param {Array<number>} usuarioIds - IDs de usuarios a registrar salida
      * @returns {Promise<number>} Cantidad de salidas registradas
