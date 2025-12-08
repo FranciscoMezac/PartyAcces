@@ -152,7 +152,7 @@ class AlgoliaRecommendService {
         if (!this.db) return [];
         try {
             const params = [];
-            let sql = `SELECT id::text AS "objectID", nombre AS name, image_url AS image, puntos_requeridos AS price, url,
+            let sql = `SELECT "objectID"::text AS "objectID", name, image, price, url,
                               category, brand, tags
                        FROM productos
                        WHERE activo = TRUE AND (stock IS NULL OR stock > 0)`;

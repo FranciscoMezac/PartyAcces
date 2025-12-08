@@ -186,19 +186,20 @@ const routes = {
 
                 // Query rows
                 const selectFields = [
-                    'id',
-                    'nombre',
-                    'puntos_requeridos',
+                    '"objectID"',
+                    'name',
+                    'image',
+                    'price',
                     hasCategory ? 'category' : "NULL::varchar AS category",
                     hasStock ? 'stock' : "NULL::int AS stock",
-                    hasAlgolia ? 'COALESCE(algolia_object_id::text, id::text) AS algolia_object_id' : 'id::text AS algolia_object_id'
+                    hasAlgolia ? 'COALESCE(algolia_object_id::text, "objectID"::text) AS algolia_object_id' : '"objectID"::text AS algolia_object_id'
                 ].join(', ');
 
                 const r = await db.query(
                     `SELECT ${selectFields}
                      FROM productos
                      ${whereSql}
-                     ORDER BY puntos_requeridos ASC, nombre ASC
+                     ORDER BY price ASC, name ASC
                      LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
                     [...params, ps, offset]
                 );
@@ -443,7 +444,7 @@ const routes = {
                 if (!hits.length) {
                     try {
                         const params = [];
-                        let sql = `SELECT id::text AS "objectID", nombre AS name, image_url AS image, puntos_requeridos AS price, url,
+                        let sql = `SELECT "objectID"::text AS "objectID", name, image, price, url,
                                           category, brand, tags
                                    FROM productos
                                    WHERE activo = TRUE AND (stock IS NULL OR stock > 0)`;

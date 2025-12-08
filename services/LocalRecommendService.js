@@ -19,10 +19,13 @@ class LocalRecommendService {
           const { rows } = await this.db.query(sql);
           const cols = rows.map((r) => r.column_name);
           const has = (name) => cols.includes(name);
+          const hasImageCol = has('image');
+          const hasImageUrlCol = has('image_url');
           return {
             hasCategory: has('category'),
             hasDescription: has('descripcion'),
-            hasImage: has('image_url'),
+            hasImage: hasImageCol || hasImageUrlCol,
+            imageColumn: hasImageCol ? 'image' : (hasImageUrlCol ? 'image_url' : null),
             hasStock: has('stock')
           };
         } catch (error) {
@@ -31,6 +34,7 @@ class LocalRecommendService {
             hasCategory: false,
             hasDescription: false,
             hasImage: false,
+            imageColumn: null,
             hasStock: false
           };
         }
@@ -50,7 +54,7 @@ class LocalRecommendService {
         ${categorySelect},
         MAX(t.ocurrido_en) AS last_click
       FROM tracking_eventos t
-      JOIN productos p ON p.id = t.producto_id
+      JOIN productos p ON p."objectID" = t.producto_id
       WHERE t.user_token = $1
         AND t.tipo_evento = 'click'
       GROUP BY t.producto_id${groupByCategory}
@@ -62,7 +66,7 @@ class LocalRecommendService {
   }
 
   async getTopProducts({ category = null, excludeId = null, limit = 8 }) {
-    const { hasCategory, hasDescription, hasImage, hasStock } = await this.getSchema();
+    const { hasCategory, hasDescription, hasImage, imageColumn, hasStock } = await this.getSchema();
 
     const baseParams = [];
     const baseWhere = ['p.activo = TRUE'];
@@ -72,12 +76,12 @@ class LocalRecommendService {
     }
     if (excludeId) {
       baseParams.push(excludeId);
-      baseWhere.push(`p.id <> $${baseParams.length}`);
+      baseWhere.push(`p."objectID" <> $${baseParams.length}`);
     }
 
     const categorySelect = hasCategory ? 'p.category AS category' : 'NULL::text AS category';
     const descriptionSelect = hasDescription ? 'p.descripcion AS description' : 'NULL::text AS description';
-    const imageSelect = hasImage ? 'p.image_url AS image' : 'NULL::text AS image';
+    const imageSelect = hasImage && imageColumn ? `p.${imageColumn} AS image` : 'NULL::text AS image';
 
     const runQuery = async ({ enforceStock = true, take = limit }) => {
       const params = [...baseParams];
@@ -100,21 +104,21 @@ class LocalRecommendService {
           GROUP BY producto_id
         )
         SELECT
-          p.id,
-          p.nombre,
+          p."objectID" AS id,
+          p.name AS nombre,
           ${descriptionSelect},
-          p.puntos_requeridos AS price,
+          p.price,
           ${imageSelect},
           ${categorySelect},
           COALESCE(s.clicks, 0) AS clicks,
           s.last_click
         FROM productos p
-        LEFT JOIN stats s ON s.producto_id = p.id
+        LEFT JOIN stats s ON s.producto_id = p."objectID"
         ${whereSql}
         ORDER BY
           COALESCE(s.clicks, 0) DESC,
           s.last_click DESC NULLS LAST,
-          p.nombre ASC
+          p.name ASC
         LIMIT $${limitParam}
       `;
       const { rows } = await this.db.query(sql, params);

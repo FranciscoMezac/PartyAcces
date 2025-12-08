@@ -122,6 +122,7 @@
     try {
       const res = await fetch(`${ENDPOINT_PRODUCTS}?${params.toString()}`);
       const data = await res.json();
+      console.log('🔍 Datos de productos recibidos:', data.data); // DEBUG: Ver estructura de datos
       if (!res.ok || !data.success) throw new Error(data.error || 'No fue posible cargar los productos');
       state.products = Array.isArray(data.data) ? data.data : [];
       renderCatalog(state.products);
@@ -156,10 +157,10 @@
       card.className = 'card';
       card.innerHTML = `
         <div>
-          <h3>${product.nombre || 'Producto'}</h3>
-          <p>${product.puntos_requeridos ?? product.price ?? 0} pts</p>
+          <h3>${product.name || product.nombre || 'Producto'}</h3>
+          <p>${product.price ?? product.puntos_requeridos ?? 0} pts</p>
         </div>
-        <button type="button" data-product="${product.id}">${state.mode === 'worker' ? 'Canjear' : 'Seleccionar'}</button>
+        <button type="button" data-product="${product.objectID || product.id}">${state.mode === 'worker' ? 'Canjear' : 'Seleccionar'}</button>
       `;
       card.querySelector('button').addEventListener('click', () => onProductSelected(product));
       frag.appendChild(card);
@@ -206,29 +207,30 @@
     state.selectedProduct = product;
     if (state.mode === 'worker') {
       if (elements.workerProduct) {
-        elements.workerProduct.value = `${product.nombre} - ${product.puntos_requeridos} pts`;
+        elements.workerProduct.value = `${product.name || product.nombre} - ${product.price ?? product.puntos_requeridos} pts`;
       }
       if (elements.workerProductId) {
-        elements.workerProductId.value = product.id;
+        elements.workerProductId.value = product.objectID || product.id;
       }
       if (elements.btnWorkerRedeem) {
         elements.btnWorkerRedeem.disabled = false;
       }
       showStatus('success', 'Producto listo para canjear. Completa el RUT y confirma.');
     } else {
-      showStatus('success', `Seleccionaste ${product.nombre}.`);
+      showStatus('success', `Seleccionaste ${product.name || product.nombre}.`);
       sendTracking('click', product);
       loadRecommendations(product);
     }
   }
 
   async function sendTracking(eventType, product) {
-    if (!product || !product.id) return;
+    const prodId = product.objectID || product.id;
+    if (!product || !prodId) return;
     const user = getStoredUser();
     const payload = {
       eventType,
-      productoId: product.id,
-      objectId: product.algolia_object_id || product.id,
+      productoId: prodId,
+      objectId: product.algolia_object_id || prodId,
       userToken: state.userToken,
       usuarioId: user?.usuarioId || null,
       rut: user?.rut || null,
@@ -249,7 +251,7 @@
     if (!elements.recGrid) return;
     elements.recGrid.innerHTML = '<p class="muted">Buscando recomendaciones...</p>';
     try {
-      const objectID = product.algolia_object_id || product.id;
+      const objectID = product.algolia_object_id || product.objectID || product.id;
       const params = new URLSearchParams({
         objectID: objectID,
         threshold: '70'

@@ -45,26 +45,26 @@ async function main() {
   const hasCategory = await columnExists('productos', 'category');
   const hasBrand = await columnExists('productos', 'brand');
   const hasTags = await columnExists('productos', 'tags');
-  const hasImage = await columnExists('productos', 'image_url');
+  const hasImage = await columnExists('productos', 'image');
   const hasUrl = await columnExists('productos', 'url');
   const hasStock = await columnExists('productos', 'stock');
 
   const select = [
-    'id',
-    'nombre',
-    'puntos_requeridos',
+    '"objectID" AS id',
+    'name AS nombre',
+    'price AS puntos_requeridos',
     'activo',
-    hasAlgoliaId ? 'COALESCE(algolia_object_id::text, id::text) AS algolia_object_id' : "id::text AS algolia_object_id",
+    hasAlgoliaId ? 'COALESCE(algolia_object_id::text, "objectID"::text) AS algolia_object_id' : '"objectID"::text AS algolia_object_id',
     hasCategory ? 'category' : "NULL::varchar AS category",
     hasBrand ? 'brand' : "NULL::varchar AS brand",
     hasTags ? 'tags' : "ARRAY[]::text[] AS tags",
-    hasImage ? 'image_url' : "NULL::text AS image_url",
+    hasImage ? 'image AS image_url' : "NULL::text AS image_url",
     hasUrl ? 'url' : "NULL::text AS url",
     hasStock ? 'stock' : "NULL::int AS stock"
   ].join(', ');
 
   const where = exportAll ? '' : 'WHERE activo = TRUE';
-  const sql = `SELECT ${select} FROM productos ${where} ORDER BY nombre ASC`;
+  const sql = `SELECT ${select} FROM productos ${where} ORDER BY name ASC`;
 
   const r = await db.query(sql);
   const records = r.rows.map(toAlgoliaRecord);

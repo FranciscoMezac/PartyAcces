@@ -16,6 +16,12 @@ const server = http.createServer((req, res) => {
         return;
     }
     
+    // Servir archivos desde /img, /css, /js mapeándolos a /public
+    if (pathname.startsWith('/img/') || pathname.startsWith('/css/') || pathname.startsWith('/js/')) {
+        serveStaticFile('/public' + pathname, res);
+        return;
+    }
+    
     // Parsear el cuerpo de la petición para POST
     let body = '';
     req.on('data', chunk => {

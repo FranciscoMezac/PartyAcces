@@ -52,13 +52,15 @@ class RecommendController {
         const ids = rawHits.map((item) => Number(item.key)).filter((id) => Number.isFinite(id));
         if (ids.length) {
           const hasDescripcion = await columnExists('descripcion');
-          const hasImage = await columnExists('image_url');
+          const hasImage = await columnExists('image');
+          const hasImageUrl = !hasImage && await columnExists('image_url');
+          const imageColumn = hasImage ? 'image' : (hasImageUrl ? 'image_url' : null);
           const fields = [
             'id::text AS "objectID"',
             'nombre AS name',
             hasDescripcion ? 'descripcion' : "NULL::text AS descripcion",
             'puntos_requeridos AS price',
-            hasImage ? 'image_url AS image' : "NULL::text AS image"
+            imageColumn ? `${imageColumn} AS image` : "NULL::text AS image"
           ].join(',\n                ');
 
           const { rows } = await db.query(

@@ -93,15 +93,15 @@ class MetricsRepository {
     const sql = `
       SELECT
         te.producto_id AS product_id,
-        COALESCE(p.nombre, CONCAT('Producto #', te.producto_id)) AS name,
+        COALESCE(p.name, CONCAT('Producto #', te.producto_id)) AS name,
         COALESCE(SUM(CASE WHEN te.tipo_evento = 'view' THEN 1 ELSE 0 END), 0)::int AS views,
         COALESCE(SUM(CASE WHEN te.tipo_evento = 'click' THEN 1 ELSE 0 END), 0)::int AS clicks,
         COALESCE(SUM(CASE WHEN te.tipo_evento = 'conversion' THEN 1 ELSE 0 END), 0)::int AS conversions
       FROM tracking_eventos te
-      LEFT JOIN productos p ON p.id = te.producto_id
+      LEFT JOIN productos p ON p."objectID" = te.producto_id
       WHERE te.producto_id IS NOT NULL
         AND te.ocurrido_en >= $1 AND te.ocurrido_en < $2
-      GROUP BY te.producto_id, p.nombre
+      GROUP BY te.producto_id, p.name
       ORDER BY conversions DESC, clicks DESC
       LIMIT $3
     `;
