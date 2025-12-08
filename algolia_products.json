@@ -2,7 +2,7 @@
   {
     "objectID": "21",
     "name": "10% descuento en la cuenta",
-    "image": "https://picsum.photos/seed/discount10/400/260",
+    "image": "/img/img_productos/10%-descuento-en-la-cuenta.jpg",
     "price": 900,
     "url": "/rewards/discount-10",
     "category": "Promoción",
@@ -10,7 +10,7 @@
     "tags": [
       "descuento",
       "cuenta",
-      "restorán"
+      "restoran"
     ],
     "activo": true,
     "stock": null
@@ -18,7 +18,7 @@
   {
     "objectID": "22",
     "name": "20% descuento en botella",
-    "image": "https://picsum.photos/seed/discount20/400/260",
+    "image": "/img/img_productos/20%-descuento-en-botella.jpg",
     "price": 2400,
     "url": "/rewards/discount-20",
     "category": "Promoción",
@@ -34,7 +34,7 @@
   {
     "objectID": "19",
     "name": "Acceso VIP pista",
-    "image": "https://picsum.photos/seed/vip/400/260",
+    "image": "/img/img_productos/Acceso-VIP-pista.jpg",
     "price": 3200,
     "url": "/rewards/vip-access",
     "category": "VIP",
@@ -50,7 +50,7 @@
   {
     "objectID": "49",
     "name": "Affogato",
-    "image": "https://picsum.photos/seed/affogato/400/260",
+    "image": "/img/img_productos/Affogato.jpg",
     "price": 1200,
     "url": "/rewards/affogato",
     "category": "Café",
@@ -66,7 +66,7 @@
   {
     "objectID": "32",
     "name": "Agua de pepino",
-    "image": "https://picsum.photos/seed/pepino/400/260",
+    "image": "/img/img_productos/agua-de-pepino.jpg",
     "price": 800,
     "url": "/rewards/agua-pepino",
     "category": "Mocktail",
@@ -82,7 +82,7 @@
   {
     "objectID": "41",
     "name": "Arepa reina pepiada",
-    "image": "https://picsum.photos/seed/arepa/400/260",
+    "image": "/img/img_productos/arepa-pepiada.jpg",
     "price": 1700,
     "url": "/rewards/arepa-reina",
     "category": "Comida",
@@ -98,7 +98,7 @@
   {
     "objectID": "39",
     "name": "Bao de cerdo",
-    "image": "https://picsum.photos/seed/bao/400/260",
+    "image": "/img/img_productos/baos-de-cerdo.jpg",
     "price": 1800,
     "url": "/rewards/bao-cerdo",
     "category": "Comida",
@@ -114,7 +114,7 @@
   {
     "objectID": "14",
     "name": "Brownie + bola de helado",
-    "image": "https://picsum.photos/seed/brownie/400/260",
+    "image": "/img/img_productos/browni-helado.jpg",
     "price": 1200,
     "url": "/rewards/brownie",
     "category": "Comida",
@@ -130,13 +130,13 @@
   {
     "objectID": "15",
     "name": "Café americano",
-    "image": "https://picsum.photos/seed/coffee/400/260",
+    "image": "/img/img_productos/cafe-america.jpg",
     "price": 600,
     "url": "/rewards/coffee",
     "category": "Comida",
     "brand": "Coffee Spot",
     "tags": [
-      "café",
+      "cafe",
       "americano",
       "caliente"
     ],
@@ -146,19 +146,22 @@
   {
     "objectID": "1",
     "name": "Café gratis",
-    "image": null,
+    "image": "/img/img_productos/cafe-gratis.jpg",
     "price": 800,
     "url": null,
-    "category": null,
-    "brand": null,
-    "tags": [],
+    "category": "Bebidas",
+    "brand": "Coffee Spot",
+    "tags": [
+      "cafe",
+      "gratis"
+    ],
     "activo": true,
     "stock": null
   },
   {
     "objectID": "50",
     "name": "Capuccino grande",
-    "image": "https://picsum.photos/seed/capu/400/260",
+    "image": "/img/img_productos/capuccino.jpg",
     "price": 1000,
     "url": "/rewards/capu-grande",
     "category": "Café",
@@ -174,7 +177,7 @@
   {
     "objectID": "4",
     "name": "Cerveza artesanal 2x1",
-    "image": "https://picsum.photos/seed/beer/400/260",
+    "image": "/img/img_productos/Cerveza-artesanal.jpg",
     "price": 1200,
     "url": "/rewards/beer-2x1",
     "category": "Bebidas",
@@ -190,9 +193,9 @@
   {
     "objectID": "47",
     "name": "Cheesecake maracuya",
-    "image": "https://picsum.photos/seed/maracuya/400/260",
+    "image": "/img/img_productos/cheescake-maracuya.jpg",
     "price": 1400,
-    "url": "/rewards/cheesecake-maracuya",
+    "url": "/rewards/cheescake-maracuya",
     "category": "Postre",
     "brand": "Kitchen Lab",
     "tags": [
@@ -206,7 +209,7 @@
   {
     "objectID": "16",
     "name": "Combo burger + bebida",
-    "image": "https://picsum.photos/seed/combo/400/260",
+    "image": "/img/img_productos/burger-bebida.jpg",
     "price": 2600,
     "url": "/rewards/combo-burger",
     "category": "Comida",
@@ -222,7 +225,7 @@
   {
     "objectID": "54",
     "name": "Cover + consumición",
-    "image": "https://picsum.photos/seed/covercons/400/260",
+    "image": "/img/img_productos/Cover-+-consumición.jpg",
     "price": 1800,
     "url": "/rewards/cover-consumo",
     "category": "Entrada",
@@ -238,7 +241,7 @@
   {
     "objectID": "17",
     "name": "Cover sin fila",
-    "image": "https://picsum.photos/seed/cover/400/260",
+    "image": "/img/img_productos/Cover-sin-fila.jpg",
     "price": 1800,
     "url": "/rewards/cover-fast",
     "category": "Entrada",
@@ -254,7 +257,7 @@
   {
     "objectID": "48",
     "name": "Creme brulee",
-    "image": "https://picsum.photos/seed/brulee/400/260",
+    "image": "/img/img_productos/Creme-brúlee.jpg",
     "price": 1500,
     "url": "/rewards/creme-brulee",
     "category": "Postre",
@@ -270,7 +273,7 @@
   {
     "objectID": "38",
     "name": "Croquetas de jamón (6u)",
-    "image": "https://picsum.photos/seed/croquetas/400/260",
+    "image": "/img/img_productos/croquetas-de-jamon.jpg",
     "price": 1700,
     "url": "/rewards/croquetas-jamon",
     "category": "Comida",
@@ -286,13 +289,13 @@
   {
     "objectID": "23",
     "name": "Cupón $5.000 consumo",
-    "image": "https://picsum.photos/seed/coupon/400/260",
+    "image": "/img/img_productos/Cupon-5000-consumo.jpg",
     "price": 5000,
     "url": "/rewards/coupon-5000",
     "category": "Promoción",
     "brand": "Bar Central",
     "tags": [
-      "cupón",
+      "cupon",
       "consumo",
       "saldo"
     ],
@@ -302,7 +305,7 @@
   {
     "objectID": "31",
     "name": "Dark & Stormy",
-    "image": "https://picsum.photos/seed/darkstormy/400/260",
+    "image": "/img/img_productos/Dark-&-Stormy.jpg",
     "price": 1650,
     "url": "/rewards/dark-stormy",
     "category": "Coctel",
@@ -318,19 +321,22 @@
   {
     "objectID": "2",
     "name": "Descuento $2.000",
-    "image": null,
+    "image": "/img/img_productos/descuento-2000.jpg",
     "price": 2000,
     "url": null,
-    "category": null,
-    "brand": null,
-    "tags": [],
+    "category": "Promoción",
+    "brand": "Bar Central",
+    "tags": [
+      "descuento",
+      "promo"
+    ],
     "activo": true,
     "stock": null
   },
   {
     "objectID": "53",
     "name": "Descuento 25% en cuenta",
-    "image": "https://picsum.photos/seed/desc25/400/260",
+    "image": "/img/img_productos/Descuento-25%-en-cuenta.jpg",
     "price": 1700,
     "url": "/rewards/desc-25",
     "category": "Promoción",
@@ -346,7 +352,7 @@
   {
     "objectID": "24",
     "name": "Entrada anticipada (antes 23:00)",
-    "image": "https://picsum.photos/seed/early/400/260",
+    "image": "/img/img_productos/Entrada-anticipada_antes-2300.jpg",
     "price": 700,
     "url": "/rewards/early-entry",
     "category": "Entrada",
@@ -362,19 +368,22 @@
   {
     "objectID": "3",
     "name": "Entrada VIP",
-    "image": null,
+    "image": "/img/img_productos/Entrada-VIP.jpg",
     "price": 5000,
     "url": null,
-    "category": null,
-    "brand": null,
-    "tags": [],
+    "category": "Entrada",
+    "brand": "Disco Aurora",
+    "tags": [
+      "vip",
+      "entrada"
+    ],
     "activo": true,
     "stock": null
   },
   {
     "objectID": "20",
     "name": "Estacionamiento noche completa",
-    "image": "https://picsum.photos/seed/parking/400/260",
+    "image": "/img/img_productos/Estacionamiento-noche-completa.jpg",
     "price": 1000,
     "url": "/rewards/parking",
     "category": "Entrada",
@@ -390,7 +399,7 @@
   {
     "objectID": "40",
     "name": "Falafel con hummus",
-    "image": "https://picsum.photos/seed/falafel/400/260",
+    "image": "/img/img_productos/falafel-con-humus.jpg",
     "price": 1500,
     "url": "/rewards/falafel-hummus",
     "category": "Comida",
@@ -406,7 +415,7 @@
   {
     "objectID": "30",
     "name": "French 75",
-    "image": "https://picsum.photos/seed/french75/400/260",
+    "image": "/img/img_productos/french-75.jpg",
     "price": 2000,
     "url": "/rewards/french-75",
     "category": "Coctel",
@@ -422,7 +431,7 @@
   {
     "objectID": "5",
     "name": "Gin Tonic clásico",
-    "image": "https://picsum.photos/seed/gintonic/400/260",
+    "image": "/img/img_productos/gin-tonic.jpg",
     "price": 1500,
     "url": "/rewards/gin-tonic",
     "category": "Bebidas",
@@ -430,7 +439,7 @@
     "tags": [
       "gin",
       "tonica",
-      "clásico"
+      "clasico"
     ],
     "activo": true,
     "stock": 150
@@ -438,7 +447,7 @@
   {
     "objectID": "44",
     "name": "Gnocchi al pesto",
-    "image": "https://picsum.photos/seed/gnocchi/400/260",
+    "image": "/img/img_productos/gnocchi-pesto.jpg",
     "price": 1900,
     "url": "/rewards/gnocchi-pesto",
     "category": "Comida",
@@ -454,7 +463,7 @@
   {
     "objectID": "9",
     "name": "Hamburguesa clásica",
-    "image": "https://picsum.photos/seed/burger/400/260",
+    "image": "/img/img_productos/Hamburguesa-clasica.jpg",
     "price": 2200,
     "url": "/rewards/burger",
     "category": "Comida",
@@ -470,7 +479,7 @@
   {
     "objectID": "43",
     "name": "Lasaña bolonesa",
-    "image": "https://picsum.photos/seed/lasagna/400/260",
+    "image": "/img/img_productos/lasagna.jpg",
     "price": 2000,
     "url": "/rewards/lasagna-bolo",
     "category": "Comida",
@@ -486,7 +495,7 @@
   {
     "objectID": "33",
     "name": "Limonada frutilla",
-    "image": "https://picsum.photos/seed/limofrutilla/400/260",
+    "image": "/img/img_productos/limonada-frutilla.jpg",
     "price": 900,
     "url": "/rewards/limonada-frutilla",
     "category": "Mocktail",
@@ -502,7 +511,7 @@
   {
     "objectID": "18",
     "name": "Mesa reservada (2 pax)",
-    "image": "https://picsum.photos/seed/table/400/260",
+    "image": "/img/img_productos/mesa-reservada.jpg",
     "price": 3800,
     "url": "/rewards/mesa-2",
     "category": "VIP",
@@ -518,7 +527,7 @@
   {
     "objectID": "6",
     "name": "Mojito refrescante",
-    "image": "https://picsum.photos/seed/mojito/400/260",
+    "image": "/img/img_productos/mojito.jpg",
     "price": 1500,
     "url": "/rewards/mojito",
     "category": "Bebidas",
@@ -526,7 +535,7 @@
     "tags": [
       "ron",
       "menta",
-      "limón"
+      "limon"
     ],
     "activo": true,
     "stock": 180
@@ -534,7 +543,7 @@
   {
     "objectID": "12",
     "name": "Nachos con guacamole",
-    "image": "https://picsum.photos/seed/nachos/400/260",
+    "image": "/img/img_productos/nachos-guacamole.jpg",
     "price": 1500,
     "url": "/rewards/nachos",
     "category": "Comida",
@@ -550,7 +559,7 @@
   {
     "objectID": "26",
     "name": "Pale Ale artesanal",
-    "image": "https://picsum.photos/seed/pale-ale/400/260",
+    "image": "/img/img_productos/pale-ale.jpg",
     "price": 1250,
     "url": "/rewards/pale-ale",
     "category": "Bebidas",
@@ -566,7 +575,7 @@
   {
     "objectID": "10",
     "name": "Papas fritas con cheddar",
-    "image": "https://picsum.photos/seed/fries/400/260",
+    "image": "/img/img_productos/papas-con-chedar.jpg",
     "price": 1100,
     "url": "/rewards/fries-cheddar",
     "category": "Comida",
@@ -582,7 +591,7 @@
   {
     "objectID": "51",
     "name": "Pase pista ladies night",
-    "image": "https://picsum.photos/seed/ladies/400/260",
+    "image": "/img/img_productos/Pase-pista-Ladies-Night.jpg",
     "price": 1000,
     "url": "/rewards/pase-ladies",
     "category": "Entrada",
@@ -598,7 +607,7 @@
   {
     "objectID": "25",
     "name": "Pinta Stout",
-    "image": "https://picsum.photos/seed/stout/400/260",
+    "image": "/img/img_productos/pinta-stout.jpg",
     "price": 1300,
     "url": "/rewards/pinta-stout",
     "category": "Bebidas",
@@ -614,7 +623,7 @@
   {
     "objectID": "11",
     "name": "Pizza individual pepperoni",
-    "image": "https://picsum.photos/seed/pizza/400/260",
+    "image": "/img/img_productos/pizza-personal-peperoni.jpg",
     "price": 2000,
     "url": "/rewards/pizza-pepperoni",
     "category": "Comida",
@@ -630,7 +639,7 @@
   {
     "objectID": "42",
     "name": "Pizza prosciutto rucula",
-    "image": "https://picsum.photos/seed/prosciutto/400/260",
+    "image": "/img/img_productos/pizza-rucula-prosciutto.jpg",
     "price": 2100,
     "url": "/rewards/pizza-prosciutto",
     "category": "Comida",
@@ -646,7 +655,7 @@
   {
     "objectID": "55",
     "name": "Pulsera area fumadores",
-    "image": "https://picsum.photos/seed/fumadores/400/260",
+    "image": "/img/img_productos/pulsera-fumadores.jpg",
     "price": 600,
     "url": "/rewards/pulsera-fumadores",
     "category": "Entrada",
@@ -662,7 +671,7 @@
   {
     "objectID": "13",
     "name": "Roll de sushi (8 piezas)",
-    "image": "https://picsum.photos/seed/sushi/400/260",
+    "image": "/img/img_productos/roll-sushi.jpg",
     "price": 1800,
     "url": "/rewards/sushi-roll",
     "category": "Comida",
@@ -678,7 +687,7 @@
   {
     "objectID": "45",
     "name": "Roll Philadelphia (8u)",
-    "image": "https://picsum.photos/seed/philadelphia/400/260",
+    "image": "/img/img_productos/rollo-filadelfia.jpg",
     "price": 1800,
     "url": "/rewards/roll-philadelphia",
     "category": "Comida",
@@ -694,7 +703,7 @@
   {
     "objectID": "36",
     "name": "Sándwich ave palta",
-    "image": "https://picsum.photos/seed/avepalta/400/260",
+    "image": "/img/img_productos/ave-palta.jpg",
     "price": 1600,
     "url": "/rewards/sandwich-ave-palta",
     "category": "Comida",
@@ -710,7 +719,7 @@
   {
     "objectID": "35",
     "name": "Shot de limoncello",
-    "image": "https://picsum.photos/seed/limoncello/400/260",
+    "image": "/img/img_productos/limonchello.jpg",
     "price": 1000,
     "url": "/rewards/shot-limoncello",
     "category": "Shots",
@@ -726,7 +735,7 @@
   {
     "objectID": "34",
     "name": "Shot de sambuca",
-    "image": "https://picsum.photos/seed/sambuca/400/260",
+    "image": "/img/img_productos/sambuca.jpg",
     "price": 1100,
     "url": "/rewards/shot-sambuca",
     "category": "Shots",
@@ -742,7 +751,7 @@
   {
     "objectID": "8",
     "name": "Shots 3x2",
-    "image": "https://picsum.photos/seed/shots/400/260",
+    "image": "/img/img_productos/shots-3x2.jpg",
     "price": 1300,
     "url": "/rewards/shots-3x2",
     "category": "Bebidas",
@@ -758,7 +767,7 @@
   {
     "objectID": "27",
     "name": "Sidra de manzana",
-    "image": "https://picsum.photos/seed/cider/400/260",
+    "image": "/img/img_productos/cidra-de-manzada.jpg",
     "price": 1100,
     "url": "/rewards/sidra-manzana",
     "category": "Bebidas",
@@ -774,7 +783,7 @@
   {
     "objectID": "28",
     "name": "Tom Collins",
-    "image": "https://picsum.photos/seed/tomcollins/400/260",
+    "image": "/img/img_productos/tom-collins.jpg",
     "price": 1700,
     "url": "/rewards/tom-collins",
     "category": "Coctel",
@@ -790,7 +799,7 @@
   {
     "objectID": "37",
     "name": "Tortilla española",
-    "image": "https://picsum.photos/seed/tortilla/400/260",
+    "image": "/img/img_productos/tortilla-espanola.jpg",
     "price": 1500,
     "url": "/rewards/tortilla-espanola",
     "category": "Comida",
@@ -806,7 +815,7 @@
   {
     "objectID": "52",
     "name": "Upgrade barra premium",
-    "image": "https://picsum.photos/seed/barpremium/400/260",
+    "image": "/img/img_productos/Upgrade-barra-premium.jpg",
     "price": 2400,
     "url": "/rewards/upgrade-barra",
     "category": "VIP",
@@ -822,7 +831,7 @@
   {
     "objectID": "7",
     "name": "Vodka + jugos (mesa)",
-    "image": "https://picsum.photos/seed/vodka/400/260",
+    "image": "/img/img_productos/vodka-con-jugo.jpg",
     "price": 5000,
     "url": "/rewards/vodka-jugos",
     "category": "Bebidas",
@@ -838,7 +847,7 @@
   {
     "objectID": "29",
     "name": "Whisky Sour",
-    "image": "https://picsum.photos/seed/whiskysour/400/260",
+    "image": "/img/img_productos/wisky-sour.jpg",
     "price": 1900,
     "url": "/rewards/whisky-sour",
     "category": "Coctel",
@@ -854,7 +863,7 @@
   {
     "objectID": "46",
     "name": "Yakimeshi mixto",
-    "image": "https://picsum.photos/seed/yakimeshi/400/260",
+    "image": "/img/img_productos/Yakimeshi.jpg",
     "price": 1600,
     "url": "/rewards/yakimeshi",
     "category": "Comida",

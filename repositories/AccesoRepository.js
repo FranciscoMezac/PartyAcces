@@ -54,7 +54,8 @@ class AccesoRepository {
     /**
      * Obtiene usuarios cuyo último movimiento HOY es INGRESO (están actualmente en el local)
      * Usa zona horaria de Chile para determinar "hoy"
-     * @returns {Promise<Array>} Array con datos del último ingreso
+     * Retorna instancias del Modelo Acceso con repositorio inyectado
+     * @returns {Promise<Array<Acceso>>} Array de instancias de Acceso
      */
     async findIngresosHoy() {
         console.log('🔍 Buscando ingresos de hoy...');
@@ -84,7 +85,9 @@ class AccesoRepository {
         );
         
         console.log('📋 Resultados findIngresosHoy:', r.rows);
-        return r.rows;
+        
+        // Retornar instancias del Modelo con repositorio inyectado
+        return r.rows.map(row => new Acceso(row, this));
     }
 
     /**

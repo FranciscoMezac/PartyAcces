@@ -22,6 +22,21 @@ async function columnExists(table, column) {
   return r.rowCount > 0;
 }
 
+function normalizeTags(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw.map((t) => String(t).trim()).filter(Boolean);
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed.map((t) => String(t).trim()).filter(Boolean);
+    } catch (_) {
+      // not JSON, fallback to comma split
+    }
+    return raw.split(',').map((t) => t.trim()).filter(Boolean);
+  }
+  return [];
+}
+
 function toAlgoliaRecord(row) {
   return {
     objectID: row.algolia_object_id || String(row.id),
@@ -31,7 +46,7 @@ function toAlgoliaRecord(row) {
     url: row.url || null,
     category: row.category || null,
     brand: row.brand || null,
-    tags: Array.isArray(row.tags) ? row.tags : [],
+    tags: normalizeTags(row.tags),
     // atributos útiles para filtros/guardrails en Recommend
     activo: row.activo === true,
     stock: typeof row.stock === 'number' ? row.stock : null
