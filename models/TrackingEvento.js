@@ -225,6 +225,28 @@ class TrackingEvento {
   toString() {
     return `TrackingEvento{id=${this.#id}, tipo=${this.#tipoEvento}, productoId=${this.#productoId}, source=${this.#source}}`;
   }
+
+  /**
+   * Obtiene dataset para sistema de recomendaciones colaborativas
+   * Método de instancia que usa el repositorio inyectado
+   * @returns {Promise<Object>} Dataset en formato { userToken: { productoId: score } }
+   */
+  async obtenerDatasetColaborativo() {
+    if (!this.#repository) throw new Error('Repositorio no inyectado');
+    
+    const rows = await this.#repository.getCollaborativeDataset();
+    
+    // Transformar a formato requerido por librería Recommend
+    const dataSet = {};
+    for (const row of rows) {
+      if (!dataSet[row.token]) {
+        dataSet[row.token] = {};
+      }
+      dataSet[row.token][row.item] = row.score;
+    }
+    
+    return dataSet;
+  }
 }
 
 module.exports = TrackingEvento;

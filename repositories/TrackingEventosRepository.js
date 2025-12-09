@@ -72,6 +72,30 @@ class TrackingEventosRepository {
     const { rows } = await executor.query(sql, params);
     return rows[0];
   }
+
+  /**
+   * Obtiene dataset para motor de recomendaciones colaborativas
+   * Agrega eventos por user_token y producto_id
+   * @returns {Promise<Array<{token: string, item: string, score: number}>>}
+   */
+  async getCollaborativeDataset() {
+    await this.ensurePromise;
+
+    const sql = `
+      SELECT
+        user_token AS token,
+        producto_id::text AS item,
+        COUNT(*)::int AS score
+      FROM tracking_eventos
+      WHERE user_token IS NOT NULL
+        AND producto_id IS NOT NULL
+        AND tipo_evento IN ('view', 'click', 'conversion')
+      GROUP BY user_token, producto_id
+    `;
+
+    const { rows } = await this.db.query(sql);
+    return rows;
+  }
 }
 
 module.exports = TrackingEventosRepository;

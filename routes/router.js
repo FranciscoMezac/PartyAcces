@@ -19,6 +19,10 @@ const AccesosService = require('../services/AccesosService');
 const HistorialService = require('../services/HistorialService');
 const MetricsRepository = require('../repositories/MetricsRepository');
 const MetricsService = require('../services/MetricsService');
+const TrackingEventosRepository = require('../repositories/TrackingEventosRepository');
+const ProductoRepository = require('../repositories/ProductoRepository');
+const LocalRecommendService = require('../services/LocalRecommendService');
+const RecommendCFService = require('../services/RecommendCFService');
 const RecommendController = require('../controllers/recommendController');
 const TrackingController = require('../controllers/trackingController');
 const AlgoliaRecommendService = require('../services/AlgoliaRecommendService');
@@ -46,7 +50,14 @@ const authController = new AuthController(authService);
 // Instanciar dependencias para PerfilController
 const perfilService = new PerfilService(usuarioRepository, sessionRepository, cuentaPuntosRepository);
 const perfilController = new PerfilController(perfilService);
-const recommendController = new RecommendController();
+
+// Instanciar dependencias para RecommendController
+const trackingEventosRepository = new TrackingEventosRepository(db);
+const productoRepository = new ProductoRepository(db);
+const localRecommendService = new LocalRecommendService({ db, limit: 8 });
+const recommendCFService = new RecommendCFService({ trackingRepository: trackingEventosRepository, productoRepository: productoRepository, limit: 8 });
+const recommendController = new RecommendController(localRecommendService, recommendCFService);
+
 const trackingController = new TrackingController();
 const algoliaRecommendService = new AlgoliaRecommendService({
     appId: process.env.ALGOLIA_APP_ID,
