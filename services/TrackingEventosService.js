@@ -1,60 +1,46 @@
-﻿class TrackingEventosService {
+﻿const TrackingEvento = require('../models/TrackingEvento');
+
+class TrackingEventosService {
   constructor({ repository }) {
     this.repository = repository;
   }
 
-  normalizeEventType(value) {
-    if (!value) return null;
-    const normalized = String(value).trim().toLowerCase();
-    if (['view', 'click', 'conversion'].includes(normalized)) {
-      return normalized;
-    }
-    if (normalized === 'select' || normalized === 'seleccion' || normalized === 'select_product') {
-      return 'click';
-    }
-    if (normalized === 'redeem' || normalized === 'redeem_product' || normalized === 'canje') {
-      return 'conversion';
-    }
-    return null;
-  }
-
+  /**
+   * Registra un evento de tracking usando un objeto TrackingEvento
+   * @param {Object|TrackingEvento} payload - Datos del evento o instancia de TrackingEvento
+   * @param {Object} options - Opciones adicionales (ej: client para transacciones)
+   * @returns {Promise<TrackingEvento>} El evento registrado con su ID
+   */
   async registrarEvento(payload = {}, options = {}) {
-    const tipoEvento = this.normalizeEventType(payload.eventType || payload.tipo_evento);
-    if (!tipoEvento) {
-      throw new Error('Tipo de evento inválido');
-    }
+    // Crear instancia de TrackingEvento (si no lo es ya)
+    const evento = payload instanceof TrackingEvento
+      ? payload
+      : new TrackingEvento(payload);
 
-    const productoId = payload.productoId ? Number(payload.productoId) : null;
-    const objectId = payload.objectId || payload.algoliaObjectId || (productoId ? String(productoId) : null);
-    if (!productoId && !objectId) {
-      throw new Error('Falta productoId/objectID para el evento');
-    }
-
-    const evento = {
-      usuarioId: payload.usuarioId ? Number(payload.usuarioId) : null,
-      rut: payload.rut ? String(payload.rut) : null,
-      userToken: payload.userToken ? String(payload.userToken) : null,
-      productoId,
-      objectId,
-      tipoEvento,
-      source: payload.source || payload.origen || null,
-      metadata: payload.metadata || null,
-      ocurridoEn: payload.timestamp ? Number(payload.timestamp) : Date.now(),
-      enviadoAlgolia: false
-    };
+    // Validar el evento usando el método del objeto
+    evento.validar();
 
     try {
-      await this.repository.insert(evento, options.client);
+      // Insertar usando el repositorio
+      const resultado = await this.repository.insert(evento, options.client);
+      evento.id = resultado.id;
+
+      // Enviar a Algolia de forma asíncrona (no bloqueante)
       this.sendToAlgolia(evento).catch((err) => {
         console.warn('[TrackingEventosService] No se pudo enviar a Algolia:', err.message);
       });
-      return { success: true };
+
+      return evento;
     } catch (error) {
       console.error('[TrackingEventosService] Error al registrar evento:', error.message);
       throw error;
     }
   }
 
+  /**
+   * Envía el evento a Algolia Insights API
+   * @param {TrackingEvento} evento - Instancia del evento a enviar
+   */
   async sendToAlgolia(evento) {
     const appId = process.env.ALGOLIA_APP_ID;
     const insightsKey = process.env.ALGOLIA_INSIGHTS_API_KEY;
@@ -63,22 +49,8 @@
       return;
     }
 
-    const apiEvent = {
-      eventType: evento.tipoEvento === 'view'
-        ? 'view'
-        : evento.tipoEvento === 'conversion'
-          ? 'conversion'
-          : 'click',
-      eventName: evento.tipoEvento === 'view'
-        ? 'Producto visto'
-        : evento.tipoEvento === 'conversion'
-          ? 'Producto canjeado'
-          : 'Producto seleccionado',
-      index: indexName,
-      userToken: evento.userToken || `anon_${evento.rut || 'guest'}`,
-      objectIDs: [evento.objectId],
-      timestamp: evento.ocurridoEn || Date.now()
-    };
+    // Usar el método del objeto para obtener el formato Algolia
+    const apiEvent = evento.toAlgoliaEvent(indexName);
 
     const response = await fetch('https://insights.algolia.io/1/events', {
       method: 'POST',

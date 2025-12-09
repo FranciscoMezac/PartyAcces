@@ -1,3 +1,5 @@
+const TrackingEvento = require('../models/TrackingEvento');
+
 class TrackingEventosRepository {
   constructor(db) {
     this.db = db;
@@ -35,8 +37,18 @@ class TrackingEventosRepository {
     await this.db.query(ddl);
   }
 
+  /**
+   * Inserta un evento de tracking en la base de datos
+   * @param {TrackingEvento} evento - Instancia del evento a insertar
+   * @param {Object} client - Cliente de transacción opcional
+   * @returns {Promise<Object>} Objeto con el ID generado
+   */
   async insert(evento, client) {
     await this.ensurePromise;
+
+    // Usar el método toDatabase() del objeto para obtener los datos
+    const data = evento.toDatabase();
+
     const sql = `
       INSERT INTO tracking_eventos
         (usuario_id, rut, user_token, producto_id, object_id, tipo_evento, source, metadata, ocurrido_en, enviado_algolia)
@@ -45,16 +57,16 @@ class TrackingEventosRepository {
       RETURNING id
     `;
     const params = [
-      evento.usuarioId || null,
-      evento.rut || null,
-      evento.userToken || null,
-      evento.productoId || null,
-      evento.objectId || null,
-      evento.tipoEvento,
-      evento.source || null,
-      evento.metadata ? JSON.stringify(evento.metadata) : null,
-      evento.ocurridoEn ? new Date(evento.ocurridoEn) : null,
-      evento.enviadoAlgolia === true
+      data.usuarioId || null,
+      data.rut || null,
+      data.userToken || null,
+      data.productoId || null,
+      data.objectId || null,
+      data.tipoEvento,
+      data.source || null,
+      data.metadata ? JSON.stringify(data.metadata) : null,
+      data.ocurridoEn ? new Date(data.ocurridoEn) : null,
+      data.enviadoAlgolia === true
     ];
     const executor = client || this.db;
     const { rows } = await executor.query(sql, params);

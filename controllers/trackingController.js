@@ -14,13 +14,20 @@ class TrackingController extends BaseController {
   async registrar(req, res) {
     try {
       if (!req.body || Object.keys(req.body).length === 0) {
-        return this.sendError(res, 'El body de la peticiÛn est· vacÌo', 400);
+        return this.sendError(res, 'El body de la petici√≥n est√° vac√≠o', 400);
       }
-      await this.service.registrarEvento(req.body);
-      return this.sendSuccess(res, { message: 'Evento registrado' }, 201);
+      
+      // El servicio ahora devuelve el objeto TrackingEvento registrado
+      const eventoRegistrado = await this.service.registrarEvento(req.body);
+      
+      return this.sendSuccess(res, { 
+        message: 'Evento registrado',
+        eventoId: eventoRegistrado.id,
+        tipoEvento: eventoRegistrado.tipoEvento
+      }, 201);
     } catch (error) {
       const msg = error && error.message ? error.message : 'No fue posible registrar el evento';
-      const status = msg.includes('Falta producto') || msg.includes('Tipo de evento') ? 400 : 500;
+      const status = msg.includes('Falta producto') || msg.includes('Tipo de evento') || msg.includes('inv√°lido') ? 400 : 500;
       return this.sendError(res, msg, status);
     }
   }

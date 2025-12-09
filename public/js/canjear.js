@@ -223,10 +223,18 @@
     }
   }
 
+  /**
+   * Envía un evento de tracking al servidor.
+   * El servidor creará un objeto TrackingEvento y lo validará usando POO.
+   * @param {string} eventType - Tipo de evento ('click', 'view', 'conversion')
+   * @param {Object} product - Producto seleccionado
+   */
   async function sendTracking(eventType, product) {
     const prodId = product.objectID || product.id;
     if (!product || !prodId) return;
     const user = getStoredUser();
+    
+    // Preparamos los datos del evento que el servidor convertirá en un objeto TrackingEvento
     const payload = {
       eventType,
       productoId: prodId,
@@ -236,6 +244,7 @@
       rut: user?.rut || null,
       source: 'canjear-ui'
     };
+    
     try {
       await fetch(TRACKING_ENDPOINT, {
         method: 'POST',
