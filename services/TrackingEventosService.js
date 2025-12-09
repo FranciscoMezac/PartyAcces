@@ -1,40 +1,51 @@
 ﻿const TrackingEvento = require('../models/TrackingEvento');
 
+/**
+ * TrackingEventosService - Capa de Servicio
+ * 
+ * Patrón de diseño: Service Layer Pattern + Active Record
+ * - El servicio COORDINA operaciones, NO accede directamente al repositorio
+ * - El servicio USA métodos del MODELO (evento.guardar())
+ * - El modelo conoce su repositorio y se persiste a sí mismo
+ * 
+ * Flujo: Controller -> Service -> Model -> Repository -> DB
+ */
 class TrackingEventosService {
+  #repository;
+
   constructor({ repository }) {
-    this.repository = repository;
+    this.#repository = repository;
   }
 
   /**
-   * Registra un evento de tracking usando un objeto TrackingEvento
-   * @param {Object|TrackingEvento} payload - Datos del evento o instancia de TrackingEvento
+   * Registra un evento de tracking usando el patrón Active Record
+   * El servicio crea el modelo con su repositorio inyectado, y el modelo se guarda a sí mismo.
+   * @param {Object} payload - Datos del evento
    * @param {Object} options - Opciones adicionales (ej: client para transacciones)
    * @returns {Promise<TrackingEvento>} El evento registrado con su ID
    */
   async registrarEvento(payload = {}, options = {}) {
-    // Crear instancia de TrackingEvento (si no lo es ya)
-    const evento = payload instanceof TrackingEvento
-      ? payload
-      : new TrackingEvento(payload);
+    // Crear instancia de TrackingEvento con repositorio inyectado (Active Record Pattern)
+    const evento = new TrackingEvento(payload, this.#repository);
 
-    // Validar el evento usando el método del objeto
-    evento.validar();
+    // El MODELO se guarda a sí mismo (incluye validación interna)
+    await evento.guardar(options.client);
 
-    try {
-      // Insertar usando el repositorio
-      const resultado = await this.repository.insert(evento, options.client);
-      evento.id = resultado.id;
+    // Enviar a Algolia de forma asíncrona (no bloqueante)
+    this.#enviarAlgoliaAsync(evento);
 
-      // Enviar a Algolia de forma asíncrona (no bloqueante)
-      this.sendToAlgolia(evento).catch((err) => {
-        console.warn('[TrackingEventosService] No se pudo enviar a Algolia:', err.message);
-      });
+    return evento;
+  }
 
-      return evento;
-    } catch (error) {
-      console.error('[TrackingEventosService] Error al registrar evento:', error.message);
-      throw error;
-    }
+  /**
+   * Envía el evento a Algolia de forma asíncrona (fire-and-forget)
+   * @private
+   * @param {TrackingEvento} evento - Instancia del evento a enviar
+   */
+  #enviarAlgoliaAsync(evento) {
+    this.sendToAlgolia(evento).catch((err) => {
+      console.warn('[TrackingEventosService] No se pudo enviar a Algolia:', err.message);
+    });
   }
 
   /**
