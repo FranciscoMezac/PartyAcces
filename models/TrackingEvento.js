@@ -8,6 +8,8 @@
  * - El modelo conoce su repositorio (inyectado en constructor)
  * - El modelo tiene comportamiento de negocio (validar, guardar)
  * - El servicio usa métodos del modelo, NO del repositorio directamente
+ * 
+ * IGNORAR ALGOLIA DESACTIVADO
  */
 class TrackingEvento {
   // Propiedades privadas (encapsulación)
